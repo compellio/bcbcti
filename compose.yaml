@@ -1,0 +1,7 @@
+﻿services:
+  bcbcti:
+    image: bcbcti
+    build:
+      context: .
+      dockerfile: Dockerfile
+

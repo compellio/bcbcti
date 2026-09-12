@@ -1,0 +1,30 @@
+@BCBCTI_HostAddress = http://localhost:5000
+
+GET {{BCBCTI_HostAddress}}/taxii2/
+Accept: application/json
+
+###
+
+GET {{BCBCTI_HostAddress}}/api/
+Accept: application/taxii+json;version=2.1
+
+###
+
+GET {{BCBCTI_HostAddress}}/api/collections/
+Accept: application/taxii+json;version=2.1
+
+
+###
+
+GET {{BCBCTI_HostAddress}}/api/collections/1e9a75e0-0a6b-412f-a445-fb050f3523b7
+Accept: application/taxii+json;version=2.1
+
+###
+
+GET {{BCBCTI_HostAddress}}/api/collections/1e9a75e0-0a6b-512f-a445-fb050f3523b7
+Accept: application/taxii+json;version=2.1
+
+###
+
+GET {{BCBCTI_HostAddress}}/api/collections/default
+Accept: application/taxii+json;version=2.1
