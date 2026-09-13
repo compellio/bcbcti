@@ -4,6 +4,7 @@ using Bcbcti.Configuration;
 using Bcbcti.Exceptions;
 using Bcbcti.Options;
 using Bcbcti.Services;
+using Bcbcti.Services.Storage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,21 +12,24 @@ var builder = WebApplication.CreateBuilder(args);
 // TODO implement TAXII error handling (see section 3.6): error format very specific -> global server config?)
 
 // Load TAXII server configuration
-builder.Services.AddOptions<TaxiiOptions>().Bind(builder.Configuration.GetSection("TAXII")).ValidateOnStart();
+builder.Services.AddOptions<TaxiiOptions>().Bind(builder.Configuration.GetSection("TAXII"))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
 
 // Load BCBCTI configuration
 builder.Services.AddOptions<BcbctiOptions>()
     .Bind(builder.Configuration.GetSection("BCBCTI"))
-    .Validate(options => options.Collections.Length > 0, "At least one collection is required")
+    .ValidateDataAnnotations()
     .ValidateOnStart();
 
-builder.Services.AddSingleton<CollectionsCatalog>();
+builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
+
+builder.Services.AddObjectStore(builder.Configuration.GetSection("Storage"));
+
+builder.Services.AddSingleton<CollectionsManager>();
 
 builder.Services
-    .AddControllers(options =>
-    {
-        options.ReturnHttpNotAcceptable = true;
-    })
+    .AddControllers(options => { options.ReturnHttpNotAcceptable = true; })
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;

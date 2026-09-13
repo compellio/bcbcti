@@ -28,3 +28,8 @@ Accept: application/taxii+json;version=2.1
 
 GET {{BCBCTI_HostAddress}}/api/collections/default
 Accept: application/taxii+json;version=2.1
+
+###
+
+POST {{BCBCTI_HostAddress}}/api/collections/default
+Accept: application/taxii+json;version=2.1

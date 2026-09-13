@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 
 namespace Bcbcti.Services;
 
-public class CollectionsCatalog(IOptions<BcbctiOptions> options)
+public class CollectionsManager(IOptions<BcbctiOptions> options)
 {
     public IReadOnlyList<CollectionOptions> All { get; } = options.Value.Collections;
     
