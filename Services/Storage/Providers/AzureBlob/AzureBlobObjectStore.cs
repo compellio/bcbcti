@@ -9,7 +9,7 @@ public class AzureBlobObjectStore : IObjectStore
         throw new NotImplementedException();
     }
     
-    public Task<GetResponse> GetObjectAsync(string objectKey, CancellationToken ct = default)
+    public Task<GetResponse<Stream>> GetObjectAsync(string objectKey, CancellationToken ct = default)
     {
         throw new NotImplementedException();
     }

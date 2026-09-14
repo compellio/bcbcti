@@ -3,6 +3,7 @@ using Bcbcti.Models.Stix;
 using Bcbcti.Models.Taxii;
 using Bcbcti.Services;
 using Bcbcti.Services.Storage;
+using Bcbcti.Services.Storage.Adapters;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Bcbcti.Controllers;
@@ -11,7 +12,7 @@ namespace Bcbcti.Controllers;
 [Route("/api/collections/{collectionId}")]
 [Consumes("application/taxii+json", "application/taxii+json;version=2.1")]
 [Produces("application/taxii+json;version=2.1")]
-public class CollectionController(CollectionsManager collections, IObjectStore objectStore) : ControllerBase
+public class CollectionController(CollectionsManager collections, IObjectStore objectStore, JsonObjectStoreAdapter jsonObjectStoreAdapter) : ControllerBase
 {
     [HttpGet(Name = "GetCollection")]
     public CollectionResource Get(string collectionId)
@@ -56,7 +57,11 @@ public class CollectionController(CollectionsManager collections, IObjectStore o
         var statusId = Guid.NewGuid();
         var submittedAt = DateTime.UtcNow;
 
-        var response = await objectStore.GetObjectAsync("test.json");
+        var response = await jsonObjectStoreAdapter.GetObjectAsync<Test>("test.json");
+        
+        Console.WriteLine(response.Body.Foo);
+        Console.WriteLine(response.Metadata.ETag);
+        Console.WriteLine(response.Metadata.PublicObjectUrl);
         
         /*
          * For each stixObject -> call submission handler?
@@ -67,4 +72,9 @@ public class CollectionController(CollectionsManager collections, IObjectStore o
         
         throw new NotImplementedException();
     }
+}
+
+public class Test
+{
+    public string? Foo { get; set; }
 }

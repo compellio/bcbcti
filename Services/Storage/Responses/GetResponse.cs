@@ -1,7 +1,7 @@
 namespace Bcbcti.Services.Storage.Responses;
 
-public class GetResponse
+public class GetResponse<TBody>
 {
-    public required Stream Body { get; set; }
-    public string? ETag { get; set; }
+    public required TBody Body { get; set; }
+    public required ObjectMetadata Metadata { get; set; }
 }

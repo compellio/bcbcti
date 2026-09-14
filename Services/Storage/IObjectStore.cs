@@ -11,7 +11,7 @@ public interface IObjectStore
     
     public Task<PutResponse> PutObjectAsync(string objectKey, Stream input, CancellationToken ct = default);
 
-    public Task<GetResponse> GetObjectAsync(string objectKey, CancellationToken ct = default);
+    public Task<GetResponse<Stream>> GetObjectAsync(string objectKey, CancellationToken ct = default);
 
     // listAsync -> pagination w/ continuation token, date ordered!
     // deleteAsync

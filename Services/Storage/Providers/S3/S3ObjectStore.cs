@@ -40,16 +40,16 @@ public class S3ObjectStore : IObjectStore
             {
                 throw new InvalidOperationException($"Invalid public base url: {_options.PublicBaseUrl}");
             }
-            
+
             return uri;
         }
-        
+
         if (_s3Client.Config.RegionEndpoint is not null)
         {
             var scheme = _s3Client.Config.UseHttp ? "http" : "https";
             var region = _s3Client.Config.RegionEndpoint.SystemName;
             var host = $"{_options.BucketName}.s3.{region}.amazonaws.com";
-            
+
             var builder = new UriBuilder(scheme, host);
 
             if (forcePathStyle)
@@ -64,12 +64,12 @@ public class S3ObjectStore : IObjectStore
         if (Uri.TryCreate(_s3Client.Config.ServiceURL, UriKind.Absolute, out var serviceUri))
         {
             var builder = new UriBuilder(serviceUri);
-            
+
             if (forcePathStyle)
             {
                 builder.Path = $"{builder.Path.TrimEnd('/')}/{_options.BucketName}";
             }
-            
+
             return builder.Uri;
         }
 
@@ -92,7 +92,7 @@ public class S3ObjectStore : IObjectStore
         return builder.Uri;
     }
 
-    public async Task<GetResponse> GetObjectAsync(string objectKey, CancellationToken ct = default)
+    public async Task<GetResponse<Stream>> GetObjectAsync(string objectKey, CancellationToken ct = default)
     {
         try
         {
@@ -105,8 +105,12 @@ public class S3ObjectStore : IObjectStore
             var payload = new MemoryStream();
             await response.ResponseStream.CopyToAsync(payload, ct);
             payload.Position = 0;
-            
-            return new GetResponse { Body = payload, ETag = response.ETag };
+
+            return new GetResponse<Stream>
+            {
+                Body = payload,
+                Metadata = new ObjectMetadata { PublicObjectUrl = GetObjectUri(objectKey), ETag = response.ETag }
+            };
         }
         catch (AmazonS3Exception e) when (IsObjectNotFound(e))
         {
@@ -139,7 +143,10 @@ public class S3ObjectStore : IObjectStore
 
             var response = await _s3Client.PutObjectAsync(request, ct);
 
-            return new PutResponse { ObjectUrl = GetObjectUri(objectKey), ETag = response.ETag, };
+            return new PutResponse
+            {
+                Metadata = new ObjectMetadata { PublicObjectUrl = GetObjectUri(objectKey), ETag = response.ETag }
+            };
         }
         catch (AmazonS3Exception e) when (IsObjectNotFound(e))
         {
@@ -154,5 +161,4 @@ public class S3ObjectStore : IObjectStore
             throw new ProviderOperationException(e.Message, e);
         }
     }
-    
 }

@@ -25,6 +25,13 @@ builder.Services.AddOptions<BcbctiOptions>()
 builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
 
 builder.Services.AddObjectStore(builder.Configuration.GetSection("Storage"));
+builder.Services.AddJsonObjectStore(options =>
+{
+    // TODO JCS will probably be configured here when added
+    options.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
+    options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower));
+    options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+});
 
 builder.Services.AddSingleton<CollectionsManager>();
 
