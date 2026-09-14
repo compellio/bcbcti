@@ -2,7 +2,7 @@ using System.Net;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Bcbcti.Services.Storage.Exceptions;
-using Bcbcti.Services.Storage.Responses;
+using Bcbcti.Services.Storage.Results;
 
 namespace Bcbcti.Services.Storage.Providers.S3;
 
@@ -10,7 +10,7 @@ namespace Bcbcti.Services.Storage.Providers.S3;
 // https://github.com/dotnet/orleans/blob/76394f182bec081ba3fd1b0d4a912f1ea29746e3/src/AWS/Orleans.Journaling.S3/S3JournalStorage.cs
 // https://github.com/awsdocs/aws-doc-sdk-examples/blob/main/dotnetv3/S3/scenarios/S3ConditionalRequestsScenario/S3ConditionalRequests/S3ActionsWrapper.cs
 
-public class S3ObjectStore : IObjectStore
+public class S3ObjectStore : IStreamObjectStore
 {
     private readonly IAmazonS3 _s3Client;
     private readonly S3ObjectStoreOptions _options;
@@ -92,7 +92,7 @@ public class S3ObjectStore : IObjectStore
         return builder.Uri;
     }
 
-    public async Task<GetResponse<Stream>> GetObjectAsync(string objectKey, CancellationToken ct = default)
+    public async Task<GetObjectResult<Stream>> GetObjectAsync(string objectKey, CancellationToken ct = default)
     {
         try
         {
@@ -106,7 +106,7 @@ public class S3ObjectStore : IObjectStore
             await response.ResponseStream.CopyToAsync(payload, ct);
             payload.Position = 0;
 
-            return new GetResponse<Stream>
+            return new GetObjectResult<Stream>
             {
                 Body = payload,
                 Metadata = new ObjectMetadata { PublicObjectUrl = GetObjectUri(objectKey), ETag = response.ETag }
@@ -126,7 +126,7 @@ public class S3ObjectStore : IObjectStore
         }
     }
 
-    public async Task<PutResponse> PutObjectAsync(string objectKey, Stream input, CancellationToken ct = default)
+    public async Task<PutResult> PutObjectAsync(string objectKey, Stream input, CancellationToken ct = default)
     {
         try
         {
@@ -143,7 +143,7 @@ public class S3ObjectStore : IObjectStore
 
             var response = await _s3Client.PutObjectAsync(request, ct);
 
-            return new PutResponse
+            return new PutResult
             {
                 Metadata = new ObjectMetadata { PublicObjectUrl = GetObjectUri(objectKey), ETag = response.ETag }
             };

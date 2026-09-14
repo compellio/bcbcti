@@ -1,4 +1,4 @@
-namespace Bcbcti.Services.Storage;
+namespace Bcbcti.Services.Storage.Results;
 
 public class ObjectMetadata
 {

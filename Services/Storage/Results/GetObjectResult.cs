@@ -1,6 +1,6 @@
-namespace Bcbcti.Services.Storage.Responses;
+namespace Bcbcti.Services.Storage.Results;
 
-public class GetResponse<TBody>
+public class GetObjectResult<TBody>
 {
     public required TBody Body { get; set; }
     public required ObjectMetadata Metadata { get; set; }

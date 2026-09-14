@@ -2,8 +2,7 @@ using Bcbcti.Exceptions.Taxii;
 using Bcbcti.Models.Stix;
 using Bcbcti.Models.Taxii;
 using Bcbcti.Services;
-using Bcbcti.Services.Storage;
-using Bcbcti.Services.Storage.Adapters;
+using Bcbcti.Services.Storage.Json;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Bcbcti.Controllers;
@@ -12,7 +11,7 @@ namespace Bcbcti.Controllers;
 [Route("/api/collections/{collectionId}")]
 [Consumes("application/taxii+json", "application/taxii+json;version=2.1")]
 [Produces("application/taxii+json;version=2.1")]
-public class CollectionController(CollectionsManager collections, IObjectStore objectStore, JsonObjectStoreAdapter jsonObjectStoreAdapter) : ControllerBase
+public class CollectionController(CollectionsManager collections, IJsonObjectStore jsonObjectStore) : ControllerBase
 {
     [HttpGet(Name = "GetCollection")]
     public CollectionResource Get(string collectionId)
@@ -29,7 +28,7 @@ public class CollectionController(CollectionsManager collections, IObjectStore o
     {
         var collection = collections.Find(collectionId);
         CollectionNotFoundException.ThrowIfNull(collection, collectionId);
-        
+
         // TODO return registry-API status/data for submitted objects + apply filtering
         throw new NotImplementedException();
     }
@@ -40,7 +39,7 @@ public class CollectionController(CollectionsManager collections, IObjectStore o
     {
         var collection = collections.Find(collectionId);
         CollectionNotFoundException.ThrowIfNull(collection, collectionId);
-        
+
         // TODO return submitted objects + apply filtering
         throw new NotImplementedException();
     }
@@ -51,17 +50,26 @@ public class CollectionController(CollectionsManager collections, IObjectStore o
     {
         var collection = collections.Find(collectionId);
         CollectionNotFoundException.ThrowIfNull(collection, collectionId);
-        
+
         // TODO process input and pass on individual objects to the submission handler
-        
+
         var statusId = Guid.NewGuid();
         var submittedAt = DateTime.UtcNow;
 
-        var response = await jsonObjectStoreAdapter.GetObjectAsync<Test>("test.json");
+        var getResp = await jsonObjectStore.GetObjectAsync<Test>("test.json");
+
+        Console.WriteLine(getResp.Body.Foo);
+        Console.WriteLine(getResp.Metadata.ETag);
+        Console.WriteLine(getResp.Metadata.PublicObjectUrl);
         
-        Console.WriteLine(response.Body.Foo);
-        Console.WriteLine(response.Metadata.ETag);
-        Console.WriteLine(response.Metadata.PublicObjectUrl);
+        var putResp = await jsonObjectStore.PutObjectAsync<Test>("test2.json", new Test
+        {
+            Foo = "Foo"
+        });
+        
+        Console.WriteLine(putResp.Metadata.ETag);
+        Console.WriteLine(putResp.Metadata.PublicObjectUrl);
+        
         
         /*
          * For each stixObject -> call submission handler?
@@ -69,7 +77,7 @@ public class CollectionController(CollectionsManager collections, IObjectStore o
          *   2. retrieve: stixObject.id, stixObject.modified (datetime parse)
          *   3. create stixObjectKey ![this needs a storage provider function to insert the domain, etc.]
          */
-        
+
         throw new NotImplementedException();
     }
 }

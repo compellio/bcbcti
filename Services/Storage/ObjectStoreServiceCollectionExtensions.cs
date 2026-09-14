@@ -1,5 +1,3 @@
-using System.Text.Json;
-using Bcbcti.Services.Storage.Adapters;
 using Bcbcti.Services.Storage.Providers.S3;
 
 namespace Bcbcti.Services.Storage;
@@ -18,20 +16,16 @@ public static class ObjectStoreServiceCollectionExtensions
         var provider = configuration.GetValue<ObjectStoreProviders>("Provider");
         var options = configuration.GetSection("ProviderOptions");
 
-        return provider switch
+        switch (provider)
         {
-            ObjectStoreProviders.S3 => services.AddS3ObjectStore(options.Bind),
-            _ => throw new InvalidOperationException($"Unsupported storage kind: {provider.ToString()}")
-        };
-    }
+            case ObjectStoreProviders.S3:
+                services.AddS3ObjectStore(options.Bind);
+                services.AddSingleton<IStreamObjectStore>(sp => sp.GetRequiredService<S3ObjectStore>());
+                break;
 
-    public static IServiceCollection AddJsonObjectStore(this IServiceCollection services, Action<JsonSerializerOptions> configure)
-    {
-        var options = new JsonSerializerOptions();
-        configure(options);
-        
-        services.AddSingleton<JsonObjectStoreAdapter>(serviceProvider =>
-            new JsonObjectStoreAdapter(serviceProvider.GetRequiredService<IObjectStore>(), options));
+            default:
+                throw new InvalidOperationException($"Unsupported storage kind: {provider.ToString()}");
+        }
 
         return services;
     }

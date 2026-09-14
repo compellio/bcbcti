@@ -1,21 +1,23 @@
 using System.Text.Json;
-using Bcbcti.Services.Storage.Responses;
+using Bcbcti.Services.Storage.Results;
 
-namespace Bcbcti.Services.Storage.Adapters;
+namespace Bcbcti.Services.Storage.Json;
 
-public class JsonObjectStoreAdapter
+public class JsonObjectStore : IJsonObjectStore
 {
 
-    private readonly IObjectStore _store;
+    private readonly IStreamObjectStore _store;
     private readonly JsonSerializerOptions _options;
 
-    public JsonObjectStoreAdapter(IObjectStore store, JsonSerializerOptions options)
+    public JsonObjectStore(IStreamObjectStore store, JsonSerializerOptions options)
     {
         _store = store;
         _options = options;
     }
 
-    public async Task<GetResponse<TPayload>> GetObjectAsync<TPayload>(string objectKey, CancellationToken ct = default)
+    public Uri GetObjectUri(string objectKey) => _store.GetObjectUri(objectKey);
+
+    public async Task<GetObjectResult<TPayload>> GetObjectAsync<TPayload>(string objectKey, CancellationToken ct = default)
     {
         var response = await _store.GetObjectAsync(objectKey, ct);
 
@@ -30,14 +32,14 @@ public class JsonObjectStoreAdapter
             throw new InvalidDataException($"Object '{objectKey}' deserialization error.");
         }
 
-        return new GetResponse<TPayload>
+        return new GetObjectResult<TPayload>
         {
             Body = payload,
             Metadata = response.Metadata
         };
     }
 
-    public async Task<PutResponse> PutObjectAsync<TPayload>(string objectKey, TPayload input, CancellationToken ct = default)
+    public async Task<PutResult> PutObjectAsync<TPayload>(string objectKey, TPayload input, CancellationToken ct = default)
     {
         using var payload = new MemoryStream();
         await JsonSerializer.SerializeAsync(payload, input, _options, ct);

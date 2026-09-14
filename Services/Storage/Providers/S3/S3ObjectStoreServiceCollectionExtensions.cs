@@ -11,7 +11,7 @@ public static class S3ObjectStoreServiceCollectionExtensions
         services.AddAWSService<IAmazonS3>();
         services.AddOptions<S3ObjectStoreOptions>().Configure(configure).ValidateDataAnnotations().ValidateOnStart();
 
-        services.AddSingleton<IObjectStore>(serviceProvider =>
+        services.AddSingleton<S3ObjectStore>(serviceProvider =>
         {
             var client = serviceProvider.GetRequiredService<IAmazonS3>();
             var options = serviceProvider.GetRequiredService<IOptions<S3ObjectStoreOptions>>().Value;
