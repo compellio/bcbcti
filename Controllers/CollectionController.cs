@@ -64,6 +64,7 @@ public class CollectionController(CollectionsManager collections, IJsonObjectSto
         
         var putResp = await jsonObjectStore.PutObjectAsync<Test>("test2.json", new Test
         {
+            Www = statusId.ToString(),
             Foo = "Foo"
         });
         
@@ -84,5 +85,6 @@ public class CollectionController(CollectionsManager collections, IJsonObjectSto
 
 public class Test
 {
+    public string? Www { get; set; }
     public string? Foo { get; set; }
 }
