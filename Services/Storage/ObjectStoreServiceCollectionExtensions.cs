@@ -13,13 +13,13 @@ public static class ObjectStoreServiceCollectionExtensions
     public static IServiceCollection AddObjectStore(this IServiceCollection services,
         IConfigurationSection configuration)
     {
-        var kind = configuration.GetValue<ObjectStoreProviders>("Kind");
-        var options = configuration.GetSection("Options");
+        var provider = configuration.GetValue<ObjectStoreProviders>("Provider");
+        var options = configuration.GetSection("ProviderOptions");
 
-        return kind switch
+        return provider switch
         {
             ObjectStoreProviders.S3 => services.AddS3ObjectStore(options.Bind),
-            _ => throw new InvalidOperationException($"Unsupported storage kind: {kind.ToString()}")
+            _ => throw new InvalidOperationException($"Unsupported storage kind: {provider.ToString()}")
         };
     }
 }

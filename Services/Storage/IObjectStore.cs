@@ -7,9 +7,9 @@ namespace Bcbcti.Services.Storage;
 
 public interface IObjectStore
 {
-    // interface for S3/AzureBlob/...
-
-    // putAsync -> caution w/ receipt documents (concurrency) => ETag condition!!
+    public Uri GetObjectUri(string objectKey);
+    
+    public Task<PutResponse> PutObjectAsync(string objectKey, Stream input, CancellationToken ct = default);
 
     public Task<GetResponse> GetObjectAsync(string objectKey, CancellationToken ct = default);
 

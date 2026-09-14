@@ -6,24 +6,91 @@ using Bcbcti.Services.Storage.Responses;
 
 namespace Bcbcti.Services.Storage.Providers.S3;
 
-// references
-// https://github.com/awsdocs/aws-doc-sdk-examples/blob/main/dotnetv3/S3/scenarios/S3ConditionalRequestsScenario/S3ConditionalRequests/S3ActionsWrapper.cs
+// references - based on
 // https://github.com/dotnet/orleans/blob/76394f182bec081ba3fd1b0d4a912f1ea29746e3/src/AWS/Orleans.Journaling.S3/S3JournalStorage.cs
+// https://github.com/awsdocs/aws-doc-sdk-examples/blob/main/dotnetv3/S3/scenarios/S3ConditionalRequestsScenario/S3ConditionalRequests/S3ActionsWrapper.cs
 
 public class S3ObjectStore : IObjectStore
 {
     private readonly IAmazonS3 _s3Client;
     private readonly S3ObjectStoreOptions _options;
 
-    public S3ObjectStore(IAmazonS3 s3Client, S3ObjectStoreOptions options)
+    private readonly Uri _publicBaseUri;
+
+    public S3ObjectStore(IAmazonS3 s3Client, S3ObjectStoreOptions options, bool forcePathStyle = false)
     {
         _s3Client = s3Client;
         _options = options;
+        _publicBaseUri = DerivePublicBaseUri(forcePathStyle);
+    }
+
+    /// <summary>
+    /// Attempts to derive the public object URL based on existing configuration.
+    /// The public object URL is included in registration payloads.
+    /// </summary>
+    /// <param name="forcePathStyle"></param>
+    /// <returns></returns>
+    /// <see href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/VirtualHosting.html"/>
+    /// <exception cref="InvalidOperationException">Thrown if unable to derive. Recommendation is to set PublicBaseUrl.</exception>
+    private Uri DerivePublicBaseUri(bool forcePathStyle)
+    {
+        if (_options.PublicBaseUrl is not null)
+        {
+            if (!Uri.TryCreate(_options.PublicBaseUrl, UriKind.Absolute, out var uri))
+            {
+                throw new InvalidOperationException($"Invalid public base url: {_options.PublicBaseUrl}");
+            }
+            
+            return uri;
+        }
+        
+        if (_s3Client.Config.RegionEndpoint is not null)
+        {
+            var scheme = _s3Client.Config.UseHttp ? "http" : "https";
+            var region = _s3Client.Config.RegionEndpoint.SystemName;
+            var host = $"{_options.BucketName}.s3.{region}.amazonaws.com";
+            
+            var builder = new UriBuilder(scheme, host);
+
+            if (forcePathStyle)
+            {
+                builder.Host = $"s3.{region}.amazonaws.com";
+                builder.Path = $"{builder.Path.TrimEnd('/')}/{_options.BucketName}";
+            }
+
+            return builder.Uri;
+        }
+
+        if (Uri.TryCreate(_s3Client.Config.ServiceURL, UriKind.Absolute, out var serviceUri))
+        {
+            var builder = new UriBuilder(serviceUri);
+            
+            if (forcePathStyle)
+            {
+                builder.Path = $"{builder.Path.TrimEnd('/')}/{_options.BucketName}";
+            }
+            
+            return builder.Uri;
+        }
+
+        throw new InvalidOperationException("Cannot derive public object URL.");
     }
 
     private static bool IsObjectNotFound(AmazonS3Exception exception) =>
         exception.StatusCode == HttpStatusCode.NotFound &&
         !string.Equals(exception.ErrorCode, "NoSuchBucket", StringComparison.Ordinal);
+
+    public Uri GetObjectUri(string objectKey)
+    {
+        var builder = new UriBuilder(_publicBaseUri);
+
+        var basePath = builder.Path.TrimEnd('/');
+        var keyPath = objectKey.TrimStart('/');
+
+        builder.Path = $"{basePath}/{keyPath}";
+
+        return builder.Uri;
+    }
 
     public async Task<GetResponse> GetObjectAsync(string objectKey, CancellationToken ct = default)
     {
@@ -31,18 +98,48 @@ public class S3ObjectStore : IObjectStore
         {
             var request = new GetObjectRequest { BucketName = _options.BucketName, Key = objectKey };
 
-            using var response = await _s3Client.GetObjectAsync(request, ct);
-            
-            using var payload = new MemoryStream();
-            await response.ResponseStream.CopyToAsync(payload, ct);
-            
-            // todo read responsestream and cast into JSON object? should that be hapenning here (soft wrapper around S3, same behaviour for other stores => hints to the need of a common adapter)? -> failure mode?
+            // TODO etag headers
 
-            return new GetResponse
+            using var response = await _s3Client.GetObjectAsync(request, ct);
+
+            var payload = new MemoryStream();
+            await response.ResponseStream.CopyToAsync(payload, ct);
+            payload.Position = 0;
+            
+            return new GetResponse { Body = payload, ETag = response.ETag };
+        }
+        catch (AmazonS3Exception e) when (IsObjectNotFound(e))
+        {
+            throw new ObjectNotFoundException(e.Message, e);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
+            throw new ProviderOperationException(e.Message, e);
+        }
+    }
+
+    public async Task<PutResponse> PutObjectAsync(string objectKey, Stream input, CancellationToken ct = default)
+    {
+        try
+        {
+            var request = new PutObjectRequest
             {
-                Body = payload, 
-                ETag = response.ETag
+                BucketName = _options.BucketName,
+                Key = objectKey,
+                InputStream = input,
+                AutoCloseStream = false,
+                UseChunkEncoding = false
             };
+
+            // TODO etag headers + potentially add metadata, etc.
+
+            var response = await _s3Client.PutObjectAsync(request, ct);
+
+            return new PutResponse { ObjectUrl = GetObjectUri(objectKey), ETag = response.ETag, };
         }
         catch (AmazonS3Exception e) when (IsObjectNotFound(e))
         {

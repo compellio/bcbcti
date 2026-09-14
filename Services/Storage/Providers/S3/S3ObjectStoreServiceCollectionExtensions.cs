@@ -12,8 +12,15 @@ public static class S3ObjectStoreServiceCollectionExtensions
         services.AddOptions<S3ObjectStoreOptions>().Configure(configure).ValidateDataAnnotations().ValidateOnStart();
 
         services.AddSingleton<IObjectStore>(serviceProvider =>
-            new S3ObjectStore(serviceProvider.GetRequiredService<IAmazonS3>(),
-                serviceProvider.GetRequiredService<IOptions<S3ObjectStoreOptions>>().Value));
+        {
+            var client = serviceProvider.GetRequiredService<IAmazonS3>();
+            var options = serviceProvider.GetRequiredService<IOptions<S3ObjectStoreOptions>>().Value;
+
+            // TODO FIXME dirty: casting to read variable
+            var forcePathStyle = client.Config is AmazonS3Config { ForcePathStyle: true };
+
+            return new S3ObjectStore(client, options, forcePathStyle);
+        });
 
         return services;
     }
