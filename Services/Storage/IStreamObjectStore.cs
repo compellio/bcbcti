@@ -9,7 +9,7 @@ public interface IStreamObjectStore
 {
     public Uri GetObjectUri(string objectKey);
     
-    public Task<PutResult> PutObjectAsync(string objectKey, Stream input, CancellationToken ct = default);
+    public Task<PutObjectResult> PutObjectAsync(string objectKey, Stream input, CancellationToken ct = default);
 
     public Task<GetObjectResult<Stream>> GetObjectAsync(string objectKey, CancellationToken ct = default);
 

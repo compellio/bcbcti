@@ -3,7 +3,9 @@ using System.Text.Json.Serialization;
 using Bcbcti.Configuration;
 using Bcbcti.Exceptions;
 using Bcbcti.Options;
+using Bcbcti.Repositories;
 using Bcbcti.Services;
+using Bcbcti.Services.Ingestion;
 using Bcbcti.Services.Storage;
 using Bcbcti.Services.Storage.Json;
 using Bcbcti.Services.Storage.Json.Canonical;
@@ -40,10 +42,16 @@ builder.Services
 
 builder.Services.AddSingleton<CollectionsManager>();
 
+builder.Services.AddSingleton<JournalRepository>();
+builder.Services.AddSingleton<StixObjectRepository>();
+
+builder.Services.AddSingleton<StixIngestionService>();
+
 builder.Services
     .AddControllers(options => { options.ReturnHttpNotAcceptable = true; })
     .AddJsonOptions(options =>
     {
+        // TODO add TAXII-specific DateTime converter (5-point ms precision)
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower));
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;

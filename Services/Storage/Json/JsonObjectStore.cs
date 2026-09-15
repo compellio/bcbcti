@@ -37,7 +37,7 @@ public class JsonObjectStore : IJsonObjectStore
         };
     }
 
-    public async Task<PutResult> PutObjectAsync<TPayload>(string objectKey, TPayload input, CancellationToken ct = default)
+    public async Task<PutObjectResult> PutObjectAsync<TPayload>(string objectKey, TPayload input, CancellationToken ct = default)
     {
         using var payload = new MemoryStream();
         await _serializer.SerializeAsync(payload, input, ct);

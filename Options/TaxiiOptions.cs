@@ -16,4 +16,10 @@ public class TaxiiOptions
     /// TODO the server must be configured to reject larger requests (limit request size)
     public long MaxUploadBytes { get; set; } = 10 * 1024 * 1024;
     
+    /// <summary>
+    /// Maximum STIX objects that can be submitted at once 
+    /// </summary>
+    /// <remarks>Adjust based on available rate limits for the Registry API and selected storage provider.</remarks>
+    public int MaxUploadCount { get; set; } = 100;
+    
 }

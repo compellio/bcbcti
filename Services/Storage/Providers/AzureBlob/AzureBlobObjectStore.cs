@@ -14,7 +14,7 @@ public class AzureBlobObjectStore : IStreamObjectStore
         throw new NotImplementedException();
     }
 
-    public Task<PutResult> PutObjectAsync(string objectKey, Stream input, CancellationToken ct = default)
+    public Task<PutObjectResult> PutObjectAsync(string objectKey, Stream input, CancellationToken ct = default)
     {
         throw new NotImplementedException();
     }

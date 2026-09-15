@@ -8,5 +8,5 @@ public interface IJsonObjectStore
     
     public Task<GetObjectResult<TPayload>> GetObjectAsync<TPayload>(string objectKey, CancellationToken ct = default);
     
-    public Task<PutResult> PutObjectAsync<TPayload>(string objectKey, TPayload input, CancellationToken ct = default);
+    public Task<PutObjectResult> PutObjectAsync<TPayload>(string objectKey, TPayload input, CancellationToken ct = default);
 }

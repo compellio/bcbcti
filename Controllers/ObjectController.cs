@@ -13,7 +13,7 @@ public class ObjectController(CollectionsManager collections) : ControllerBase
 {
     
     [HttpGet(Name = "GetObject")]
-    public StixObjectResource Get(string collectionId, string objectId)
+    public StixObject Get(string collectionId, string objectId)
     {
         var collection = collections.Find(collectionId);
         CollectionNotFoundException.ThrowIfNull(collection, collectionId);
@@ -23,7 +23,7 @@ public class ObjectController(CollectionsManager collections) : ControllerBase
     }
     
     [HttpDelete(Name = "DeleteObject")]
-    public StixObjectResource Delete(string collectionId, string objectId)
+    public StixObject Delete(string collectionId, string objectId)
     {
         var collection = collections.Find(collectionId);
         CollectionNotFoundException.ThrowIfNull(collection, collectionId);
@@ -34,7 +34,7 @@ public class ObjectController(CollectionsManager collections) : ControllerBase
     
     [HttpGet(Name = "ListObjectVersions")]
     [Route("/versions")]
-    public StixObjectResource ListVersions(string collectionId, string objectId)
+    public StixObject ListVersions(string collectionId, string objectId)
     {
         var collection = collections.Find(collectionId);
         CollectionNotFoundException.ThrowIfNull(collection, collectionId);

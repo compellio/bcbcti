@@ -10,6 +10,8 @@ namespace Bcbcti.Services.Storage.Providers.S3;
 // https://github.com/dotnet/orleans/blob/76394f182bec081ba3fd1b0d4a912f1ea29746e3/src/AWS/Orleans.Journaling.S3/S3JournalStorage.cs
 // https://github.com/awsdocs/aws-doc-sdk-examples/blob/main/dotnetv3/S3/scenarios/S3ConditionalRequestsScenario/S3ConditionalRequests/S3ActionsWrapper.cs
 
+// TODO debug logging?
+
 public class S3ObjectStore : IStreamObjectStore
 {
     private readonly IAmazonS3 _s3Client;
@@ -111,9 +113,10 @@ public class S3ObjectStore : IStreamObjectStore
                 Body = payload,
                 Metadata = new ObjectMetadata
                 {
-                    PublicObjectUrl = GetObjectUri(objectKey), 
-                    ETag = response.ETag,
-                    ChecksumSha256 = response.ChecksumSHA256
+                    ObjectKey = objectKey,
+                    PublicObjectUrl = GetObjectUri(objectKey),
+                    ChecksumSha256 = response.ChecksumSHA256,
+                    ETag = response.ETag
                 }
             };
         }
@@ -131,7 +134,7 @@ public class S3ObjectStore : IStreamObjectStore
         }
     }
 
-    public async Task<PutResult> PutObjectAsync(string objectKey, Stream input, CancellationToken ct = default)
+    public async Task<PutObjectResult> PutObjectAsync(string objectKey, Stream input, CancellationToken ct = default)
     {
         try
         {
@@ -150,13 +153,14 @@ public class S3ObjectStore : IStreamObjectStore
 
             var response = await _s3Client.PutObjectAsync(request, ct);
 
-            return new PutResult
+            return new PutObjectResult
             {
                 Metadata = new ObjectMetadata
                 {
-                    PublicObjectUrl = GetObjectUri(objectKey), 
-                    ETag = response.ETag,
-                    ChecksumSha256 = response.ChecksumSHA256
+                    ObjectKey = objectKey,
+                    PublicObjectUrl = GetObjectUri(objectKey),
+                    ChecksumSha256 = response.ChecksumSHA256,
+                    ETag = response.ETag
                 }
             };
         }

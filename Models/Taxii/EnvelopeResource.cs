@@ -23,6 +23,6 @@ public class EnvelopeResource
     /// <summary>
     /// This property contains one or more STIX Objects. Objects in this list MUST be a STIX Object (e.g., SDO, SCO, SRO, Language Content object, or a Marking Definition object).
     /// </summary>
-    public required StixObjectResource[] Objects { get; set; }
+    public required StixObject[] Objects { get; set; }
 
 }

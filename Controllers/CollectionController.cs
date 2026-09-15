@@ -1,9 +1,12 @@
-using System.Text.Json;
+using System.Diagnostics;
 using Bcbcti.Exceptions.Taxii;
+using Bcbcti.Models;
 using Bcbcti.Models.Stix;
 using Bcbcti.Models.Taxii;
+using Bcbcti.Models.Taxii.Requests;
+using Bcbcti.Repositories;
 using Bcbcti.Services;
-using Bcbcti.Services.Storage.Json;
+using Bcbcti.Services.Ingestion;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Bcbcti.Controllers;
@@ -12,10 +15,7 @@ namespace Bcbcti.Controllers;
 [Route("/api/collections/{collectionId}")]
 [Consumes("application/taxii+json", "application/taxii+json;version=2.1")]
 [Produces("application/taxii+json;version=2.1")]
-public class CollectionController(
-    CollectionsManager collections,
-    IJsonObjectStore jsonObjectStore,
-    [FromKeyedServices("canonical")] IJsonObjectStore canonicalJsonObjectStore) : ControllerBase
+public class CollectionController(CollectionsManager collections) : ControllerBase
 {
     [HttpGet(Name = "GetCollection")]
     public CollectionResource Get(string collectionId)
@@ -48,57 +48,50 @@ public class CollectionController(
         throw new NotImplementedException();
     }
 
+    /// <summary>
+    /// TAXII 5.5 Add Objects endpoint
+    /// </summary>
+    /// <see href="https://docs.oasis-open.org/cti/taxii/v2.1/os/taxii-v2.1-os.html#_Toc26285815"/>
     [HttpPost(Name = "CreateObjects")]
     [Route("/objects")]
-    public async Task<StixObjectResource> CreateObjects(string collectionId)
+    public async Task<StixObject> CreateObjects(string collectionId, [FromBody] AddObjectsRequest envelope,
+        [FromServices] JournalRepository journalRepository, [FromServices] StixIngestionService stixIngestionService,
+        CancellationToken ct)
     {
         var collection = collections.Find(collectionId);
         CollectionNotFoundException.ThrowIfNull(collection, collectionId);
 
-        // TODO process input and pass on individual objects to the submission handler
-
         var statusId = Guid.NewGuid();
         var submittedAt = DateTime.UtcNow;
 
-        var getResp = await jsonObjectStore.GetObjectAsync<Test>("test.json");
-
-        Console.WriteLine(getResp.Body.Foo);
-        Console.WriteLine(getResp.Metadata.ETag);
-        Console.WriteLine(getResp.Metadata.PublicObjectUrl);
-
-        var testPayload = new Test
+        // 1. For each object (parallel) -> stix ingestion service
+        var results = new StixIngestionResult[envelope.Objects.Length];
+        await Parallel.ForEachAsync(Enumerable.Range(0, envelope.Objects.Length),
+            new ParallelOptions { CancellationToken = ct },
+            async (i, ctoken) =>
+            {
+                results[i] = await stixIngestionService.ProcessStixObject(envelope.Objects[i], submittedAt, ctoken);
+            });
+        
+        // 3. create journal entry with receipt ids
+        await journalRepository.PutJournalEntry(new JournalEntry
         {
-            Www = statusId.ToString(),
-            Foo = "Foo",
-            Aaa = false, SubmittedAt = submittedAt
-        };
+            Id = statusId,
+            CollectionId = collection.Id,
+            RequestTimestamp = submittedAt,
+            Objects = results.Select(result => new JournalEntryObject
+                {
+                    Id = $"indicator--{Guid.NewGuid()}",
+                    ObjectKey = result.ObjectKey,
+                    ReceiptId = result.ReceiptId
+                })
+                .ToArray()
+        });
 
-        var putResp = await jsonObjectStore.PutObjectAsync<Test>("test2.json", testPayload);
+        // 4. generate status and return
 
-        Console.WriteLine(JsonSerializer.Serialize(putResp.Metadata));
-
-        var putCanonicalResp = await canonicalJsonObjectStore.PutObjectAsync("test2.canonical.json", testPayload);
-
-        Console.WriteLine(JsonSerializer.Serialize(putCanonicalResp.Metadata));
-        
-        var test = await canonicalJsonObjectStore.GetObjectAsync<Test>("test2.canonical.json");
-        Console.WriteLine(JsonSerializer.Serialize(test.Metadata));
-        
-        /*
-         * For each stixObject -> call submission handler?
-         *   1. canonicalise JSON
-         *   2. retrieve: stixObject.id, stixObject.modified (datetime parse)
-         *   3. create stixObjectKey ![this needs a storage provider function to insert the domain, etc.]
-         */
+        // TODO return same response as /status/{status-id} => constructor/factory?
 
         throw new NotImplementedException();
     }
-}
-
-public class Test
-{
-    public string? Www { get; set; }
-    public string? Foo { get; set; }
-    public bool Aaa { get; set; }
-    public DateTime SubmittedAt { get; set; }
 }
