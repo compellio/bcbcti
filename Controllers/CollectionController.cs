@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Bcbcti.Exceptions.Taxii;
 using Bcbcti.Models.Stix;
 using Bcbcti.Models.Taxii;
@@ -11,7 +12,10 @@ namespace Bcbcti.Controllers;
 [Route("/api/collections/{collectionId}")]
 [Consumes("application/taxii+json", "application/taxii+json;version=2.1")]
 [Produces("application/taxii+json;version=2.1")]
-public class CollectionController(CollectionsManager collections, IJsonObjectStore jsonObjectStore) : ControllerBase
+public class CollectionController(
+    CollectionsManager collections,
+    IJsonObjectStore jsonObjectStore,
+    [FromKeyedServices("canonical")] IJsonObjectStore canonicalJsonObjectStore) : ControllerBase
 {
     [HttpGet(Name = "GetCollection")]
     public CollectionResource Get(string collectionId)
@@ -61,16 +65,24 @@ public class CollectionController(CollectionsManager collections, IJsonObjectSto
         Console.WriteLine(getResp.Body.Foo);
         Console.WriteLine(getResp.Metadata.ETag);
         Console.WriteLine(getResp.Metadata.PublicObjectUrl);
-        
-        var putResp = await jsonObjectStore.PutObjectAsync<Test>("test2.json", new Test
+
+        var testPayload = new Test
         {
             Www = statusId.ToString(),
-            Foo = "Foo"
-        });
+            Foo = "Foo",
+            Aaa = false, SubmittedAt = submittedAt
+        };
+
+        var putResp = await jsonObjectStore.PutObjectAsync<Test>("test2.json", testPayload);
+
+        Console.WriteLine(JsonSerializer.Serialize(putResp.Metadata));
+
+        var putCanonicalResp = await canonicalJsonObjectStore.PutObjectAsync("test2.canonical.json", testPayload);
+
+        Console.WriteLine(JsonSerializer.Serialize(putCanonicalResp.Metadata));
         
-        Console.WriteLine(putResp.Metadata.ETag);
-        Console.WriteLine(putResp.Metadata.PublicObjectUrl);
-        
+        var test = await canonicalJsonObjectStore.GetObjectAsync<Test>("test2.canonical.json");
+        Console.WriteLine(JsonSerializer.Serialize(test.Metadata));
         
         /*
          * For each stixObject -> call submission handler?
@@ -87,4 +99,6 @@ public class Test
 {
     public string? Www { get; set; }
     public string? Foo { get; set; }
+    public bool Aaa { get; set; }
+    public DateTime SubmittedAt { get; set; }
 }

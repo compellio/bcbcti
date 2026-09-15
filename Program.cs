@@ -14,7 +14,8 @@ var builder = WebApplication.CreateBuilder(args);
 // TODO implement TAXII error handling (see section 3.6): error format very specific -> global server config?)
 
 // Load TAXII server configuration
-builder.Services.AddOptions<TaxiiOptions>().Bind(builder.Configuration.GetSection("TAXII"))
+builder.Services.AddOptions<TaxiiOptions>()
+    .Bind(builder.Configuration.GetSection("TAXII"))
     .ValidateDataAnnotations()
     .ValidateOnStart();
 
@@ -29,14 +30,13 @@ builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
 builder.Services.AddObjectStore(builder.Configuration.GetSection("Storage"));
 
 builder.Services
-    .AddJsonObjectStore()
-    .AddKeyedCanonicalJsonObjectStore("canonical")
-    .AddJsonOptions(options =>
+    .AddJsonObjectStore(options =>
     {
         options.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
         options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower));
         options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-    });
+    })
+    .AddCanonicalJsonObjectStore("canonical");
 
 builder.Services.AddSingleton<CollectionsManager>();
 
@@ -47,6 +47,7 @@ builder.Services
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower));
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+        options.JsonSerializerOptions.WriteIndented = true;
     });
 
 builder.Services.ConfigureOptions<ConfigureTaxiiMediaTypes>();

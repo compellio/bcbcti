@@ -109,7 +109,12 @@ public class S3ObjectStore : IStreamObjectStore
             return new GetObjectResult<Stream>
             {
                 Body = payload,
-                Metadata = new ObjectMetadata { PublicObjectUrl = GetObjectUri(objectKey), ETag = response.ETag }
+                Metadata = new ObjectMetadata
+                {
+                    PublicObjectUrl = GetObjectUri(objectKey), 
+                    ETag = response.ETag,
+                    ChecksumSha256 = response.ChecksumSHA256
+                }
             };
         }
         catch (AmazonS3Exception e) when (IsObjectNotFound(e))
@@ -136,16 +141,23 @@ public class S3ObjectStore : IStreamObjectStore
                 Key = objectKey,
                 InputStream = input,
                 AutoCloseStream = false,
-                UseChunkEncoding = false
+                UseChunkEncoding = false,
+                ChecksumAlgorithm = ChecksumAlgorithm.SHA256
             };
 
+            // TODO (optional calculate SHA256 before send and add set PutObjectRequest.ChecksumSHA256 for S3 to verify)
             // TODO etag headers + potentially add metadata, etc.
 
             var response = await _s3Client.PutObjectAsync(request, ct);
 
             return new PutResult
             {
-                Metadata = new ObjectMetadata { PublicObjectUrl = GetObjectUri(objectKey), ETag = response.ETag }
+                Metadata = new ObjectMetadata
+                {
+                    PublicObjectUrl = GetObjectUri(objectKey), 
+                    ETag = response.ETag,
+                    ChecksumSha256 = response.ChecksumSHA256
+                }
             };
         }
         catch (AmazonS3Exception e) when (IsObjectNotFound(e))
