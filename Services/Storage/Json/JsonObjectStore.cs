@@ -1,4 +1,4 @@
-using System.Text.Json;
+using Bcbcti.Services.Serialization.Json;
 using Bcbcti.Services.Storage.Results;
 
 namespace Bcbcti.Services.Storage.Json;
@@ -7,12 +7,12 @@ public class JsonObjectStore : IJsonObjectStore
 {
 
     private readonly IStreamObjectStore _store;
-    private readonly JsonSerializerOptions _options;
+    private readonly IJsonSerializer _serializer;
 
-    public JsonObjectStore(IStreamObjectStore store, JsonSerializerOptions options)
+    public JsonObjectStore(IStreamObjectStore store, IJsonSerializer serializer)
     {
         _store = store;
-        _options = options;
+        _serializer = serializer;
     }
 
     public Uri GetObjectUri(string objectKey) => _store.GetObjectUri(objectKey);
@@ -20,12 +20,10 @@ public class JsonObjectStore : IJsonObjectStore
     public async Task<GetObjectResult<TPayload>> GetObjectAsync<TPayload>(string objectKey, CancellationToken ct = default)
     {
         var response = await _store.GetObjectAsync(objectKey, ct);
-
+        
         await using var body = response.Body;
         
-        // TODO JCS canonicalization!!
-        
-        var payload = await JsonSerializer.DeserializeAsync<TPayload>(body, _options, ct);
+        var payload = await _serializer.DeserializeAsync<TPayload>(body, ct);
 
         if (payload is null)
         {
@@ -42,7 +40,7 @@ public class JsonObjectStore : IJsonObjectStore
     public async Task<PutResult> PutObjectAsync<TPayload>(string objectKey, TPayload input, CancellationToken ct = default)
     {
         using var payload = new MemoryStream();
-        await JsonSerializer.SerializeAsync(payload, input, _options, ct);
+        await _serializer.SerializeAsync(payload, input, ct);
         payload.Position = 0;
         
         return await _store.PutObjectAsync(objectKey, payload, ct);

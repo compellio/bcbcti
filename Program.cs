@@ -6,6 +6,7 @@ using Bcbcti.Options;
 using Bcbcti.Services;
 using Bcbcti.Services.Storage;
 using Bcbcti.Services.Storage.Json;
+using Bcbcti.Services.Storage.Json.Canonical;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,13 +27,16 @@ builder.Services.AddOptions<BcbctiOptions>()
 builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
 
 builder.Services.AddObjectStore(builder.Configuration.GetSection("Storage"));
-builder.Services.AddJsonObjectStore(options =>
-{
-    // TODO JCS will probably be configured here when added
-    options.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
-    options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower));
-    options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-});
+
+builder.Services
+    .AddJsonObjectStore()
+    .AddKeyedCanonicalJsonObjectStore("canonical")
+    .AddJsonOptions(options =>
+    {
+        options.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
+        options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower));
+        options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    });
 
 builder.Services.AddSingleton<CollectionsManager>();
 
