@@ -24,7 +24,7 @@ public class StixObjectRepository([FromKeyedServices("canonical")] IJsonObjectSt
         CancellationToken ct = default) =>
         GetStixObject(BuildStixObjectKey(hashBuffer), ct);
 
-    public async Task<PutObjectResult> PutStixObject(StixObject entry, CancellationToken ct = default)
+    public async Task<PutObjectResponse> PutStixObject(StixObject entry, CancellationToken ct = default)
     {
         // This is per TAXII specifications (version = (stix.modified) else if (stix.created) else if (vendor-selection - we use submissionDate))
         // var version = entry.Modified ?? entry.Created ?? submissionDate;

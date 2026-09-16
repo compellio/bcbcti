@@ -17,7 +17,7 @@ public class JournalRepository(IJsonObjectStore store) : Repository(store)
         return await Store.GetObjectAsync<JournalEntry>(BuildJournalKey(id), ct);
     }
     
-    public async Task<PutObjectResult> PutJournalEntry(JournalEntry entry, CancellationToken ct = default)
+    public async Task<PutObjectResponse> PutJournalEntry(JournalEntry entry, CancellationToken ct = default)
     {
         // TODO prevent overrides?
         return await Store.PutObjectAsync(BuildJournalKey(entry.Id), entry, ct);

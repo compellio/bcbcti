@@ -1,7 +1,6 @@
 using System.Net;
 using System.Security.Cryptography;
 using Amazon.S3;
-using Amazon.S3.Model;
 using Bcbcti.Services.Storage.Exceptions;
 using Bcbcti.Services.Storage.Results;
 
@@ -106,7 +105,7 @@ public class S3ObjectStore : IStreamObjectStore
     {
         try
         {
-            var request = new GetObjectRequest { BucketName = _options.BucketName, Key = objectKey };
+            var request = new Amazon.S3.Model.GetObjectRequest { BucketName = _options.BucketName, Key = objectKey };
 
             // TODO etag headers
 
@@ -142,44 +141,43 @@ public class S3ObjectStore : IStreamObjectStore
         }
     }
 
-    public Task<PutObjectResult> PutObjectAsync(string objectKey, Stream input,
-        CancellationToken ct = default) => PutObjectAsync(objectKey, input, null, ct);
+    public Task<PutObjectResponse> PutObjectAsync(string objectKey, Stream input, CancellationToken ct = default) =>
+        PutObjectAsync(new PutObjectRequest { ObjectKey = objectKey, InputStream = input }, ct);
 
-    public async Task<PutObjectResult> PutObjectAsync(string objectKey, Stream input, byte[]? checksum = null,
-        CancellationToken ct = default)
+    public async Task<PutObjectResponse> PutObjectAsync(PutObjectRequest request, CancellationToken ct = default)
     {
         try
         {
-            var request = new PutObjectRequest
+            var s3Request = new Amazon.S3.Model.PutObjectRequest
             {
                 BucketName = _options.BucketName,
-                Key = objectKey,
-                InputStream = input,
+                Key = request.ObjectKey,
+                InputStream = request.InputStream,
                 AutoCloseStream = false,
                 UseChunkEncoding = false,
             };
 
-            if (checksum is not null)
+            if (request.ChecksumSHA256 is not null)
             {
                 // Set verification checksum manually
-                request.ChecksumSHA256 = Convert.ToBase64String(checksum);
+                s3Request.ChecksumSHA256 = Convert.ToBase64String(request.ChecksumSHA256);
             }
             else
             {
                 // Let S3 compute and verify the checksum
-                request.ChecksumAlgorithm = ChecksumAlgorithm.SHA256;
+                s3Request.ChecksumAlgorithm = ChecksumAlgorithm.SHA256;
             }
 
             // TODO etag headers + potentially add metadata, etc.
 
-            var response = await _s3Client.PutObjectAsync(request, ct);
+            var response = await _s3Client.PutObjectAsync(s3Request, ct);
 
-            return new PutObjectResult
+            return new PutObjectResponse
             {
                 Metadata = new ObjectMetadata
                 {
-                    ObjectKey = objectKey,
-                    PublicObjectUrl = GetObjectUri(objectKey),
+                    ObjectKey = request.ObjectKey,
+                    PublicObjectUrl = GetObjectUri(request.ObjectKey),
                     ChecksumSha256 = response.ChecksumSHA256,
                     ETag = response.ETag
                 }

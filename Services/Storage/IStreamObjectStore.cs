@@ -12,10 +12,10 @@ public interface IStreamObjectStore
     // TODO next iterations: hash algo should be configurable
     public Task<byte[]> ComputeSha256Hash(Stream input, CancellationToken ct = default);
     
+    // TODO GetObjectRequest w/ condition options, etc.
     public Task<GetObjectResult<Stream>> GetObjectAsync(string objectKey, CancellationToken ct = default);
-
-    public Task<PutObjectResult> PutObjectAsync(string objectKey, Stream input, CancellationToken ct = default);
-    public Task<PutObjectResult> PutObjectAsync(string objectKey, Stream input, byte[] checksum, CancellationToken ct = default);
+    
+    public Task<PutObjectResponse> PutObjectAsync(PutObjectRequest request, CancellationToken ct = default);
 
     // listAsync -> pagination w/ continuation token, date ordered!
     // deleteAsync

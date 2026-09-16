@@ -1,6 +1,6 @@
 namespace Bcbcti.Services.Storage.Results;
 
-public class PutObjectResult
+public class PutObjectResponse
 {
     public required ObjectMetadata Metadata { get; set; }
 }

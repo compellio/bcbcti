@@ -42,21 +42,33 @@ public class JsonObjectStore : IJsonObjectStore
         return new GetObjectResult<TPayload> { Body = payload, Metadata = response.Metadata };
     }
 
-    public async Task<PutObjectResult> PutObjectAsync<TPayload>(string objectKey, TPayload input,
+    public async Task<PutObjectResponse> PutObjectAsync<TPayload>(string objectKey, TPayload input,
         CancellationToken ct = default)
     {
         using var payload = await Serialize(input, ct);
-        return await _store.PutObjectAsync(objectKey, payload, null, ct);
+
+        var request = new PutObjectRequest
+        {
+            ObjectKey = objectKey,
+            InputStream = payload,
+        };
+
+        return await _store.PutObjectAsync(request, ct);
     }
 
-    public async Task<PutObjectResult> PutContentAddressedObjectAsync<TPayload>(Func<byte[], string> keyFactory,
+    public async Task<PutObjectResponse> PutContentAddressedObjectAsync<TPayload>(Func<byte[], string> keyFactory,
         TPayload input, CancellationToken ct = default)
     {
         using var payload = await Serialize(input, ct);
         var hashBuffer = await _store.ComputeSha256Hash(payload, ct);
 
-        var objectKey = keyFactory(hashBuffer);
+        var request = new PutObjectRequest
+        {
+            ObjectKey = keyFactory(hashBuffer),
+            InputStream = payload,
+            ChecksumSHA256 = hashBuffer
+        };
 
-        return await _store.PutObjectAsync(objectKey, payload, ct);
+        return await _store.PutObjectAsync(request, ct);
     }
 }
