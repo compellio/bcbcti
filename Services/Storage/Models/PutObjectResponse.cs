@@ -1,4 +1,4 @@
-namespace Bcbcti.Services.Storage.Results;
+namespace Bcbcti.Services.Storage.Models;
 
 public class PutObjectResponse
 {

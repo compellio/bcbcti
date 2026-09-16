@@ -1,3 +1,5 @@
+using Bcbcti.Services.Ingestion.Registry;
+
 namespace Bcbcti.Services.Ingestion;
 
 public enum IngestionResultResolution
@@ -8,8 +10,7 @@ public enum IngestionResultResolution
 
 public class StixIngestionResult
 {
-    public required string? ObjectKey { get; set; }
-    public required Guid? ReceiptId { get; set; }
-    
-    // metadata (receipt id, etc.)
+    public string? ObjectKey { get; set; }
+    public Guid? ReceiptId { get; set; }
+    public TarPayload? TarPayload { get; set; }
 }

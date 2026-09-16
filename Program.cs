@@ -44,6 +44,7 @@ builder.Services.AddSingleton<CollectionsManager>();
 
 builder.Services.AddSingleton<JournalRepository>();
 builder.Services.AddSingleton<StixObjectRepository>();
+builder.Services.AddSingleton<RegistrationReceiptsRepository>();
 
 builder.Services.AddSingleton<StixIngestionService>();
 

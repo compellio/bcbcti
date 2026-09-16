@@ -1,4 +1,4 @@
-namespace Bcbcti.Models;
+namespace Bcbcti.Models.Documents;
 
 public class JournalEntry
 {

@@ -1,8 +1,8 @@
 using System.Text.Json;
 
-namespace Bcbcti.Models.Registry;
+namespace Bcbcti.Services.RegistryApi.Models;
 
-public class ReceiptResource
+public class TarReceipt
 {
     public string? Id { get; set; }
     public required Guid ReceiptId { get; set; }

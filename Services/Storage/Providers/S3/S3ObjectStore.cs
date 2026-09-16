@@ -2,7 +2,7 @@ using System.Net;
 using System.Security.Cryptography;
 using Amazon.S3;
 using Bcbcti.Services.Storage.Exceptions;
-using Bcbcti.Services.Storage.Results;
+using Bcbcti.Services.Storage.Models;
 
 namespace Bcbcti.Services.Storage.Providers.S3;
 
@@ -101,7 +101,7 @@ public class S3ObjectStore : IStreamObjectStore
         return hash;
     }
 
-    public async Task<GetObjectResult<Stream>> GetObjectAsync(string objectKey, CancellationToken ct = default)
+    public async Task<GetObjectResponse<Stream>> GetObjectAsync(string objectKey, CancellationToken ct = default)
     {
         try
         {
@@ -115,7 +115,7 @@ public class S3ObjectStore : IStreamObjectStore
             await response.ResponseStream.CopyToAsync(payload, ct);
             payload.Position = 0;
 
-            return new GetObjectResult<Stream>
+            return new GetObjectResponse<Stream>
             {
                 Body = payload,
                 Metadata = new ObjectMetadata

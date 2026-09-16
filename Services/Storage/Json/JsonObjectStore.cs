@@ -1,5 +1,5 @@
 using Bcbcti.Services.Serialization.Json;
-using Bcbcti.Services.Storage.Results;
+using Bcbcti.Services.Storage.Models;
 
 namespace Bcbcti.Services.Storage.Json;
 
@@ -25,7 +25,7 @@ public class JsonObjectStore : IJsonObjectStore
 
     public Uri GetObjectUri(string objectKey) => _store.GetObjectUri(objectKey);
 
-    public async Task<GetObjectResult<TPayload>> GetObjectAsync<TPayload>(string objectKey,
+    public async Task<GetObjectResponse<TPayload>> GetObjectAsync<TPayload>(string objectKey,
         CancellationToken ct = default)
     {
         var response = await _store.GetObjectAsync(objectKey, ct);
@@ -39,7 +39,7 @@ public class JsonObjectStore : IJsonObjectStore
             throw new InvalidDataException($"Object '{objectKey}' deserialization error.");
         }
 
-        return new GetObjectResult<TPayload> { Body = payload, Metadata = response.Metadata };
+        return new GetObjectResponse<TPayload> { Body = payload, Metadata = response.Metadata };
     }
 
     public async Task<PutObjectResponse> PutObjectAsync<TPayload>(string objectKey, TPayload input,

@@ -1,6 +1,5 @@
-using System.Diagnostics;
 using Bcbcti.Exceptions.Taxii;
-using Bcbcti.Models;
+using Bcbcti.Models.Documents;
 using Bcbcti.Models.Stix;
 using Bcbcti.Models.Taxii;
 using Bcbcti.Models.Taxii.Requests;

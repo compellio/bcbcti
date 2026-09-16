@@ -1,4 +1,4 @@
-using Bcbcti.Services.Storage.Results;
+using Bcbcti.Services.Storage.Models;
 
 namespace Bcbcti.Services.Storage.Providers.AzureBlob;
 
@@ -14,7 +14,7 @@ public class AzureBlobObjectStore : IStreamObjectStore
         throw new NotImplementedException();
     }
     
-    public Task<GetObjectResult<Stream>> GetObjectAsync(string objectKey, CancellationToken ct = default)
+    public Task<GetObjectResponse<Stream>> GetObjectAsync(string objectKey, CancellationToken ct = default)
     {
         throw new NotImplementedException();
     }

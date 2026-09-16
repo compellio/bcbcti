@@ -1,4 +1,4 @@
-using Bcbcti.Services.Storage.Results;
+using Bcbcti.Services.Storage.Models;
 
 namespace Bcbcti.Services.Storage;
 
@@ -13,7 +13,7 @@ public interface IStreamObjectStore
     public Task<byte[]> ComputeSha256Hash(Stream input, CancellationToken ct = default);
     
     // TODO GetObjectRequest w/ condition options, etc.
-    public Task<GetObjectResult<Stream>> GetObjectAsync(string objectKey, CancellationToken ct = default);
+    public Task<GetObjectResponse<Stream>> GetObjectAsync(string objectKey, CancellationToken ct = default);
     
     public Task<PutObjectResponse> PutObjectAsync(PutObjectRequest request, CancellationToken ct = default);
 

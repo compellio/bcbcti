@@ -1,6 +1,6 @@
-using Bcbcti.Models;
+using Bcbcti.Models.Documents;
 using Bcbcti.Services.Storage.Json;
-using Bcbcti.Services.Storage.Results;
+using Bcbcti.Services.Storage.Models;
 
 namespace Bcbcti.Repositories;
 
@@ -12,7 +12,7 @@ public class JournalRepository(IJsonObjectStore store) : Repository(store)
         return $"journal/{id}.json";
     }
     
-    public async Task<GetObjectResult<JournalEntry>> GetJournalEntry(Guid id, CancellationToken ct = default)
+    public async Task<GetObjectResponse<JournalEntry>> GetJournalEntry(Guid id, CancellationToken ct = default)
     {
         return await Store.GetObjectAsync<JournalEntry>(BuildJournalKey(id), ct);
     }

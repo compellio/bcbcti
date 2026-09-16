@@ -1,7 +1,7 @@
 using System.Buffers.Text;
 using Bcbcti.Models.Stix;
 using Bcbcti.Services.Storage.Json;
-using Bcbcti.Services.Storage.Results;
+using Bcbcti.Services.Storage.Models;
 
 namespace Bcbcti.Repositories;
 
@@ -15,17 +15,19 @@ public class StixObjectRepository([FromKeyedServices("canonical")] IJsonObjectSt
         return $"objects/{hash}.json";
     }
 
-    public async Task<GetObjectResult<StixObject>> GetStixObject(string objectKey, CancellationToken ct = default)
+    public async Task<GetObjectResponse<StixObject>> GetStixObject(string objectKey, CancellationToken ct = default)
     {
         return await Store.GetObjectAsync<StixObject>(objectKey, ct);
     }
 
-    public Task<GetObjectResult<StixObject>> GetStixObject(ReadOnlySpan<byte> hashBuffer,
+    public Task<GetObjectResponse<StixObject>> GetStixObject(ReadOnlySpan<byte> hashBuffer,
         CancellationToken ct = default) =>
         GetStixObject(BuildStixObjectKey(hashBuffer), ct);
 
-    public async Task<PutObjectResponse> PutStixObject(StixObject entry, CancellationToken ct = default)
+    public async Task<PutObjectResponse> StoreStixObject(StixObject entry, CancellationToken ct = default)
     {
+        // TODO If-None-Match -> throw already exists
+        
         // This is per TAXII specifications (version = (stix.modified) else if (stix.created) else if (vendor-selection - we use submissionDate))
         // var version = entry.Modified ?? entry.Created ?? submissionDate;
 
