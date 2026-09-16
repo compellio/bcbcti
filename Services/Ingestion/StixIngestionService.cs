@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Bcbcti.Models.Registry;
 using Bcbcti.Models.Stix;
+using Bcbcti.Models.Taxii;
 using BCBCTI.Models.Taxii;
 using Bcbcti.Repositories;
 using Bcbcti.Services.Ingestion.Registry;
@@ -18,15 +19,30 @@ public class StixIngestionService
         _stixRepository = stixRepository;
     }
 
-    // TODO try/catch
-    public async Task<StixIngestionResult> ProcessStixObject(StixObjectResource resource, DateTime submittedAt,
+    public async Task<StixIngestionResult[]> ProcessStixObjects(StixObject[] objects, DateTime submittedAt,
+        CancellationToken ct = default)
+    {
+        var results = new StixIngestionResult[objects.Length];
+        
+        await Parallel.ForEachAsync(Enumerable.Range(0, objects.Length),
+            new ParallelOptions { CancellationToken = ct },
+            async (i, ctoken) =>
+            {
+                results[i] = await ProcessStixObject(objects[i], submittedAt, ctoken);
+            });
+
+        return results;
+    }
+
+    // TODO error handling
+    public async Task<StixIngestionResult> ProcessStixObject(StixObject resource, DateTime submittedAt,
         CancellationToken ct = default)
     {
         // 1. Determine create/update/abort (based on /registrations/{objectId}.json object) directory
         // TODO create = no object exists; update = object exists AND no pending receipt; abort = object exists AND pending receipt
 
         // 2. Store submitted STIX (canonicalisation handled)
-        var result = await _stixRepository.PutJournalEntry(submittedAt, resource, ct);
+        var result = await _stixRepository.PutStixObject(resource, ct);
 
         var bundleGuid = Guid.NewGuid();
         var artifactGuid = Guid.NewGuid(); // TODO uuidv5 based on URI
@@ -56,6 +72,7 @@ public class StixIngestionService
         // 4. Call the Registry API to register payload
         // TODO === REGISTRY CALL ===
         // TODO somehow globally configure
+        // see BCBCTI.Services.Serialization.Converters.StixJsonConverter
         var stixSerializerOptions = new JsonSerializerOptions()
         {
             WriteIndented = true,

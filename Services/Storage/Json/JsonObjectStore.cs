@@ -5,7 +5,6 @@ namespace Bcbcti.Services.Storage.Json;
 
 public class JsonObjectStore : IJsonObjectStore
 {
-
     private readonly IStreamObjectStore _store;
     private readonly IJsonSerializer _serializer;
 
@@ -15,14 +14,24 @@ public class JsonObjectStore : IJsonObjectStore
         _serializer = serializer;
     }
 
+    private async Task<MemoryStream> Serialize<TPayload>(TPayload input, CancellationToken ct = default)
+    {
+        var payload = new MemoryStream();
+        await _serializer.SerializeAsync(payload, input, ct);
+        payload.Position = 0;
+
+        return payload;
+    }
+
     public Uri GetObjectUri(string objectKey) => _store.GetObjectUri(objectKey);
 
-    public async Task<GetObjectResult<TPayload>> GetObjectAsync<TPayload>(string objectKey, CancellationToken ct = default)
+    public async Task<GetObjectResult<TPayload>> GetObjectAsync<TPayload>(string objectKey,
+        CancellationToken ct = default)
     {
         var response = await _store.GetObjectAsync(objectKey, ct);
-        
+
         await using var body = response.Body;
-        
+
         var payload = await _serializer.DeserializeAsync<TPayload>(body, ct);
 
         if (payload is null)
@@ -30,20 +39,24 @@ public class JsonObjectStore : IJsonObjectStore
             throw new InvalidDataException($"Object '{objectKey}' deserialization error.");
         }
 
-        return new GetObjectResult<TPayload>
-        {
-            Body = payload,
-            Metadata = response.Metadata
-        };
+        return new GetObjectResult<TPayload> { Body = payload, Metadata = response.Metadata };
     }
 
-    public async Task<PutObjectResult> PutObjectAsync<TPayload>(string objectKey, TPayload input, CancellationToken ct = default)
+    public async Task<PutObjectResult> PutObjectAsync<TPayload>(string objectKey, TPayload input,
+        CancellationToken ct = default)
     {
-        using var payload = new MemoryStream();
-        await _serializer.SerializeAsync(payload, input, ct);
-        payload.Position = 0;
-        
+        using var payload = await Serialize(input, ct);
+        return await _store.PutObjectAsync(objectKey, payload, null, ct);
+    }
+
+    public async Task<PutObjectResult> PutContentAddressedObjectAsync<TPayload>(Func<byte[], string> keyFactory,
+        TPayload input, CancellationToken ct = default)
+    {
+        using var payload = await Serialize(input, ct);
+        var hashBuffer = await _store.ComputeSha256Hash(payload, ct);
+
+        var objectKey = keyFactory(hashBuffer);
+
         return await _store.PutObjectAsync(objectKey, payload, ct);
     }
-    
 }

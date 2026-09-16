@@ -4,10 +4,11 @@ using BCBCTI.Models.Taxii;
 
 namespace Bcbcti.Models.Stix;
 
-// FIXME Json derived classes - https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/polymorphism#serialize-properties-of-derived-classes
+// TODO FIXME Json derived classes - https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/polymorphism#serialize-properties-of-derived-classes
+// TODO DANGER this affects STIX object serialization and hashing => public object URLs and checksums
 [JsonDerivedType(typeof(StixBundle))]
 [JsonDerivedType(typeof(StixUrlArtifact))]
-[JsonDerivedType(typeof(StixObjectResource))] // fixme bleeds from TAXII namespace
+[JsonDerivedType(typeof(StixObjectResource))] // TODO fixme bleeds from TAXII namespace
 public abstract class StixObject
 {
     protected StixObject(string id) => Id = id;

@@ -64,14 +64,7 @@ public class CollectionController(CollectionsManager collections) : ControllerBa
         var statusId = Guid.NewGuid();
         var submittedAt = DateTime.UtcNow;
 
-        // 1. For each object (parallel) -> stix ingestion service
-        var results = new StixIngestionResult[envelope.Objects.Length];
-        await Parallel.ForEachAsync(Enumerable.Range(0, envelope.Objects.Length),
-            new ParallelOptions { CancellationToken = ct },
-            async (i, ctoken) =>
-            {
-                results[i] = await stixIngestionService.ProcessStixObject(envelope.Objects[i], submittedAt, ctoken);
-            });
+        var results = await stixIngestionService.ProcessStixObjects(envelope.Objects, submittedAt, ct);
         
         // 3. create journal entry with receipt ids
         await journalRepository.PutJournalEntry(new JournalEntry

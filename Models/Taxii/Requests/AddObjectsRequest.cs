@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations;
-using Bcbcti.Models.Stix;
 using BCBCTI.Models.Taxii;
 using Bcbcti.Options;
 using Microsoft.Extensions.Options;
 
 namespace Bcbcti.Models.Taxii.Requests;
 
+// TODO REVIEW This should perhaps be a EnvelopeResource but things get complicated with EnvelopeResource because it defines objects
+//    as abstract StixObject instead of StixObjectResource => JSON deserialization complexity 
 public class AddObjectsRequest : IValidatableObject
 {
     // TODO need custom JsonConverter to properly cast objects into the right Models.Stix resources
