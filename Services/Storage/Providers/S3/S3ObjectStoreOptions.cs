@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Bcbcti.Services.Storage.Providers.S3;
+namespace Compellio.Bcbcti.Services.Storage.Providers.S3;
 
 public class S3ObjectStoreOptions
 {

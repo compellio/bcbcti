@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
-using Bcbcti.Models.Stix;
+using Compellio.Bcbcti.Models.Stix;
 
-namespace BCBCTI.Models.Taxii;
+namespace Compellio.Bcbcti.Models.Taxii;
 
 public class StixObjectResource : StixObject
 {

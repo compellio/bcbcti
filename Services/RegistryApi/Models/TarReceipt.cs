@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace Bcbcti.Services.RegistryApi.Models;
+namespace Compellio.Bcbcti.Services.RegistryApi.Models;
 
 public class TarReceipt
 {

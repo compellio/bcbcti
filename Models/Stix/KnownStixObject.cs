@@ -1,4 +1,4 @@
-namespace Bcbcti.Models.Stix;
+namespace Compellio.Bcbcti.Models.Stix;
 
 public class KnownStixObject : StixObject
 {

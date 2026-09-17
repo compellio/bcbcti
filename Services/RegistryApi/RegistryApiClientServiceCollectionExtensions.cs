@@ -1,4 +1,4 @@
-namespace Bcbcti.Services.RegistryApi;
+namespace Compellio.Bcbcti.Services.RegistryApi;
 
 public static class RegistryApiClientServiceCollectionExtensions
 {

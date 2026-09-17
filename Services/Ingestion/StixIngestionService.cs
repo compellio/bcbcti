@@ -1,11 +1,11 @@
 using System.Diagnostics;
-using Bcbcti.Models.Documents;
-using Bcbcti.Models.Stix;
-using Bcbcti.Options;
-using Bcbcti.Repositories;
-using Bcbcti.Services.RegistryApi;
+using Compellio.Bcbcti.Models.Documents;
+using Compellio.Bcbcti.Models.Stix;
+using Compellio.Bcbcti.Options;
+using Compellio.Bcbcti.Repositories;
+using Compellio.Bcbcti.Services.RegistryApi;
 
-namespace Bcbcti.Services.Ingestion;
+namespace Compellio.Bcbcti.Services.Ingestion;
 
 public class StixIngestionService
 {

@@ -1,7 +1,7 @@
-using Bcbcti.Services.Ingestion.Registry;
-using Bcbcti.Services.RegistryApi.Models;
+using Compellio.Bcbcti.Services.Ingestion.Registry;
+using Compellio.Bcbcti.Services.RegistryApi.Models;
 
-namespace Bcbcti.Services.RegistryApi;
+namespace Compellio.Bcbcti.Services.RegistryApi;
 
 public interface IRegistryApiClient
 {

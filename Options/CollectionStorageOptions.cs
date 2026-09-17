@@ -1,4 +1,4 @@
-namespace Bcbcti.Options;
+namespace Compellio.Bcbcti.Options;
 
 public class CollectionStorageOptions
 {

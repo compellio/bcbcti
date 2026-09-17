@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Bcbcti.Models.Stix;
+namespace Compellio.Bcbcti.Models.Stix;
 
 public abstract class StixArtifact(Guid id) : KnownStixObject("artifact", id)
 {

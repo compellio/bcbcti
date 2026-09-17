@@ -1,8 +1,8 @@
-using Bcbcti.Services.Serialization.Json;
-using Bcbcti.Services.Serialization.Json.Canonicalization;
+using Compellio.Bcbcti.Services.Serialization.Json;
+using Compellio.Bcbcti.Services.Serialization.Json.Canonicalization;
 using Microsoft.Extensions.Options;
 
-namespace Bcbcti.Services.Storage.Json.Canonical;
+namespace Compellio.Bcbcti.Services.Storage.Json.Canonical;
 
 public static class CanonicalJsonObjectStoreBuilderExtension
 {

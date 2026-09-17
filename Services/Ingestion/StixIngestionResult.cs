@@ -1,7 +1,7 @@
-using Bcbcti.Models.Documents;
-using Bcbcti.Models.Stix;
+using Compellio.Bcbcti.Models.Documents;
+using Compellio.Bcbcti.Models.Stix;
 
-namespace Bcbcti.Services.Ingestion;
+namespace Compellio.Bcbcti.Services.Ingestion;
 
 public enum IngestionResultResolution
 {

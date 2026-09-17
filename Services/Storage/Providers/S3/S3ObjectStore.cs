@@ -1,10 +1,10 @@
 using System.Net;
 using System.Security.Cryptography;
 using Amazon.S3;
-using Bcbcti.Services.Storage.Exceptions;
-using Bcbcti.Services.Storage.Models;
+using Compellio.Bcbcti.Services.Storage.Exceptions;
+using Compellio.Bcbcti.Services.Storage.Models;
 
-namespace Bcbcti.Services.Storage.Providers.S3;
+namespace Compellio.Bcbcti.Services.Storage.Providers.S3;
 
 // references - based on
 // https://github.com/dotnet/orleans/blob/76394f182bec081ba3fd1b0d4a912f1ea29746e3/src/AWS/Orleans.Journaling.S3/S3JournalStorage.cs

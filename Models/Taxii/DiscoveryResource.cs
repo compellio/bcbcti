@@ -1,4 +1,4 @@
-namespace Bcbcti.Models.Taxii;
+namespace Compellio.Bcbcti.Models.Taxii;
 
 /// <summary>
 /// TAXII 4.1.1 Discovery Resource

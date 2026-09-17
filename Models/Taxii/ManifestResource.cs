@@ -1,4 +1,4 @@
-namespace Bcbcti.Models.Taxii;
+namespace Compellio.Bcbcti.Models.Taxii;
 
 public class ManifestResource
 {

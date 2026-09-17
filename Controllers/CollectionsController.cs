@@ -1,8 +1,8 @@
-using Bcbcti.Models.Taxii;
-using Bcbcti.Services;
+using Compellio.Bcbcti.Models.Taxii;
+using Compellio.Bcbcti.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Bcbcti.Controllers;
+namespace Compellio.Bcbcti.Controllers;
 
 [ApiController]
 [Route("/api/collections")]

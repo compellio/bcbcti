@@ -1,6 +1,6 @@
 using Org.Webpki.JsonCanonicalizer;
 
-namespace Bcbcti.Services.Serialization.Json.Canonicalization;
+namespace Compellio.Bcbcti.Services.Serialization.Json.Canonicalization;
 
 public class CanonicalJsonSerializer(IJsonSerializer serializer) : IJsonSerializer
 {

@@ -1,8 +1,8 @@
-using Bcbcti.Exceptions.Taxii;
-using Bcbcti.Models.Taxii;
+using Compellio.Bcbcti.Exceptions.Taxii;
+using Compellio.Bcbcti.Models.Taxii;
 using Microsoft.AspNetCore.Diagnostics;
 
-namespace Bcbcti.Exceptions;
+namespace Compellio.Bcbcti.Exceptions;
 
 // TODO FIXME does this applies to system exceptions as well (e.g. 415, 406, etc.)?
 

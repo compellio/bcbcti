@@ -1,14 +1,14 @@
-using Bcbcti.Exceptions.Taxii;
-using Bcbcti.Models.Documents;
-using Bcbcti.Models.Stix;
-using Bcbcti.Models.Taxii;
-using Bcbcti.Models.Taxii.Requests;
-using Bcbcti.Repositories;
-using Bcbcti.Services;
-using Bcbcti.Services.Ingestion;
+using Compellio.Bcbcti.Exceptions.Taxii;
+using Compellio.Bcbcti.Models.Documents;
+using Compellio.Bcbcti.Models.Stix;
+using Compellio.Bcbcti.Models.Taxii;
+using Compellio.Bcbcti.Models.Taxii.Requests;
+using Compellio.Bcbcti.Repositories;
+using Compellio.Bcbcti.Services;
+using Compellio.Bcbcti.Services.Ingestion;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Bcbcti.Controllers;
+namespace Compellio.Bcbcti.Controllers;
 
 [ApiController]
 [Route("/api/collections/{collectionId}")]

@@ -1,7 +1,6 @@
-using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 
-namespace Bcbcti.Models.Stix;
+namespace Compellio.Bcbcti.Models.Stix;
 
 /// <summary>
 /// 10.7 Hashing Algorithm Vocabulary

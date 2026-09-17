@@ -1,6 +1,6 @@
-using Bcbcti.Services.Storage.Models;
+using Compellio.Bcbcti.Services.Storage.Models;
 
-namespace Bcbcti.Services.Storage.Json;
+namespace Compellio.Bcbcti.Services.Storage.Json;
 
 public interface IJsonObjectStore
 {

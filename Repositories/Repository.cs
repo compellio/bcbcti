@@ -1,6 +1,6 @@
-using Bcbcti.Services.Storage.Json;
+using Compellio.Bcbcti.Services.Storage.Json;
 
-namespace Bcbcti.Repositories;
+namespace Compellio.Bcbcti.Repositories;
 
 public abstract class Repository
 {

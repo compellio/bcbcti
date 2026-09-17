@@ -1,4 +1,4 @@
-namespace Bcbcti.Services.Storage.Models;
+namespace Compellio.Bcbcti.Services.Storage.Models;
 
 public class ObjectMetadata
 {

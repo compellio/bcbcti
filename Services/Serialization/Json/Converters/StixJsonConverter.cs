@@ -1,8 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Bcbcti.Models.Stix;
+using Compellio.Bcbcti.Models.Stix;
 
-namespace Bcbcti.Services.Serialization.Json.Converters;
+namespace Compellio.Bcbcti.Services.Serialization.Json.Converters;
 
 public class StixJsonConverter : JsonConverter<StixObject>
 {

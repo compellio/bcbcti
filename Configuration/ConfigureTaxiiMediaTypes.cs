@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Options;
 
-namespace Bcbcti.Configuration;
+namespace Compellio.Bcbcti.Configuration;
 
 public class ConfigureTaxiiMediaTypes : IPostConfigureOptions<MvcOptions>
 {

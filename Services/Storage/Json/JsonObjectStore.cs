@@ -1,7 +1,7 @@
-using Bcbcti.Services.Serialization.Json;
-using Bcbcti.Services.Storage.Models;
+using Compellio.Bcbcti.Services.Serialization.Json;
+using Compellio.Bcbcti.Services.Storage.Models;
 
-namespace Bcbcti.Services.Storage.Json;
+namespace Compellio.Bcbcti.Services.Storage.Json;
 
 public class JsonObjectStore : IJsonObjectStore
 {

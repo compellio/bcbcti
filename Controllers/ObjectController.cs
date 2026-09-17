@@ -1,9 +1,9 @@
-using Bcbcti.Exceptions.Taxii;
-using Bcbcti.Models.Stix;
-using Bcbcti.Services;
+using Compellio.Bcbcti.Exceptions.Taxii;
+using Compellio.Bcbcti.Models.Stix;
+using Compellio.Bcbcti.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Bcbcti.Controllers;
+namespace Compellio.Bcbcti.Controllers;
 
 [ApiController]
 [Route("/api/collections/{collectionId}/objects/{objectId}")]

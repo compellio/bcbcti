@@ -1,6 +1,6 @@
-using Bcbcti.Services.Storage.Providers.S3;
+using Compellio.Bcbcti.Services.Storage.Providers.S3;
 
-namespace Bcbcti.Services.Storage;
+namespace Compellio.Bcbcti.Services.Storage;
 
 enum ObjectStoreProviders
 {

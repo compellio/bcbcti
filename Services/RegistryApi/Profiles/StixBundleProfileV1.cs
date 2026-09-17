@@ -1,4 +1,4 @@
-namespace Bcbcti.Services.RegistryApi.Profiles;
+namespace Compellio.Bcbcti.Services.RegistryApi.Profiles;
 
 public class StixBundleProfileV1
 {

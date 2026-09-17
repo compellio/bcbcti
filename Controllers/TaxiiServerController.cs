@@ -1,9 +1,9 @@
-using Bcbcti.Models.Taxii;
-using Bcbcti.Options;
+using Compellio.Bcbcti.Models.Taxii;
+using Compellio.Bcbcti.Options;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
-namespace Bcbcti.Controllers;
+namespace Compellio.Bcbcti.Controllers;
 
 [ApiController]
 [Route("/")]

@@ -1,4 +1,4 @@
-namespace Bcbcti.Models.Taxii;
+namespace Compellio.Bcbcti.Models.Taxii;
 
 // TODO configure server to return TAXII error resources for TAXII routes 
 public class ErrorResource

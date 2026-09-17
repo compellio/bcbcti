@@ -1,7 +1,7 @@
 using Amazon.S3;
 using Microsoft.Extensions.Options;
 
-namespace Bcbcti.Services.Storage.Providers.S3;
+namespace Compellio.Bcbcti.Services.Storage.Providers.S3;
 
 public static class S3ObjectStoreServiceCollectionExtensions
 {

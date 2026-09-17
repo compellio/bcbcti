@@ -1,6 +1,6 @@
-using Bcbcti.Services.Storage.Models;
+using Compellio.Bcbcti.Services.Storage.Models;
 
-namespace Bcbcti.Services.Storage.Providers.AzureBlob;
+namespace Compellio.Bcbcti.Services.Storage.Providers.AzureBlob;
 
 public class AzureBlobObjectStore : IStreamObjectStore
 {

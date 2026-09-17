@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Bcbcti.Options;
+namespace Compellio.Bcbcti.Options;
 
 public class CollectionOptions
 {

@@ -1,12 +1,12 @@
-using Bcbcti.Models.Documents;
-using Bcbcti.Models.Stix;
-using Bcbcti.Options;
-using Bcbcti.Services.Ingestion.Registry;
-using Bcbcti.Services.RegistryApi.Models;
-using Bcbcti.Services.RegistryApi.Profiles;
-using Bcbcti.Services.Storage.Models;
+using Compellio.Bcbcti.Models.Documents;
+using Compellio.Bcbcti.Models.Stix;
+using Compellio.Bcbcti.Options;
+using Compellio.Bcbcti.Services.Ingestion.Registry;
+using Compellio.Bcbcti.Services.RegistryApi.Models;
+using Compellio.Bcbcti.Services.RegistryApi.Profiles;
+using Compellio.Bcbcti.Services.Storage.Models;
 
-namespace Bcbcti.Services.Ingestion;
+namespace Compellio.Bcbcti.Services.Ingestion;
 
 public class RegistrationPayloadFactory
 {

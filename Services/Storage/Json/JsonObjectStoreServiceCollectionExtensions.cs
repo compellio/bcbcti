@@ -1,8 +1,8 @@
 using System.Text.Json;
-using Bcbcti.Services.Serialization.Json;
+using Compellio.Bcbcti.Services.Serialization.Json;
 using Microsoft.Extensions.Options;
 
-namespace Bcbcti.Services.Storage.Json;
+namespace Compellio.Bcbcti.Services.Storage.Json;
 
 public class JsonObjectStoreOptions
 {

@@ -1,4 +1,4 @@
-namespace Bcbcti.Services.Storage.Models;
+namespace Compellio.Bcbcti.Services.Storage.Models;
 
 // see https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Conditional_requests
 // see https://docs.aws.amazon.com/AmazonS3/latest/userguide/conditional-writes.html

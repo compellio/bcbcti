@@ -1,7 +1,7 @@
-using Bcbcti.Options;
+using Compellio.Bcbcti.Options;
 using Microsoft.Extensions.Options;
 
-namespace Bcbcti.Services;
+namespace Compellio.Bcbcti.Services;
 
 public class CollectionsManager(IOptions<BcbctiOptions> options)
 {

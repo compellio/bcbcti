@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace Bcbcti.Services.Serialization.Json;
+namespace Compellio.Bcbcti.Services.Serialization.Json;
 
 public class JsonSystemSerializer(JsonSerializerOptions options) : IJsonSerializer
 {

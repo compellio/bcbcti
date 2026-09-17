@@ -1,8 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using BCBCTI.Models.Taxii;
+using Compellio.Bcbcti.Models.Taxii;
 
-namespace Bcbcti.Models.Stix;
+namespace Compellio.Bcbcti.Models.Stix;
 
 // TODO FIXME Json derived classes - https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/polymorphism#serialize-properties-of-derived-classes
 // TODO DANGER this affects STIX object serialization and hashing => public object URLs and checksums

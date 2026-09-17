@@ -1,4 +1,4 @@
-namespace Bcbcti.Services.Storage.Providers.AzureBlob;
+namespace Compellio.Bcbcti.Services.Storage.Providers.AzureBlob;
 
 public class AzureBlobObjectStoreOptions
 {

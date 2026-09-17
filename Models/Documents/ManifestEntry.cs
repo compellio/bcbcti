@@ -1,4 +1,4 @@
-namespace Bcbcti.Models.Documents;
+namespace Compellio.Bcbcti.Models.Documents;
 
 public class ManifestEntry
 {

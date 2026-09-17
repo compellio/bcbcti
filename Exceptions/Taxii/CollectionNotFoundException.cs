@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace Bcbcti.Exceptions.Taxii;
+namespace Compellio.Bcbcti.Exceptions.Taxii;
 
 public class CollectionNotFoundException(string id) : TaxiiException($"Collection '{id}' not found")
 {

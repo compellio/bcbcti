@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Bcbcti.Models.Stix;
+namespace Compellio.Bcbcti.Models.Stix;
 
 public class StixUrlArtifact(Guid id) : StixArtifact(id)
 {

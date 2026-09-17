@@ -1,8 +1,8 @@
-using Bcbcti.Models.Documents;
-using Bcbcti.Services.Storage.Json;
-using Bcbcti.Services.Storage.Models;
+using Compellio.Bcbcti.Models.Documents;
+using Compellio.Bcbcti.Services.Storage.Json;
+using Compellio.Bcbcti.Services.Storage.Models;
 
-namespace Bcbcti.Repositories;
+namespace Compellio.Bcbcti.Repositories;
 
 public class JournalRepository(IJsonObjectStore store) : Repository(store)
 {

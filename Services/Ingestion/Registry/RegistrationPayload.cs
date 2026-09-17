@@ -1,6 +1,6 @@
-using Bcbcti.Models.Stix;
+using Compellio.Bcbcti.Models.Stix;
 
-namespace Bcbcti.Services.Ingestion.Registry;
+namespace Compellio.Bcbcti.Services.Ingestion.Registry;
 
 public class RegistrationPayload
 {

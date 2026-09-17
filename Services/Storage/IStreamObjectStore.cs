@@ -1,6 +1,6 @@
-using Bcbcti.Services.Storage.Models;
+using Compellio.Bcbcti.Services.Storage.Models;
 
-namespace Bcbcti.Services.Storage;
+namespace Compellio.Bcbcti.Services.Storage;
 
 // TODO support write-ahead mutation conflicts (ETag, preconditions, etc.), e.g.: read a file before modifying it (e.g. /receipts/{receiptId}.json)
 //   see UpdateMetadataAsync method in https://github.com/dotnet/orleans/blob/76394f182bec081ba3fd1b0d4a912f1ea29746e3/src/AWS/Orleans.Journaling.S3/S3JournalStorage.cs#L949
@@ -40,7 +40,7 @@ public interface IStreamObjectStore
     /// </code>
     /// and
     /// <code>
-    /// await store.ListObjectsAsync(new ListObjectRequest { Prefix = "manifest/2026/", StartAfter = "manifest/2b1c/2026/09/16/2026-09-16T08:01:02.500Z-1a77.json" });
+    /// await store.ListObjectsAsync(new ListObjectRequest { Prefix = "manifest/2026/", StartAfter = "manifest/2026/09/16/2026-09-16T08:01:02.500Z-1a77.json" });
     /// </code>
     /// will return the following keys:
     /// <code>

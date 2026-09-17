@@ -1,9 +1,9 @@
 using System.Buffers.Text;
-using Bcbcti.Models.Stix;
-using Bcbcti.Services.Storage.Json;
-using Bcbcti.Services.Storage.Models;
+using Compellio.Bcbcti.Models.Stix;
+using Compellio.Bcbcti.Services.Storage.Json;
+using Compellio.Bcbcti.Services.Storage.Models;
 
-namespace Bcbcti.Repositories;
+namespace Compellio.Bcbcti.Repositories;
 
 public class StixObjectRepository([FromKeyedServices("canonical")] IJsonObjectStore store) : Repository(store)
 {

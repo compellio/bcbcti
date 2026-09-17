@@ -1,15 +1,15 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Bcbcti.Configuration;
-using Bcbcti.Exceptions;
-using Bcbcti.Options;
-using Bcbcti.Repositories;
-using Bcbcti.Services;
-using Bcbcti.Services.Ingestion;
-using Bcbcti.Services.RegistryApi;
-using Bcbcti.Services.Storage;
-using Bcbcti.Services.Storage.Json;
-using Bcbcti.Services.Storage.Json.Canonical;
+using Compellio.Bcbcti.Configuration;
+using Compellio.Bcbcti.Exceptions;
+using Compellio.Bcbcti.Options;
+using Compellio.Bcbcti.Repositories;
+using Compellio.Bcbcti.Services;
+using Compellio.Bcbcti.Services.Ingestion;
+using Compellio.Bcbcti.Services.RegistryApi;
+using Compellio.Bcbcti.Services.Storage;
+using Compellio.Bcbcti.Services.Storage.Json;
+using Compellio.Bcbcti.Services.Storage.Json.Canonical;
 
 var builder = WebApplication.CreateBuilder(args);
 

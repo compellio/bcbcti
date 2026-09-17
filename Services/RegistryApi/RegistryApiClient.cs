@@ -1,10 +1,10 @@
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Bcbcti.Services.Ingestion.Registry;
-using Bcbcti.Services.RegistryApi.Models;
+using Compellio.Bcbcti.Services.Ingestion.Registry;
+using Compellio.Bcbcti.Services.RegistryApi.Models;
 
-namespace Bcbcti.Services.RegistryApi;
+namespace Compellio.Bcbcti.Services.RegistryApi;
 
 // TODO
 public class RegistryApiClient : IRegistryApiClient
