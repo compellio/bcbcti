@@ -15,7 +15,7 @@ public class AddObjectsRequest : IValidatableObject
     public IEnumerable<ValidationResult> Validate(ValidationContext context)
     {
         var max = context.GetRequiredService<IOptions<TaxiiOptions>>().Value.MaxUploadCount;
-
+        
         if (Objects.Length < 1)
         {
             yield return new ValidationResult("You must provide at least one object.", [nameof(Objects)]);

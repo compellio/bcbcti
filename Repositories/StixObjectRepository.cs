@@ -26,11 +26,8 @@ public class StixObjectRepository([FromKeyedServices("canonical")] IJsonObjectSt
 
     public async Task<PutObjectResponse> StoreStixObject(StixObject entry, CancellationToken ct = default)
     {
-        // TODO If-None-Match -> throw already exists
-        
-        // This is per TAXII specifications (version = (stix.modified) else if (stix.created) else if (vendor-selection - we use submissionDate))
-        // var version = entry.Modified ?? entry.Created ?? submissionDate;
-
+        // TODO CREATE = If-None-Match: * => throw if already exist
+        //      (REVIEW: or not in this particular case? if same object already exists means it's already stored, carry on?)
         return await Store.PutContentAddressedObjectAsync(hb => BuildStixObjectKey(hb), entry, ct);
     }
 }

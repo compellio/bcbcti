@@ -59,26 +59,29 @@ public class CollectionController(CollectionsManager collections) : ControllerBa
     {
         var collection = collections.Find(collectionId);
         CollectionNotFoundException.ThrowIfNull(collection, collectionId);
+        
+        // TODO TAXXI spec: throw validation error if invalid STIX objects contained in envelope (normally handled by AddObjectsRequest?)
 
-        var statusId = Guid.NewGuid();
+        var journalId = Guid.NewGuid();
         var submittedAt = DateTime.UtcNow;
 
-        var results = await stixIngestionService.ProcessStixObjects(envelope.Objects, submittedAt, ct);
+        var results = await stixIngestionService.ProcessStixObjects(collection, journalId, submittedAt, envelope.Objects, ct);
         
         // 3. create journal entry with receipt ids
         await journalRepository.PutJournalEntry(new JournalEntry
         {
-            Id = statusId,
+            Id = journalId,
             CollectionId = collection.Id,
             RequestTimestamp = submittedAt,
-            Objects = results.Select(result => new JournalEntryObject
+            Objects = results.Select(result => new JournalEntry.Object
                 {
-                    Id = $"indicator--{Guid.NewGuid()}",
-                    ObjectKey = result.ObjectKey,
-                    ReceiptId = result.ReceiptId
+                    ObjectId = result.StixObject.Id,
+                    ObjectVersion = result.StixObject.Version(submittedAt), // TODO FIXME duplication read from result
+                    ObjectKey = result.RegistrationReceipt?.ObjectKey,
+                    ReceiptId = result.RegistrationReceipt?.ReceiptId
                 })
                 .ToArray()
-        });
+        }, ct);
 
         // 4. generate status and return
 

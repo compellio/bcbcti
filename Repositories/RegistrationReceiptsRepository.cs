@@ -19,13 +19,13 @@ public class RegistrationReceiptsRepository(IJsonObjectStore store) : Repository
     
     public async Task<PutObjectResponse> StoreReceipt(RegistrationReceipt receipt, CancellationToken ct = default)
     {
-        // TODO If-None-Match -> throw already exists
+        // TODO CREATE If-None-Match: * => throw if already exist
         return await Store.PutObjectAsync(BuildJournalKey(receipt.ReceiptId), receipt, ct);
     }
     
     public async Task<PutObjectResponse> UpdateReceipt(RegistrationReceipt receipt, string etag, CancellationToken ct = default)
     {
-        // TODO If-Match: {etag} conditions -> throw locked
+        // TODO If-Match: {etag} conditions => throw if being processed
         return await StoreReceipt(receipt, ct);
     }
 

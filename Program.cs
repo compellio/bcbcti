@@ -6,6 +6,7 @@ using Bcbcti.Options;
 using Bcbcti.Repositories;
 using Bcbcti.Services;
 using Bcbcti.Services.Ingestion;
+using Bcbcti.Services.RegistryApi;
 using Bcbcti.Services.Storage;
 using Bcbcti.Services.Storage.Json;
 using Bcbcti.Services.Storage.Json.Canonical;
@@ -26,6 +27,8 @@ builder.Services.AddOptions<BcbctiOptions>()
     .Bind(builder.Configuration.GetSection("BCBCTI"))
     .ValidateDataAnnotations()
     .ValidateOnStart();
+
+builder.Services.AddRegistryApi(); // TODO options, etc.
 
 builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
 

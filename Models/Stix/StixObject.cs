@@ -24,4 +24,15 @@ public abstract class StixObject
     
     [JsonExtensionData]
     public Dictionary<string, JsonElement>? Payload { get; set; }
+
+    /// <summary>
+    /// TAXII version
+    /// </summary>
+    /// <param name="fallback">Vendor fallback version (e.g. submissionDate)</param>
+    /// <returns></returns>
+    /// TODO review location (TAXII-specific)
+    public DateTime Version(DateTime fallback)
+    {
+        return Modified ?? Created ?? fallback;
+    }
 }
