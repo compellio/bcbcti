@@ -19,8 +19,7 @@ public class JournalRepository(IJsonObjectStore store) : Repository(store)
     
     public async Task<PutObjectResponse> PutJournalEntry(JournalEntry entry, CancellationToken ct = default)
     {
-        // TODO CREATE = If-None-Match: * => throw if already exist
-        return await Store.PutObjectAsync(BuildJournalKey(entry.Id), entry, ct);
+        return await Store.PutObjectAsync(BuildJournalKey(entry.Id), entry, PutCondition.IfNoneExists, ct);
     }
 
 }

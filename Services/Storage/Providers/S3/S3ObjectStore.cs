@@ -82,6 +82,9 @@ public class S3ObjectStore : IStreamObjectStore
         exception.StatusCode == HttpStatusCode.NotFound &&
         !string.Equals(exception.ErrorCode, "NoSuchBucket", StringComparison.Ordinal);
 
+    private static bool IsPutConditionConflict(AmazonS3Exception exception) =>
+        exception.StatusCode is HttpStatusCode.PreconditionFailed or HttpStatusCode.Conflict;
+
     public Uri GetObjectUri(string objectKey)
     {
         var builder = new UriBuilder(_publicBaseUri);
@@ -123,7 +126,8 @@ public class S3ObjectStore : IStreamObjectStore
                     ObjectKey = objectKey,
                     PublicObjectUrl = GetObjectUri(objectKey),
                     ChecksumSha256 = response.ChecksumSHA256,
-                    ETag = response.ETag
+                    ETag = response.ETag,
+                    LastModified = response.LastModified
                 }
             };
         }
@@ -168,7 +172,16 @@ public class S3ObjectStore : IStreamObjectStore
                 s3Request.ChecksumAlgorithm = ChecksumAlgorithm.SHA256;
             }
 
-            // TODO etag headers + potentially add metadata, etc.
+            switch (request.Condition.Type)
+            {
+                case PutCondition.Kind.IfMatch:
+                    s3Request.IfMatch = request.Condition.ETag;
+                    break;
+                
+                case PutCondition.Kind.IfNotExists:
+                    s3Request.IfNoneMatch = "*";
+                    break;
+            }
 
             var response = await _s3Client.PutObjectAsync(s3Request, ct);
 
@@ -187,6 +200,10 @@ public class S3ObjectStore : IStreamObjectStore
         {
             throw new ObjectNotFoundException(e.Message, e);
         }
+        catch (AmazonS3Exception e) when (IsPutConditionConflict(e))
+        {
+            throw new PutConditionException(e.Message, e);
+        }
         catch (OperationCanceledException)
         {
             throw;
@@ -195,5 +212,10 @@ public class S3ObjectStore : IStreamObjectStore
         {
             throw new ProviderOperationException(e.Message, e);
         }
+    }
+
+    public Task<ListObjectResponse> ListObjectsAsync(ListObjectRequest request, CancellationToken ct = default)
+    {
+        throw new NotImplementedException();
     }
 }

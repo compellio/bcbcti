@@ -26,8 +26,6 @@ public class StixObjectRepository([FromKeyedServices("canonical")] IJsonObjectSt
 
     public async Task<PutObjectResponse> StoreStixObject(StixObject entry, CancellationToken ct = default)
     {
-        // TODO CREATE = If-None-Match: * => throw if already exist
-        //      (REVIEW: or not in this particular case? if same object already exists means it's already stored, carry on?)
-        return await Store.PutContentAddressedObjectAsync(hb => BuildStixObjectKey(hb), entry, ct);
+        return await Store.PutContentAddressedObjectAsync(hb => BuildStixObjectKey(hb), entry, PutCondition.IfNoneExists, ct);
     }
 }

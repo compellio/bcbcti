@@ -42,22 +42,26 @@ public class JsonObjectStore : IJsonObjectStore
         return new GetObjectResponse<TPayload> { Body = payload, Metadata = response.Metadata };
     }
 
+    public Task<PutObjectResponse> PutObjectAsync<TPayload>(string objectKey, TPayload input,
+        CancellationToken ct = default) =>
+        PutObjectAsync(objectKey, input, PutCondition.None, ct);
+
     public async Task<PutObjectResponse> PutObjectAsync<TPayload>(string objectKey, TPayload input,
-        CancellationToken ct = default)
+        PutCondition condition, CancellationToken ct = default)
     {
         using var payload = await Serialize(input, ct);
 
-        var request = new PutObjectRequest
-        {
-            ObjectKey = objectKey,
-            InputStream = payload,
-        };
+        var request = new PutObjectRequest { ObjectKey = objectKey, InputStream = payload, Condition = condition };
 
         return await _store.PutObjectAsync(request, ct);
     }
 
+    public Task<PutObjectResponse> PutContentAddressedObjectAsync<TPayload>(Func<byte[], string> keyFactory,
+        TPayload input, CancellationToken ct = default) =>
+        PutContentAddressedObjectAsync(keyFactory, input, PutCondition.None, ct);
+
     public async Task<PutObjectResponse> PutContentAddressedObjectAsync<TPayload>(Func<byte[], string> keyFactory,
-        TPayload input, CancellationToken ct = default)
+        TPayload input, PutCondition condition, CancellationToken ct = default)
     {
         using var payload = await Serialize(input, ct);
         var hashBuffer = await _store.ComputeSha256Hash(payload, ct);
@@ -66,7 +70,8 @@ public class JsonObjectStore : IJsonObjectStore
         {
             ObjectKey = keyFactory(hashBuffer),
             InputStream = payload,
-            ChecksumSHA256 = hashBuffer
+            ChecksumSHA256 = hashBuffer,
+            Condition = condition
         };
 
         return await _store.PutObjectAsync(request, ct);

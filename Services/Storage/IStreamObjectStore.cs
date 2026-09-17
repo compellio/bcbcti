@@ -17,6 +17,40 @@ public interface IStreamObjectStore
     
     public Task<PutObjectResponse> PutObjectAsync(PutObjectRequest request, CancellationToken ct = default);
 
-    // listAsync -> pagination w/ continuation token, date ordered!
-    // deleteAsync
+    /// <remarks>
+    /// Modelled after S3, see https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListObjectsV2.html
+    /// 
+    /// - Must return a single flat sequence of full keys (no nesting)
+    /// - Returns objects in ascending lexicographical order based on their key names
+    /// - If request.StartAfter is set, return only keys strictly greater than StartAfter
+    /// - request.PageSize limits the entries returned per call (pagination is controlled with request.Cursor and response.NextCursor)
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// await store.ListObjectsAsync(new ListObjectRequest { Prefix = "manifest/2026/" });
+    /// </code>
+    /// will return the following keys:
+    /// <code>
+    /// [
+    ///     "manifest/2026/09/15/2026-09-15T23:59:10.000Z-9d2f.json"
+    ///     "manifest/2026/09/16/2026-09-16T08:01:02.500Z-1a77.json"
+    ///     "manifest/2026/09/16/2026-09-16T12:03:20.000Z-4c8e.json"
+    ///     "manifest/2026/09/17/2026-09-17T06:15:45.250Z-7b30.json"
+    /// ]
+    /// </code>
+    /// and
+    /// <code>
+    /// await store.ListObjectsAsync(new ListObjectRequest { Prefix = "manifest/2026/", StartAfter = "manifest/2b1c/2026/09/16/2026-09-16T08:01:02.500Z-1a77.json" });
+    /// </code>
+    /// will return the following keys:
+    /// <code>
+    /// [
+    ///     "manifest/2026/09/16/2026-09-16T12:03:20.000Z-4c8e.json"
+    ///     "manifest/2026/09/17/2026-09-17T06:15:45.250Z-7b30.json"
+    /// ]
+    /// </code>
+    /// </example>
+    public Task<ListObjectResponse> ListObjectsAsync(ListObjectRequest request, CancellationToken ct = default);
+    
+    // TODO deleteAsync
 }

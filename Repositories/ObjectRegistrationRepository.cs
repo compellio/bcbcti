@@ -19,8 +19,7 @@ public class ObjectRegistrationRepository(IJsonObjectStore store) : Repository(s
     
     public async Task<PutObjectResponse> StoreReceipt(ObjectRegistration state, CancellationToken ct = default)
     {
-        // TODO CREATE If-None-Match: * => throw if already exist
-        return await Store.PutObjectAsync(BuildRegistrationStateKey(state.ObjectId), state, ct);
+        return await Store.PutObjectAsync(BuildRegistrationStateKey(state.ObjectId), state, PutCondition.IfNoneExists, ct);
     }
 
 }

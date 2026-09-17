@@ -9,11 +9,16 @@ public interface IJsonObjectStore
     public Task<PutObjectResponse> PutObjectAsync<TPayload>(string objectKey, TPayload input,
         CancellationToken ct = default);
 
+    public Task<PutObjectResponse> PutObjectAsync<TPayload>(string objectKey, TPayload input, PutCondition condition,
+        CancellationToken ct = default);
+
     /// <summary>
     /// Similar to PutObjectAsync but for storing objects keys containing the stored content hash.
+    /// TODO REVIEW (interface segregration) method should be moved to a separate/sibling IJsonObjectStore-ish class
     /// </summary>
-    // TODO REVIEW (interface segregration) method should be moved to a separate/sibling IJsonObjectStore-ish class
-    public Task<PutObjectResponse> PutContentAddressedObjectAsync<TPayload>(
-        Func<byte[], string> keyFactory,TPayload input,
-        CancellationToken ct = default);
+    public Task<PutObjectResponse> PutContentAddressedObjectAsync<TPayload>(Func<byte[], string> keyFactory,
+        TPayload input, CancellationToken ct = default);
+
+    public Task<PutObjectResponse> PutContentAddressedObjectAsync<TPayload>(Func<byte[], string> keyFactory,
+        TPayload input, PutCondition condition, CancellationToken ct = default);
 }
