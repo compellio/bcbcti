@@ -60,7 +60,7 @@ public class RegistrationPayloadFactory
     }
 
     public RegistrationReceipt BuildRegistrationReceipt(RegistryOperation operation, TarReceipt receipt, CollectionOptions collection, ObjectMetadata objectMetadata,
-        Guid journalId, DateTime submittedAt, DateTime sentAt, StixObject stixObject)
+        Guid journalId, DateTime submittedAt, StixObject stixObject)
     {
         return new RegistrationReceipt
         {
@@ -77,7 +77,7 @@ public class RegistrationPayloadFactory
             ObjectVersion = stixObject.Version(submittedAt), // TODO FIXME DANGER duplicate
 
             SubmittedAt = submittedAt,
-            SentAt = sentAt,
+            SentAt = receipt.SentAt,
 
             Metadata = new RegistrationMetadata
             {

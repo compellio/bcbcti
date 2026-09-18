@@ -78,7 +78,13 @@ public class CollectionController(CollectionsManager collections) : ControllerBa
                     ObjectId = result.StixObject.Id,
                     ObjectVersion = result.StixObject.Version(submittedAt), // TODO FIXME duplication read from result
                     ObjectKey = result.RegistrationReceipt?.ObjectKey,
-                    ReceiptId = result.RegistrationReceipt?.ReceiptId
+                    ReceiptId = result.RegistrationReceipt?.ReceiptId,
+                    SubmitFailureReason = result.Resolution switch
+                    {
+                        IngestionResultResolution.Abort => "pending-registration", // TODO FIXME hardcoded error -> new enum/static consts for user error codes?
+                        IngestionResultResolution.Failure => result.ResolutionFailureMessage,
+                        _ => null
+                    }
                 })
                 .ToArray()
         }, ct);

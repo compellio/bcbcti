@@ -19,6 +19,11 @@ public class AzureBlobObjectStore : IStreamObjectStore
         throw new NotImplementedException();
     }
 
+    public Task<GetObjectResponse<Stream>?> FindObjectAsync(string objectKey, CancellationToken ct = default)
+    {
+        throw new NotImplementedException();
+    }
+    
     public Task<PutObjectResponse> PutObjectAsync(string objectKey, Stream input, CancellationToken ct = default)
     {
         throw new NotImplementedException();

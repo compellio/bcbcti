@@ -17,6 +17,8 @@ public class StixIngestionResult
 
     public RegistrationReceipt? RegistrationReceipt { get; set; }
     
+    public string? ResolutionFailureMessage { get; set; }
+    
     // public string? ObjectKey { get; set; }
     // public Guid? ReceiptId { get; set; }
     // public RegistrationPayload? Payload { get; set; }

@@ -1,3 +1,7 @@
+using System.Text.Encodings.Web;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 namespace Compellio.Bcbcti.Services.RegistryApi;
 
 public static class RegistryApiClientServiceCollectionExtensions
@@ -7,7 +11,21 @@ public static class RegistryApiClientServiceCollectionExtensions
 
     public static IServiceCollection AddRegistryApi(this IServiceCollection services)
     {
-        services.AddSingleton<IRegistryApiClient>(new RegistryApiClient());
+     
+        // TODO Question: configurable by AddRegistryApi() caller?
+        // see BCBCTI.Services.Serialization.Converters.StixJsonConverter
+        var serializerOptions = new JsonSerializerOptions()
+        {
+            WriteIndented = true,
+            PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        };
+        serializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower));
+        // TODO WARNING!!! ONLY THE INNER STIX BUNDLE NEEDS TO BE SERIALIZED WITH stixSerializerOptions
+        //                 THE REMAINING TAR ENVELOPE SHOULD NOT (snake case, etc.)!
+        
+        services.AddSingleton<IRegistryApiClient>(new RegistryApiClient(serializerOptions));
 
         return services;
     }
