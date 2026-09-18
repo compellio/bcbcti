@@ -19,12 +19,12 @@ public class RegistrationReceiptsRepository(IJsonObjectStore store) : Repository
     
     public async Task<PutObjectResponse> StoreReceipt(RegistrationReceipt receipt, CancellationToken ct = default)
     {
-        return await Store.PutObjectAsync(BuildJournalKey(receipt.ReceiptId), receipt, PutCondition.IfNoneExists, ct);
+        return await Store.PutObjectAsync(BuildJournalKey(receipt.ReceiptId), receipt, Condition.IfNoneExists, ct);
     }
     
     public async Task<PutObjectResponse> UpdateReceipt(string etag, RegistrationReceipt receipt, CancellationToken ct = default)
     {
-        return await Store.PutObjectAsync(BuildJournalKey(receipt.ReceiptId), receipt, PutCondition.IfMatch(etag), ct);
+        return await Store.PutObjectAsync(BuildJournalKey(receipt.ReceiptId), receipt, Condition.IfMatch(etag), ct);
     }
 
 }

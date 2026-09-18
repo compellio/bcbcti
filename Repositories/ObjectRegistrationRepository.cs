@@ -24,12 +24,12 @@ public class ObjectRegistrationRepository(IJsonObjectStore store) : Repository(s
     
     public async Task<PutObjectResponse> CreateObjectRegistration(ObjectRegistration state, CancellationToken ct = default)
     {
-        return await Store.PutObjectAsync(BuildObjectRegistrationKey(state.ObjectId), state, PutCondition.IfNoneExists, ct);
+        return await Store.PutObjectAsync(BuildObjectRegistrationKey(state.ObjectId), state, Condition.IfNoneExists, ct);
     }
     
     public async Task<PutObjectResponse> UpdateObjectRegistration(string etag, ObjectRegistration state, CancellationToken ct = default)
     {
-        return await Store.PutObjectAsync(BuildObjectRegistrationKey(state.ObjectId), state, PutCondition.IfMatch(etag), ct);
+        return await Store.PutObjectAsync(BuildObjectRegistrationKey(state.ObjectId), state, Condition.IfMatch(etag), ct);
     }
 
 }

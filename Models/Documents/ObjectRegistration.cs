@@ -34,18 +34,19 @@ public class ObjectRegistration
 
     public string? TarId { get; init; }
     public required IReadOnlyList<Version> History { get; init; }
-    
+
     public required RegistrationState State { get; init; }
-    
-    [JsonIgnore] 
+
+    [JsonIgnore]
     public Version? CurrentVersion => History.LastOrDefault(defaultValue: null);
-    
-    [JsonIgnore] 
+
+    [JsonIgnore]
     [MemberNotNullWhen(true, nameof(TarId), nameof(CurrentVersion))]
     public bool IsRegistered => State is RegistrationState.Registered;
 
-    [JsonIgnore] 
-    public bool IsMutating => State is RegistrationState.Creating or RegistrationState.Updating or RegistrationState.Deleting;
+    [JsonIgnore]
+    public bool IsPending =>
+        State is RegistrationState.Creating or RegistrationState.Updating or RegistrationState.Deleting;
 
     public static ObjectRegistration Create(StixObject stixObject, Guid collectionId)
     {

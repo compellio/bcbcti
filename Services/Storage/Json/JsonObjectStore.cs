@@ -69,10 +69,10 @@ public class JsonObjectStore : IJsonObjectStore
 
     public Task<PutObjectResponse> PutObjectAsync<TPayload>(string objectKey, TPayload input,
         CancellationToken ct = default) =>
-        PutObjectAsync(objectKey, input, PutCondition.None, ct);
+        PutObjectAsync(objectKey, input, Condition.None, ct);
 
     public async Task<PutObjectResponse> PutObjectAsync<TPayload>(string objectKey, TPayload input,
-        PutCondition condition, CancellationToken ct = default)
+        Condition condition, CancellationToken ct = default)
     {
         using var payload = await Serialize(input, ct);
 
@@ -83,10 +83,10 @@ public class JsonObjectStore : IJsonObjectStore
 
     public Task<PutObjectResponse> PutContentAddressedObjectAsync<TPayload>(Func<byte[], string> keyFactory,
         TPayload input, CancellationToken ct = default) =>
-        PutContentAddressedObjectAsync(keyFactory, input, PutCondition.None, ct);
+        PutContentAddressedObjectAsync(keyFactory, input, Condition.None, ct);
 
     public async Task<PutObjectResponse> PutContentAddressedObjectAsync<TPayload>(Func<byte[], string> keyFactory,
-        TPayload input, PutCondition condition, CancellationToken ct = default)
+        TPayload input, Condition condition, CancellationToken ct = default)
     {
         using var payload = await Serialize(input, ct);
         var hashBuffer = await _store.ComputeSha256Hash(payload, ct);

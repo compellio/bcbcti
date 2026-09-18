@@ -2,7 +2,7 @@ namespace Compellio.Bcbcti.Services.Storage.Models;
 
 // see https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Conditional_requests
 // see https://docs.aws.amazon.com/AmazonS3/latest/userguide/conditional-writes.html
-public class PutCondition
+public class Condition
 {
     public enum Kind
     {
@@ -20,13 +20,13 @@ public class PutCondition
     public Kind Type { get; init; }
     public string? ETag { get; }
 
-    private PutCondition(Kind type, string? etag)
+    private Condition(Kind type, string? etag)
     {
         Type = type;
         ETag = etag;
     }
 
-    public static readonly PutCondition None = new(Kind.None, null);
-    public static readonly PutCondition IfNoneExists = new(Kind.IfNotExists, null);
-    public static PutCondition IfMatch(string etag) => new(Kind.IfMatch, etag);
+    public static readonly Condition None = new(Kind.None, null);
+    public static readonly Condition IfNoneExists = new(Kind.IfNotExists, null);
+    public static Condition IfMatch(string etag) => new(Kind.IfMatch, etag);
 }

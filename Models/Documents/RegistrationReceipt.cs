@@ -8,10 +8,6 @@ public enum RegistrationReceiptState
 }
 
 // TODO review location
-public enum RegistryOperation
-{
-    Create, Update, Delete
-}
 
 public class RegistrationReceipt
 {
@@ -21,7 +17,7 @@ public class RegistrationReceipt
     public required Guid CollectionId { get; set; }
 
     // Registration props
-    public required RegistryOperation Operation { get; set; }
+    public required RegistryOperationType OperationType { get; set; }
     public required RegistrationReceiptState State { get; set; }
 
     // TAXII-relevant props

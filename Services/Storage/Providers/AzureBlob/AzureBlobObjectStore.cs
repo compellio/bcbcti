@@ -24,12 +24,12 @@ public class AzureBlobObjectStore : IStreamObjectStore
         throw new NotImplementedException();
     }
     
-    public Task<PutObjectResponse> PutObjectAsync(string objectKey, Stream input, CancellationToken ct = default)
+    public Task<PutObjectResponse> PutObjectAsync(PutObjectRequest request, CancellationToken ct = default)
     {
         throw new NotImplementedException();
     }
     
-    public Task<PutObjectResponse> PutObjectAsync(PutObjectRequest request, CancellationToken ct = default)
+    public Task<DeleteObjectResponse> DeleteObjectAsync(DeleteObjectRequest request, CancellationToken ct = default)
     {
         throw new NotImplementedException();
     }

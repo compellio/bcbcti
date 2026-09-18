@@ -19,7 +19,7 @@ public class JournalRepository(IJsonObjectStore store) : Repository(store)
     
     public async Task<PutObjectResponse> PutJournalEntry(JournalEntry entry, CancellationToken ct = default)
     {
-        return await Store.PutObjectAsync(BuildJournalKey(entry.Id), entry, PutCondition.IfNoneExists, ct);
+        return await Store.PutObjectAsync(BuildJournalKey(entry.Id), entry, Condition.IfNoneExists, ct);
     }
 
 }

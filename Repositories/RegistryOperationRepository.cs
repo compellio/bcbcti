@@ -26,13 +26,13 @@ public class RegistryOperationRepository(IJsonObjectStore store) : Repository(st
     public async Task<PutObjectResponse> CreateRegistryOperation(RegistryOperation entry, CancellationToken ct = default)
     {
         return await Store.PutObjectAsync(BuildOperationKey(entry.ObjectId), entry,
-            PutCondition.IfNoneExists, ct);
+            Condition.IfNoneExists, ct);
     }
 
     public async Task<PutObjectResponse> UpdateRegistryOperation(string etag, RegistryOperation entry, CancellationToken ct = default)
     {
         return await Store.PutObjectAsync(BuildOperationKey(entry.ObjectId), entry,
-            PutCondition.IfMatch(etag), ct);
+            Condition.IfMatch(etag), ct);
     }
 
     public ListObjectsResponse ListRegistryOperations(string? startAfter = null)

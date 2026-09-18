@@ -82,7 +82,7 @@ public class S3ObjectStore : IStreamObjectStore
         exception.StatusCode == HttpStatusCode.NotFound &&
         !string.Equals(exception.ErrorCode, "NoSuchBucket", StringComparison.Ordinal);
 
-    private static bool IsPutConditionConflict(AmazonS3Exception exception) =>
+    private static bool IsConditionConflict(AmazonS3Exception exception) =>
         exception.StatusCode is HttpStatusCode.PreconditionFailed or HttpStatusCode.Conflict;
 
     public Uri GetObjectUri(string objectKey)
@@ -157,9 +157,6 @@ public class S3ObjectStore : IStreamObjectStore
         }
     }
 
-    public Task<PutObjectResponse> PutObjectAsync(string objectKey, Stream input, CancellationToken ct = default) =>
-        PutObjectAsync(new PutObjectRequest { ObjectKey = objectKey, InputStream = input }, ct);
-
     public async Task<PutObjectResponse> PutObjectAsync(PutObjectRequest request, CancellationToken ct = default)
     {
         try
@@ -186,11 +183,11 @@ public class S3ObjectStore : IStreamObjectStore
 
             switch (request.Condition.Type)
             {
-                case PutCondition.Kind.IfMatch:
+                case Condition.Kind.IfMatch:
                     s3Request.IfMatch = request.Condition.ETag;
                     break;
                 
-                case PutCondition.Kind.IfNotExists:
+                case Condition.Kind.IfNotExists:
                     s3Request.IfNoneMatch = "*";
                     break;
             }
@@ -213,7 +210,7 @@ public class S3ObjectStore : IStreamObjectStore
             // TODO FIXME S3 PutObject only throws bucket not found (diff)
             throw new ObjectNotFoundException(e.Message, e);
         }
-        catch (AmazonS3Exception e) when (IsPutConditionConflict(e))
+        catch (AmazonS3Exception e) when (IsConditionConflict(e))
         {
             throw new PutConditionException(e.Message, e);
         }
@@ -242,19 +239,61 @@ public class S3ObjectStore : IStreamObjectStore
 
             return new ListObjectsResponse
             {
-                Objects = paginator.S3Objects.Select(s3Object => new ObjectMetadata
+                Objects = paginator.S3Objects.Select(s3Object => new ObjectSummary
                 {
                     ETag = s3Object.ETag,
                     ObjectKey = s3Object.Key,
-                    PublicObjectUrl = GetObjectUri(s3Object.Key),
                     LastModified = s3Object.LastModified,
                 })
             };
         }
         catch (Exception e)
         {
+            // TODO FIXME lazy IAsyncEnumeration => won't throw here
             Console.WriteLine(e);
             throw;
+        }
+    }
+    
+    public async Task<DeleteObjectResponse> DeleteObjectAsync(DeleteObjectRequest request, CancellationToken ct = default)
+    {
+        try
+        {
+            var s3Request = new Amazon.S3.Model.DeleteObjectRequest()
+            {
+                BucketName = _options.BucketName,
+                Key = request.ObjectKey,
+            };
+
+            switch (request.Condition.Type)
+            {
+                case Condition.Kind.IfMatch:
+                    s3Request.IfMatch = request.Condition.ETag;
+                    break;
+            }
+
+            var response = await _s3Client.DeleteObjectAsync(s3Request, ct);
+            
+            return new DeleteObjectResponse
+            {
+                ObjectKey = request.ObjectKey,
+            };
+        }
+        catch (AmazonS3Exception e) when (IsObjectNotFound(e))
+        {
+            throw new ObjectNotFoundException(e.Message, e);
+        }
+        catch (AmazonS3Exception e) when (IsConditionConflict(e))
+        {
+            throw new PutConditionException(e.Message, e);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
+            throw new ProviderOperationException(e.Message, e);
         }
     }
     

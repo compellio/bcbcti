@@ -2,5 +2,5 @@ namespace Compellio.Bcbcti.Services.Storage.Models;
 
 public class ListObjectsResponse
 {
-    public required IAsyncEnumerable<ObjectMetadata> Objects { get; set; }
+    public required IAsyncEnumerable<ObjectSummary> Objects { get; set; }
 }

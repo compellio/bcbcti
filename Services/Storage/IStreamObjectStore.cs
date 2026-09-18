@@ -18,6 +18,8 @@ public interface IStreamObjectStore
     
     public Task<PutObjectResponse> PutObjectAsync(PutObjectRequest request, CancellationToken ct = default);
 
+    public Task<DeleteObjectResponse> DeleteObjectAsync(DeleteObjectRequest request, CancellationToken ct = default);
+
     /// <remarks>
     /// Modelled after S3, see https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListObjectsV2.html
     /// 
@@ -52,7 +54,5 @@ public interface IStreamObjectStore
     /// </code>
     /// </example>
     public ListObjectsResponse ListObjectsAsync(ListObjectsRequest request);
-    
-    // TODO deleteAsync
-    
+
 }
