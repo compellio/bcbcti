@@ -5,6 +5,7 @@ using Compellio.Bcbcti.Services.Ingestion.Registry;
 using Compellio.Bcbcti.Services.RegistryApi.Models;
 using Compellio.Bcbcti.Services.RegistryApi.Profiles;
 using Compellio.Bcbcti.Services.Storage.Models;
+using UUIDNext;
 
 namespace Compellio.Bcbcti.Services.Ingestion;
 
@@ -29,10 +30,9 @@ public class RegistrationPayloadFactory
 
     public StixArtifact BuildStixArtifact(ObjectMetadata metadata)
     {
-        // TODO uuidv5 based on result.Metadata.PublicObjectUrl
-        // TODO FIXME Stix objects should have factories -> the UUID calculation is something that could/should be encapsulated
-
-        var artifactGuid = Guid.NewGuid();
+        // TODO UUID calculation is something that could/should be encapsulated -> StixUrlArtifact leaks logic BUT UUIDv5 is optional => constructor id should be optional as well
+        var artifactGuid =
+            Uuid.NewNameBased(StixConstants.ScoIdentifierUuid5Namespace, metadata.PublicObjectUrl.ToString());
 
         return new StixUrlArtifact(artifactGuid)
         {
