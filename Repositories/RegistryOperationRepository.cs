@@ -6,7 +6,7 @@ namespace Compellio.Bcbcti.Repositories;
 
 public class RegistryOperationRepository(IJsonObjectStore store) : Repository(store)
 {
-    private const string Prefix = "pending/";
+    private const string Prefix = "pending-operations/";
 
     private string BuildOperationKey(string objectId)
     {

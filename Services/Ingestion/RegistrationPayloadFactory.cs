@@ -1,6 +1,5 @@
 using Compellio.Bcbcti.Models.Documents;
 using Compellio.Bcbcti.Models.Stix;
-using Compellio.Bcbcti.Options;
 using Compellio.Bcbcti.Services.Ingestion.Registry;
 using Compellio.Bcbcti.Services.RegistryApi.Models;
 using Compellio.Bcbcti.Services.RegistryApi.Profiles;
@@ -15,9 +14,7 @@ public class RegistrationPayloadFactory
     {
         return new TarPayload
         {
-            JsonLdContext = StixBundleProfileV1.ProfileId,
-            JsonLdType = StixBundleProfileV1.Type,
-            Bundle = bundle
+            JsonLdContext = StixBundleProfileV1.ProfileId, JsonLdType = StixBundleProfileV1.Type, Bundle = bundle
         };
     }
 
@@ -51,39 +48,52 @@ public class RegistrationPayloadFactory
         var stixBundle = BuildStixBundle([stixArtifact]);
         var tarPayload = BuildTarPayload(stixBundle);
 
-        return new RegistrationPayload
+        return new RegistrationPayload { Artifact = stixArtifact, Bundle = stixBundle, Payload = tarPayload };
+    }
+
+    public RegistryOperation BuildRegistryOperation(Guid collectionId, Guid journalId, DateTime submittedAt,
+        StixObject stixObject, RegistryOperationType operationType)
+    {
+        return new RegistryOperation
         {
-            Artifact = stixArtifact,
-            Bundle = stixBundle,
-            Payload = tarPayload
+            CollectionId = collectionId,
+            ObjectId = stixObject.Id,
+            JournalId = journalId,
+            SubmittedAt = submittedAt,
+            OperationType = operationType
         };
     }
 
-    public RegistrationReceipt BuildRegistrationReceipt(RegistryOperation operation, TarReceipt receipt, CollectionOptions collection, ObjectMetadata objectMetadata,
-        Guid journalId, DateTime submittedAt, StixObject stixObject)
+    public RegistrationReceipt BuildRegistrationReceipt(RegistryOperation operation, RegistryResponse registryResponse,
+        ObjectMetadata objectMetadata, StixObject stixObject)
     {
         return new RegistrationReceipt
         {
-            JournalId = journalId,
-            CollectionId = collection.Id,
-            
-            Operation = operation,
-            
+            JournalId = operation.JournalId,
+            CollectionId = operation.CollectionId,
+            OperationType = operation.OperationType,
             State = RegistrationReceiptState.Sent,
-            ReceiptId = receipt.ReceiptId,
-            
+            ReceiptId = registryResponse.Receipt.ReceiptId,
             ObjectKey = objectMetadata.ObjectKey,
             ObjectId = stixObject.Id,
-            ObjectVersion = stixObject.Version(submittedAt), // TODO FIXME DANGER duplicate
+            ObjectVersion = stixObject.Version(operation.SubmittedAt), // TODO FIXME DANGER duplicate
 
-            SubmittedAt = submittedAt,
-            SentAt = receipt.SentAt,
-
+            SubmittedAt = operation.SubmittedAt,
+            SentAt = registryResponse.SentAt,
             Metadata = new RegistrationMetadata
             {
-                Version = receipt.Version,
-                RegistryChecksum = receipt.Checksum,
+                Version = registryResponse.Receipt.Version, RegistryChecksum = registryResponse.Receipt.Checksum,
             }
+        };
+    }
+
+    public StixIngestionResult BuildFailedIngestionResult(StixObject stixObject, string? message)
+    {
+        return new StixIngestionResult
+        {
+            StixObject = stixObject,
+            Resolution = IngestionResultResolution.Failure,
+            ResolutionFailureMessage = message
         };
     }
 }

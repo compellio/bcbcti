@@ -64,7 +64,7 @@ public class ReconciliationHostedService : BackgroundService
         }
     }
 
-    private async Task ReconcilePendingOperation(ObjectMetadata operationMetadata, CancellationToken ct = default)
+    private async Task ReconcilePendingOperation(ObjectSummary operationMetadata, CancellationToken ct = default)
     {
         var operation = await _registryOperationRepository.GetRegistryOperation(operationMetadata.ObjectKey, ct);
 

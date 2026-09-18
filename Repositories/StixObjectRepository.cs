@@ -26,6 +26,6 @@ public class StixObjectRepository([FromKeyedServices("canonical")] IJsonObjectSt
 
     public async Task<PutObjectResponse> StoreStixObject(StixObject entry, CancellationToken ct = default)
     {
-        return await Store.PutContentAddressedObjectAsync(hb => BuildStixObjectKey(hb), entry, PutCondition.IfNoneExists, ct);
+        return await Store.PutContentAddressedObjectAsync(hb => BuildStixObjectKey(hb), entry, Condition.IfNoneExists, ct);
     }
 }
