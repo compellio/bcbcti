@@ -17,47 +17,62 @@ public class RegistryApiClient : IRegistryApiClient
         _serializerOptions = serializerOptions;
     }
     
-    public async Task<TarReceipt> RegisterTarPayload(TarPayload tarPayload)
+    public async Task<RegistryResponse> RegisterTarPayload(TarPayload tarPayload, CancellationToken ct = default)
     {
         var data = JsonSerializer.Serialize(tarPayload, _serializerOptions);
 
-        var sentAt = DateTime.UtcNow;
         Console.WriteLine($"TODO [POST /api/v1/TAR]\n{data}");
         // dummy response (!careful: checksum in hex, not base64)
 
-        return new TarReceipt
+        return new RegistryResponse
         {
-            ReceiptId = Guid.NewGuid(),
-            Checksum = "0x7A38BF81F383F69433AD6E900D35B3E2385593F76A7B7AB5D4355B8BA41EE24B",
-            Version = 0,
-            Data = JsonDocument.Parse(data),
-            SentAt = sentAt
+            SentAt = DateTime.UtcNow,
+            Receipt = new TarReceipt
+            {
+                ReceiptId = Guid.NewGuid(),
+                Checksum = "0x7A38BF81F383F69433AD6E900D35B3E2385593F76A7B7AB5D4355B8BA41EE24B",
+                Version = 0,
+                Data = JsonDocument.Parse(data),
+            }
         };
     }
 
-    public async Task<TarReceipt> UpdateTarPayload(string tarId, TarPayload tarPayload)
+    public async Task<RegistryResponse> UpdateTarPayload(string tarId, TarPayload tarPayload, CancellationToken ct = default)
     {        
         var data = JsonSerializer.Serialize(tarPayload, _serializerOptions);
         
-        var sentAt = DateTime.UtcNow;
         Console.WriteLine($"TODO [PUT /api/v1/TAR/{tarId}]\n{data}");
         
-        return new TarReceipt
+        return new RegistryResponse
         {
-            ReceiptId = Guid.NewGuid(),
-            Checksum = "0x7A38BF81F383F69433AD6E900D35B3E2385593F76A7B7AB5D4355B8BA41EE24B",
-            Version = 2,
-            Data = JsonDocument.Parse(data),
-            SentAt = sentAt
+            SentAt = DateTime.UtcNow,
+            Receipt = new TarReceipt
+            {
+                ReceiptId = Guid.NewGuid(),
+                Checksum = "0x7A38BF81F383F69433AD6E900D35B3E2385593F76A7B7AB5D4355B8BA41EE24B",
+                Version = 2,
+                Data = JsonDocument.Parse(data),
+            }
         };
     }
 
-    public Task<TarReceipt> GetTar(Guid receiptId)
+    public async Task<RegistryResponse> GetTar(Guid receiptId, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        return new RegistryResponse
+        {
+            SentAt = DateTime.UtcNow,
+            Receipt = new TarReceipt
+            {
+                Id = Random.Shared.Next(0, 100) < 40 ? "urn:tar:xxxx" : null,
+                ReceiptId = receiptId,
+                Checksum = "0x7A38BF81F383F69433AD6E900D35B3E2385593F76A7B7AB5D4355B8BA41EE24B",
+                Version = 2,
+                Data = JsonDocument.Parse("{}")
+            }
+        };
     }
 
-    public Task<TarReceipt> GetTar(string tarId)
+    public Task<RegistryResponse> GetTar(string tarId, CancellationToken ct = default)
     {
         throw new NotImplementedException();
     }

@@ -6,22 +6,22 @@ namespace Compellio.Bcbcti.Services.RegistryApi;
 public interface IRegistryApiClient
 {
 
-    public Task<TarReceipt> RegisterTarPayload(TarPayload tarPayload);
+    public Task<RegistryResponse> RegisterTarPayload(TarPayload tarPayload, CancellationToken ct = default);
 
-    public Task<TarReceipt> UpdateTarPayload(string tarId, TarPayload tarPayload);
+    public Task<RegistryResponse> UpdateTarPayload(string tarId, TarPayload tarPayload, CancellationToken ct = default);
     
     /// <summary>
     /// Retrieve a TAR by its id
     /// </summary>
     /// <remarks>Calls GET /api/v1/TAR/{tarID}</remarks>
     /// <returns></returns>
-    public Task<TarReceipt> GetTar(string tarId);
+    public Task<RegistryResponse> GetTar(string tarId, CancellationToken ct = default);
     
     /// <summary>
     /// Retrive a TAR by a receipt id
     /// </summary>
     /// <remarks>Calls GET /api/v1/TAR/tarId/{receiptID}</remarks>
     /// <returns></returns>
-    public Task<TarReceipt> GetTar(Guid receiptId);
+    public Task<RegistryResponse> GetTar(Guid receiptId, CancellationToken ct = default);
 
 }
