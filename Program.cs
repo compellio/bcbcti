@@ -64,6 +64,8 @@ builder.Services
         options.JsonSerializerOptions.WriteIndented = true;
     });
 
+builder.Services.AddHostedService<ReconciliationHostedService>();
+
 builder.Services.ConfigureOptions<ConfigureTaxiiMediaTypes>();
 
 builder.Services.AddExceptionHandler<TaxiiExceptionHandler>();
