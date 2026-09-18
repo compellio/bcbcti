@@ -51,7 +51,8 @@ public interface IStreamObjectStore
     /// ]
     /// </code>
     /// </example>
-    public Task<ListObjectResponse> ListObjectsAsync(ListObjectRequest request, CancellationToken ct = default);
+    public ListObjectsResponse ListObjectsAsync(ListObjectsRequest request);
     
     // TODO deleteAsync
+    
 }

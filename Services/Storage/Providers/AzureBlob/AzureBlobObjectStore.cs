@@ -34,7 +34,7 @@ public class AzureBlobObjectStore : IStreamObjectStore
         throw new NotImplementedException();
     }
 
-    public Task<ListObjectResponse> ListObjectsAsync(ListObjectRequest request, CancellationToken ct = default)
+    public ListObjectsResponse ListObjectsAsync(ListObjectsRequest request)
     {
         throw new NotImplementedException();
     }

@@ -14,6 +14,8 @@ public interface IJsonObjectStore
     public Task<PutObjectResponse> PutObjectAsync<TPayload>(string objectKey, TPayload input, PutCondition condition,
         CancellationToken ct = default);
 
+    public ListObjectsResponse ListObjectsAsync(string prefix, string? startAfter = null);
+    
     /// <summary>
     /// Similar to PutObjectAsync but for storing objects keys containing the stored content hash.
     /// TODO REVIEW (interface segregration) method should be moved to a separate/sibling IJsonObjectStore-ish class

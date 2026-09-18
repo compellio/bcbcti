@@ -208,8 +208,9 @@ public class S3ObjectStore : IStreamObjectStore
                 }
             };
         }
-        catch (AmazonS3Exception e) when (IsObjectNotFound(e)) // TODO FIXME S3 PutObject only throws bucket not found (diff)
+        catch (AmazonS3Exception e) when (IsObjectNotFound(e))
         {
+            // TODO FIXME S3 PutObject only throws bucket not found (diff)
             throw new ObjectNotFoundException(e.Message, e);
         }
         catch (AmazonS3Exception e) when (IsPutConditionConflict(e))
@@ -226,8 +227,35 @@ public class S3ObjectStore : IStreamObjectStore
         }
     }
 
-    public Task<ListObjectResponse> ListObjectsAsync(ListObjectRequest request, CancellationToken ct = default)
+    public ListObjectsResponse ListObjectsAsync(ListObjectsRequest request)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var s3ListRequest = new Amazon.S3.Model.ListObjectsV2Request
+            {
+                BucketName = _options.BucketName,
+                Prefix = request.Prefix,
+                StartAfter =  request.StartAfter
+            };
+
+            var paginator = _s3Client.Paginators.ListObjectsV2(s3ListRequest);
+
+            return new ListObjectsResponse
+            {
+                Objects = paginator.S3Objects.Select(s3Object => new ObjectMetadata
+                {
+                    ETag = s3Object.ETag,
+                    ObjectKey = s3Object.Key,
+                    PublicObjectUrl = GetObjectUri(s3Object.Key),
+                    LastModified = s3Object.LastModified,
+                })
+            };
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
+    
 }

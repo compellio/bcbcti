@@ -1,6 +1,8 @@
+using System.Runtime.CompilerServices;
 using Compellio.Bcbcti.Services.Serialization.Json;
 using Compellio.Bcbcti.Services.Storage.Exceptions;
 using Compellio.Bcbcti.Services.Storage.Models;
+using Microsoft.Extensions.Options;
 
 namespace Compellio.Bcbcti.Services.Storage.Json;
 
@@ -43,7 +45,8 @@ public class JsonObjectStore : IJsonObjectStore
         return new GetObjectResponse<TPayload> { Body = payload, Metadata = response.Metadata };
     }
 
-    public async Task<GetObjectResponse<TPayload>?> FindObjectAsync<TPayload>(string objectKey, CancellationToken ct = default)
+    public async Task<GetObjectResponse<TPayload>?> FindObjectAsync<TPayload>(string objectKey,
+        CancellationToken ct = default)
     {
         try
         {
@@ -53,6 +56,15 @@ public class JsonObjectStore : IJsonObjectStore
         {
             return null;
         }
+    }
+
+    public ListObjectsResponse ListObjectsAsync(string prefix, string? startAfter = null)
+    {
+        return _store.ListObjectsAsync(new ListObjectsRequest
+        {
+            Prefix = prefix,
+            StartAfter = startAfter,
+        });
     }
 
     public Task<PutObjectResponse> PutObjectAsync<TPayload>(string objectKey, TPayload input,
