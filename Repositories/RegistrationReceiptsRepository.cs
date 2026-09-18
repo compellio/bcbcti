@@ -12,9 +12,9 @@ public class RegistrationReceiptsRepository(IJsonObjectStore store) : Repository
         return $"receipts/{id}.json";
     }
     
-    public async Task<GetObjectResponse<JournalEntry>> GetReceipt(Guid id, CancellationToken ct = default)
+    public async Task<GetObjectResponse<RegistrationReceipt>> GetReceipt(Guid id, CancellationToken ct = default)
     {
-        return await Store.GetObjectAsync<JournalEntry>(BuildJournalKey(id), ct);
+        return await Store.GetObjectAsync<RegistrationReceipt>(BuildJournalKey(id), ct);
     }
     
     public async Task<PutObjectResponse> StoreReceipt(RegistrationReceipt receipt, CancellationToken ct = default)
@@ -22,7 +22,7 @@ public class RegistrationReceiptsRepository(IJsonObjectStore store) : Repository
         return await Store.PutObjectAsync(BuildJournalKey(receipt.ReceiptId), receipt, PutCondition.IfNoneExists, ct);
     }
     
-    public async Task<PutObjectResponse> UpdateReceipt(RegistrationReceipt receipt, string etag, CancellationToken ct = default)
+    public async Task<PutObjectResponse> UpdateReceipt(string etag, RegistrationReceipt receipt, CancellationToken ct = default)
     {
         return await Store.PutObjectAsync(BuildJournalKey(receipt.ReceiptId), receipt, PutCondition.IfMatch(etag), ct);
     }

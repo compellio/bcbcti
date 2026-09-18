@@ -6,6 +6,8 @@ public interface IJsonObjectStore
 {
     public Task<GetObjectResponse<TPayload>> GetObjectAsync<TPayload>(string objectKey, CancellationToken ct = default);
 
+    public Task<GetObjectResponse<TPayload>?> FindObjectAsync<TPayload>(string objectKey, CancellationToken ct = default);
+
     public Task<PutObjectResponse> PutObjectAsync<TPayload>(string objectKey, TPayload input,
         CancellationToken ct = default);
 

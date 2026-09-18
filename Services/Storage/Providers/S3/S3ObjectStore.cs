@@ -131,7 +131,7 @@ public class S3ObjectStore : IStreamObjectStore
                 }
             };
         }
-        catch (AmazonS3Exception e) when (IsObjectNotFound(e)) // TODO FIXME S3 PutObject only throws bucket not found
+        catch (AmazonS3Exception e) when (IsObjectNotFound(e))
         {
             throw new ObjectNotFoundException(e.Message, e);
         }
@@ -142,6 +142,18 @@ public class S3ObjectStore : IStreamObjectStore
         catch (Exception e)
         {
             throw new ProviderOperationException(e.Message, e);
+        }
+    }
+
+    public async Task<GetObjectResponse<Stream>?> FindObjectAsync(string objectKey, CancellationToken ct = default)
+    {
+        try
+        {
+            return await GetObjectAsync(objectKey, ct);
+        }
+        catch (ObjectNotFoundException)
+        {
+            return null;
         }
     }
 
@@ -196,7 +208,7 @@ public class S3ObjectStore : IStreamObjectStore
                 }
             };
         }
-        catch (AmazonS3Exception e) when (IsObjectNotFound(e))
+        catch (AmazonS3Exception e) when (IsObjectNotFound(e)) // TODO FIXME S3 PutObject only throws bucket not found (diff)
         {
             throw new ObjectNotFoundException(e.Message, e);
         }

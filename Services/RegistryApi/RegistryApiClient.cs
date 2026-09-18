@@ -9,25 +9,20 @@ namespace Compellio.Bcbcti.Services.RegistryApi;
 // TODO
 public class RegistryApiClient : IRegistryApiClient
 {
+
+    private JsonSerializerOptions _serializerOptions;
+
+    public RegistryApiClient(JsonSerializerOptions serializerOptions/* + http client */)
+    {
+        _serializerOptions = serializerOptions;
+    }
     
     public async Task<TarReceipt> RegisterTarPayload(TarPayload tarPayload)
     {
-        // TODO somehow globally configure
-        // see BCBCTI.Services.Serialization.Converters.StixJsonConverter
-        var stixSerializerOptions = new JsonSerializerOptions()
-        {
-            WriteIndented = true,
-            PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-        };
-        stixSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower));
+        var data = JsonSerializer.Serialize(tarPayload, _serializerOptions);
 
-        // TODO WARNING!!! ONLY THE INNER STIX BUNDLE NEEDS TO BE SERIALIZED WITH stixSerializerOptions
-        //                 THE REMAINING TAR ENVELOPE SHOULD NOT (snake case, etc.)!
-        var data = JsonSerializer.Serialize(tarPayload, stixSerializerOptions);
-
-        Console.WriteLine($"TODO Call Registry API to register: {data}");
+        var sentAt = DateTime.UtcNow;
+        Console.WriteLine($"TODO [POST /api/v1/TAR]\n{data}");
         // dummy response (!careful: checksum in hex, not base64)
 
         return new TarReceipt
@@ -35,7 +30,25 @@ public class RegistryApiClient : IRegistryApiClient
             ReceiptId = Guid.NewGuid(),
             Checksum = "0x7A38BF81F383F69433AD6E900D35B3E2385593F76A7B7AB5D4355B8BA41EE24B",
             Version = 0,
-            Data = JsonDocument.Parse(data)
+            Data = JsonDocument.Parse(data),
+            SentAt = sentAt
+        };
+    }
+
+    public async Task<TarReceipt> UpdateTarPayload(string tarId, TarPayload tarPayload)
+    {        
+        var data = JsonSerializer.Serialize(tarPayload, _serializerOptions);
+        
+        var sentAt = DateTime.UtcNow;
+        Console.WriteLine($"TODO [PUT /api/v1/TAR/{tarId}]\n{data}");
+        
+        return new TarReceipt
+        {
+            ReceiptId = Guid.NewGuid(),
+            Checksum = "0x7A38BF81F383F69433AD6E900D35B3E2385593F76A7B7AB5D4355B8BA41EE24B",
+            Version = 2,
+            Data = JsonDocument.Parse(data),
+            SentAt = sentAt
         };
     }
     

@@ -7,19 +7,29 @@ namespace Compellio.Bcbcti.Repositories;
 public class ObjectRegistrationRepository(IJsonObjectStore store) : Repository(store)
 {
 
-    private string BuildRegistrationStateKey(string id)
+    private string BuildObjectRegistrationKey(string id)
     {
         return $"registrations/{id}.json";
     }
     
-    public async Task<GetObjectResponse<ObjectRegistration>> GetReceipt(string id, CancellationToken ct = default)
+    public async Task<GetObjectResponse<ObjectRegistration>> GetObjectRegistration(string objectId, CancellationToken ct = default)
     {
-        return await Store.GetObjectAsync<ObjectRegistration>(BuildRegistrationStateKey(id), ct);
+        return await Store.GetObjectAsync<ObjectRegistration>(BuildObjectRegistrationKey(objectId), ct);
     }
     
-    public async Task<PutObjectResponse> StoreReceipt(ObjectRegistration state, CancellationToken ct = default)
+    public async Task<GetObjectResponse<ObjectRegistration>?> FindObjectRegistration(string objectId, CancellationToken ct = default)
     {
-        return await Store.PutObjectAsync(BuildRegistrationStateKey(state.ObjectId), state, PutCondition.IfNoneExists, ct);
+        return await Store.FindObjectAsync<ObjectRegistration>(BuildObjectRegistrationKey(objectId), ct);
+    }
+    
+    public async Task<PutObjectResponse> StoreObjectRegistration(ObjectRegistration state, CancellationToken ct = default)
+    {
+        return await Store.PutObjectAsync(BuildObjectRegistrationKey(state.ObjectId), state, PutCondition.IfNoneExists, ct);
+    }
+    
+    public async Task<PutObjectResponse> PutObjectRegistration(string etag, ObjectRegistration state, CancellationToken ct = default)
+    {
+        return await Store.PutObjectAsync(BuildObjectRegistrationKey(state.ObjectId), state, PutCondition.IfMatch(etag), ct);
     }
 
 }

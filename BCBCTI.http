@@ -29,7 +29,7 @@ Accept: application/taxii+json;version=2.1
 GET {{BCBCTI_HostAddress}}/api/collections/default
 Accept: application/taxii+json;version=2.1
 
-###
+### Create new objects
 
 POST {{BCBCTI_HostAddress}}/api/collections/default
 Accept: application/taxii+json;version=2.1
@@ -81,6 +81,41 @@ Content-Type: application/taxii+json;version=2.1
 			"relationship_type": "attributed-to",
 			"source_ref": "threat-actor--dfaa8d77-07e2-4e28-b2c8-92e9f7b04428",
 			"target_ref": "identity--733c5838-34d9-4fbf-949c-62aba761184c"
+		}
+	]
+}
+
+### Update existing (adds "hacker" to the "threat_actor_types")
+
+POST {{BCBCTI_HostAddress}}/api/collections/default
+Accept: application/taxii+json;version=2.1
+Content-Type: application/taxii+json;version=2.1
+
+{
+	"objects": [
+		{
+			"type": "threat-actor",
+			"spec_version": "2.1",
+			"id": "threat-actor--dfaa8d77-07e2-4e28-b2c8-92e9f7b04428",
+			"created": "2014-11-19T23:39:03.893Z",
+			"modified": "2014-11-20T23:39:03.893Z",
+			"name": "Disco Team Threat Actor Group",
+			"description": "This organized threat actor group operates to create profit from all types of crime.",
+			"threat_actor_types": [
+				"crime-syndicate", "hacker"
+			],
+			"aliases": [
+				"Equipo del Discoteca"
+			],
+			"roles": [
+				"agent"
+			],
+			"goals": [
+				"Steal Credit Card Information"
+			],
+			"sophistication": "expert",
+			"resource_level": "organization",
+			"primary_motivation": "personal-gain"
 		}
 	]
 }

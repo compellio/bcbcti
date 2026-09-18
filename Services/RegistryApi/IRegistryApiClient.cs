@@ -8,4 +8,6 @@ public interface IRegistryApiClient
 
     public Task<TarReceipt> RegisterTarPayload(TarPayload tarPayload);
 
+    public Task<TarReceipt> UpdateTarPayload(string tarId, TarPayload tarPayload);
+
 }
