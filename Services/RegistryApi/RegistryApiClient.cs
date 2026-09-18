@@ -51,5 +51,15 @@ public class RegistryApiClient : IRegistryApiClient
             SentAt = sentAt
         };
     }
+
+    public Task<TarReceipt> GetTar(Guid receiptId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<TarReceipt> GetTar(string tarId)
+    {
+        throw new NotImplementedException();
+    }
     
 }
