@@ -50,6 +50,10 @@ public class StixIngestionService
                 {
                     results[i] = await ProcessStixObject(collection, journalId, submittedAt, objects[i], ctoken);
                 }
+                catch (PutConditionException)
+                {
+                    results[i] = _registrationPayloadFactory.BuildAbortedIngestionResult(objects[i]);
+                }
                 catch (ProviderOperationException)
                 {
                     results[i] =
@@ -72,7 +76,7 @@ public class StixIngestionService
         // 1. Determine create/update/abort
         var decision = await ResolveDecision(stixObject, ct);
 
-        _logger.LogDebug("Ingesting {ObjectId} ({DecisionString})", stixObject.Id, decision switch
+        _logger.LogDebug("Ingesting object {ObjectId} ({DecisionString})", stixObject.Id, decision switch
         {
             StixIngestionDecision.AbortDecision => "will abort",
             StixIngestionDecision.CreateDecision => "will create",
@@ -82,7 +86,7 @@ public class StixIngestionService
 
         if (decision is StixIngestionDecision.AbortDecision)
         {
-            return new StixIngestionResult { Resolution = IngestionResultResolution.Abort, StixObject = stixObject };
+            return _registrationPayloadFactory.BuildAbortedIngestionResult(stixObject);
         }
 
         // 2. Store submitted STIX (canonicalization handled)
@@ -94,7 +98,6 @@ public class StixIngestionService
         // 4. Register operation
         var operation =
             await StoreRegistrationOperation(collection.Id, journalId, submittedAt, decision, stixObject, ct);
-
         var operationMetadata = await _registryOperationRepository.CreateRegistryOperation(operation, ct);
 
         // 5. Call the Registry API to register payload

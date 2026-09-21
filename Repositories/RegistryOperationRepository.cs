@@ -42,12 +42,13 @@ public class RegistryOperationRepository(IJsonObjectStore store) : Repository(st
         return Store.ListObjectsAsync(Prefix, startAfter);
     }
 
-    public Task<DeleteObjectResponse> DeleteRegistryOperation(Guid journalId, string objectId,
-        CancellationToken ct = default) =>
-        DeleteRegistryOperation(BuildOperationKey(objectId), ct);
-
-    public async Task<DeleteObjectResponse> DeleteRegistryOperation(string key, CancellationToken ct = default)
+    public async Task<DeleteObjectResponse> DeleteRegistryOperation(string objectId, CancellationToken ct = default)
     {
-        return await Store.DeleteObjectAsync(key, ct);
+        return await Store.DeleteObjectAsync(BuildOperationKey(objectId), ct);
+    }
+
+    public async Task<DeleteObjectResponse> DeleteRegistryOperationByKey(string objectKey, CancellationToken ct = default)
+    {
+        return await Store.DeleteObjectAsync(objectKey, ct);
     }
 }

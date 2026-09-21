@@ -59,7 +59,20 @@ public class ReconciliationHostedService : BackgroundService
         await foreach (var operation in _registryOperationRepository.ListRegistryOperations()
                            .Objects.WithCancellation(ct))
         {
-            await ReconcilePendingOperation(operation, ct);
+            try
+            {
+                await ReconcilePendingOperation(operation, ct);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error reconciling pending operation {Key}; will retry", operation.ObjectKey);
+                // TODO FIXME only for debug
+                Console.WriteLine(e);
+            }
         }
     }
 
@@ -83,8 +96,8 @@ public class ReconciliationHostedService : BackgroundService
 
         if (resolution is StixReconciliationResult.SuccessResolution)
         {
-            // delete pending task
-            await _registryOperationRepository.DeleteRegistryOperation(operationMetadata.ObjectKey, ct);
+            // Delete pending task
+            await _registryOperationRepository.DeleteRegistryOperationByKey(operationMetadata.ObjectKey, ct);
         }
     }
 }

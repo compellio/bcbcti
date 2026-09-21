@@ -76,5 +76,13 @@ public class RegistryApiClient : IRegistryApiClient
     {
         throw new NotImplementedException();
     }
-    
+
+    public Task<RegistryResponse> ValidateCallback(/* TODO http context */)
+    {
+        // verify callback signature based on config secret!
+        
+        // parse payload
+        
+        throw new NotImplementedException();
+    }
 }

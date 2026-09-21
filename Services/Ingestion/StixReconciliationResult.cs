@@ -6,7 +6,10 @@ public abstract record StixReconciliationResult
     {
     }
 
-    public sealed record SuccessResolution : StixReconciliationResult;
+    public sealed record SuccessResolution : StixReconciliationResult
+    {
+        public required string ObjectId { get; init; }
+    };
 
     public sealed record AbortResolution : StixReconciliationResult;
 
@@ -14,7 +17,11 @@ public abstract record StixReconciliationResult
 
     public sealed record SkipResolution : StixReconciliationResult;
 
-    public static readonly StixReconciliationResult Success = new SuccessResolution();
+    public static StixReconciliationResult Success(string objectId) => new SuccessResolution
+    {
+        ObjectId = objectId
+    };
+
     public static readonly StixReconciliationResult Abort = new AbortResolution();
     public static readonly StixReconciliationResult Failure = new FailureResolution();
     public static readonly StixReconciliationResult Skip = new SkipResolution();

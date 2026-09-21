@@ -9,7 +9,7 @@ public enum RegistrationState
     Unregistered, // Creating failed - TODO REVIEW if ingestion fails this document won't get created => no document = unregistered
     Creating, // awaiting callback for 1st registration
     Updating, // awaiting callback for update registration
-    Registered, // ok
+    Registered, // ok - idle
     Deleting,
     Deleted
 

@@ -14,7 +14,10 @@ public class RegistrationPayloadFactory
     {
         return new TarPayload
         {
-            JsonLdContext = StixBundleProfileV1.ProfileId, JsonLdType = StixBundleProfileV1.Type, Bundle = bundle
+            JsonLdContext = StixBundleProfileV1.ProfileId,
+            JsonLdType = StixBundleProfileV1.Type,
+            Version = "2.1",
+            Bundle = bundle
         };
     }
 
@@ -94,6 +97,14 @@ public class RegistrationPayloadFactory
             StixObject = stixObject,
             Resolution = IngestionResultResolution.Failure,
             ResolutionFailureMessage = message
+        };
+    }
+    public StixIngestionResult BuildAbortedIngestionResult(StixObject stixObject)
+    {
+        return new StixIngestionResult
+        {
+            StixObject = stixObject,
+            Resolution = IngestionResultResolution.Abort,
         };
     }
 }

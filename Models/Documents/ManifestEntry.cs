@@ -8,5 +8,5 @@ public class ManifestEntry
     public required Guid ReceiptId { get; set; }
     public required DateTime CompletedAt { get; set; } // = TAXII DateAdded
     
-    public required RegistrationMetadata VersionMetadata { get; set; } // TODO FIXME issue: TarId required in this case
+    public required RegistrationMetadata RegistrationMetadata { get; set; } // TODO FIXME issue: TarId required in this case
 }

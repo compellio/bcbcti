@@ -11,5 +11,10 @@ public class TarPayload
     [JsonPropertyName("@type")] 
     public required string JsonLdType { get; set; }
 
+    /// <summary>
+    /// The STIX document version
+    /// </summary>
+    public required string Version { get; set; }
+    
     public required StixBundle Bundle { get; set; }
 }
