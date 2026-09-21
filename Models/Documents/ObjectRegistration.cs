@@ -26,6 +26,8 @@ public class ObjectRegistration
         public required string ObjectKey { get; init; }
         public required DateTime ObjectVersion { get; init; }
 
+        public required string ManifestKey { get; init; }
+        
         public required DateTime CompletedAt { get; init; } // = to calculate TAXII DateAdded
     }
 
@@ -56,7 +58,7 @@ public class ObjectRegistration
         };
     }
 
-    public ObjectRegistration AsRegistered(string tarId, Version version)
+    public ObjectRegistration AsCreated(string tarId, Version version)
     {
         return new ObjectRegistration()
         {
@@ -64,7 +66,7 @@ public class ObjectRegistration
             CollectionId = CollectionId,
             State = RegistrationState.Registered,
             TarId = tarId,
-            History = [.. History, version]
+            History = [version]
         };
     }
 

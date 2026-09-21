@@ -101,4 +101,14 @@ public class JsonObjectStore : IJsonObjectStore
 
         return await _store.PutObjectAsync(request, ct);
     }
+
+    public Task<DeleteObjectResponse> DeleteObjectAsync(string objectKey, CancellationToken ct = default)
+    {
+        var request = new DeleteObjectRequest
+        {
+            ObjectKey = objectKey
+        };
+        
+        return _store.DeleteObjectAsync(request, ct);
+    }
 }

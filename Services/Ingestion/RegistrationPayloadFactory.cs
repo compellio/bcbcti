@@ -80,7 +80,7 @@ public class RegistrationPayloadFactory
 
             SubmittedAt = operation.SubmittedAt,
             SentAt = registryResponse.SentAt,
-            Metadata = new RegistrationMetadata
+            Metadata = new VersionMetadata
             {
                 Version = registryResponse.Receipt.Version, RegistryChecksum = registryResponse.Receipt.Checksum,
             }

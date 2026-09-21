@@ -23,13 +23,15 @@ public class RegistryOperationRepository(IJsonObjectStore store) : Repository(st
         return await Store.GetObjectAsync<RegistryOperation>(key, ct);
     }
 
-    public async Task<PutObjectResponse> CreateRegistryOperation(RegistryOperation entry, CancellationToken ct = default)
+    public async Task<PutObjectResponse> CreateRegistryOperation(RegistryOperation entry,
+        CancellationToken ct = default)
     {
         return await Store.PutObjectAsync(BuildOperationKey(entry.ObjectId), entry,
             Condition.IfNoneExists, ct);
     }
 
-    public async Task<PutObjectResponse> UpdateRegistryOperation(string etag, RegistryOperation entry, CancellationToken ct = default)
+    public async Task<PutObjectResponse> UpdateRegistryOperation(string etag, RegistryOperation entry,
+        CancellationToken ct = default)
     {
         return await Store.PutObjectAsync(BuildOperationKey(entry.ObjectId), entry,
             Condition.IfMatch(etag), ct);
@@ -40,13 +42,12 @@ public class RegistryOperationRepository(IJsonObjectStore store) : Repository(st
         return Store.ListObjectsAsync(Prefix, startAfter);
     }
 
-    public Task<PutObjectResponse> DeleteRegistryOperation(Guid journalId, string objectId,
+    public Task<DeleteObjectResponse> DeleteRegistryOperation(Guid journalId, string objectId,
         CancellationToken ct = default) =>
         DeleteRegistryOperation(BuildOperationKey(objectId), ct);
 
-    public async Task<PutObjectResponse> DeleteRegistryOperation(string key, CancellationToken ct = default)
+    public async Task<DeleteObjectResponse> DeleteRegistryOperation(string key, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
-        // return await Store.DeleteObjectAsync(key, entry, PutCondition.IfNoneExists, ct);
+        return await Store.DeleteObjectAsync(key, ct);
     }
 }
