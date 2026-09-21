@@ -11,16 +11,15 @@ public class ReconciliationHostedService : BackgroundService
 {
     private readonly ILogger<ReconciliationHostedService> _logger;
 
-    private readonly StixIngestionService _stixIngestionService;
+    private readonly StixReconciliationService _stixReconciliationService;
 
     private readonly RegistryOperationRepository _registryOperationRepository;
-
     private readonly IRegistryApiClient _registryApiClient;
 
     private readonly TimeSpan _refreshFrequency;
 
     public ReconciliationHostedService(IOptions<BcbctiOptions> options, ILogger<ReconciliationHostedService> logger,
-        StixIngestionService stixIngestionService, RegistryOperationRepository registryOperationRepository,
+        StixReconciliationService stixReconciliationService, RegistryOperationRepository registryOperationRepository,
         IRegistryApiClient registryApiClient)
     {
         _logger = logger;
@@ -29,7 +28,7 @@ public class ReconciliationHostedService : BackgroundService
         _refreshFrequency = TimeSpan.ParseExact(options.Value.ReconciliationFrequency, "c", null);
 
         _registryOperationRepository = registryOperationRepository;
-        _stixIngestionService = stixIngestionService;
+        _stixReconciliationService = stixReconciliationService;
         _registryApiClient = registryApiClient;
     }
 
@@ -78,13 +77,14 @@ public class ReconciliationHostedService : BackgroundService
         }
 
         var tarReceipt = await _registryApiClient.GetTar(operation.Body.ReceiptId.Value, ct);
+        var completedAt = DateTime.UtcNow; // TODO FIXME move to IRegistryApiClient
 
-        if (tarReceipt.Receipt.Id is null)
+        var resolution = await _stixReconciliationService.ReconcileTarReceipt(tarReceipt.Receipt, completedAt, ct);
+
+        if (resolution is StixReconciliationResult.SuccessResolution)
         {
-            // Registration still processing
-            return;
+            // delete pending task
+            await _registryOperationRepository.DeleteRegistryOperation(operationMetadata.ObjectKey, ct);
         }
-
-        await _stixIngestionService.ReconcileOperation(operation, tarReceipt.Receipt, ct);
     }
 }

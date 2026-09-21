@@ -4,9 +4,7 @@ using Compellio.Bcbcti.Models.Stix;
 using Compellio.Bcbcti.Options;
 using Compellio.Bcbcti.Repositories;
 using Compellio.Bcbcti.Services.RegistryApi;
-using Compellio.Bcbcti.Services.RegistryApi.Models;
 using Compellio.Bcbcti.Services.Storage.Exceptions;
-using Compellio.Bcbcti.Services.Storage.Models;
 
 namespace Compellio.Bcbcti.Services.Ingestion;
 
@@ -73,7 +71,7 @@ public class StixIngestionService
     {
         // 1. Determine create/update/abort
         var decision = await ResolveDecision(stixObject, ct);
-        
+
         _logger.LogDebug("Ingesting {ObjectId} ({DecisionString})", stixObject.Id, decision switch
         {
             StixIngestionDecision.AbortDecision => "will abort",
@@ -126,49 +124,6 @@ public class StixIngestionService
             StixObject = stixObject
         };
     }
-
-    public async Task ReconcileOperation(GetObjectResponse<RegistryOperation> operation, TarReceipt tarReceipt,
-        CancellationToken ct)
-    {
-        _logger.LogDebug("Reconciling {ObjectId} with receipt {ReceiptId}", operation.Body.ObjectId,
-            operation.Body.ReceiptId.Value);
-
-        // TODO
-
-        // 1. Update registrationReceipt
-        // 2. Update objectRegistration
-        // 3. Create manifest file
-        // 4. Delete registrationOperation
-    }
-
-    // public async Task ReconcilePendingRegistration(TarReceipt receipt, RegistrationReceipt objectReceipt,
-    //     ObjectRegistration registration, CancellationToken ct = default)
-    // {
-    //     var objectReceipt = await _receiptsRepository.GetReceipt(receipt.ReceiptId, ct);
-    //     var newObjectReceipt = objectReceipt ?? objectReceipt;
-    //
-    //     // 2. update objectRegistration
-    //     await _objectRegistrationRepository.PutObjectRegistration(registration.AsRegistered(receipt.Id,
-    //         new ObjectRegistration.Version
-    //         {
-    //             CompletedAt = DateTime.UtcNow,
-    //             ObjectKey = objectReceipt.Body.ObjectKey,
-    //             ObjectVersion = objectReceipt.Body.ObjectVersion,
-    //             ReceiptId = receipt.ReceiptId,
-    //             TarVersion = receipt.Version
-    //         }));
-    //
-    //     // todo manifest write
-    //
-    //     // 1. update objectReceipt
-    //     // 3. create manifest file
-    //     // 4. delete pending registration marker
-    //
-    //     //    -. read receipt metadata (with lock)
-    //     //    e. update receipt metadata (with read lock)
-    //     //    f. store manifest (lock)
-    //     //    g. store registration pointer (stores state, current version + registry version, latest receipt)
-    // }
 
     private async Task<StixIngestionDecision> ResolveDecision(StixObject stixObject, CancellationToken ct = default)
     {

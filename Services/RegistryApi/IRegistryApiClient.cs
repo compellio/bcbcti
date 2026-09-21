@@ -23,5 +23,5 @@ public interface IRegistryApiClient
     /// <remarks>Calls GET /api/v1/TAR/tarId/{receiptID}</remarks>
     /// <returns></returns>
     public Task<RegistryResponse> GetTar(Guid receiptId, CancellationToken ct = default);
-
+    
 }

@@ -53,6 +53,8 @@ builder.Services.AddSingleton<ObjectRegistrationRepository>();
 builder.Services.AddSingleton<ManifestRepository>();
 
 builder.Services.AddSingleton<StixIngestionService>();
+builder.Services.AddSingleton<StixReconciliationService>();
+builder.Services.AddHostedService<ReconciliationHostedService>();
 
 builder.Services
     .AddControllers(options => { options.ReturnHttpNotAcceptable = true; })
@@ -64,8 +66,6 @@ builder.Services
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         options.JsonSerializerOptions.WriteIndented = true;
     });
-
-builder.Services.AddHostedService<ReconciliationHostedService>();
 
 builder.Services.ConfigureOptions<ConfigureTaxiiMediaTypes>();
 
