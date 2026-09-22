@@ -48,9 +48,13 @@ builder.Services.AddSingleton<CollectionsManager>();
 builder.Services.AddSingleton<JournalRepository>();
 builder.Services.AddSingleton<StixObjectRepository>();
 builder.Services.AddSingleton<RegistrationReceiptsRepository>();
+builder.Services.AddSingleton<RegistryOperationRepository>();
 builder.Services.AddSingleton<ObjectRegistrationRepository>();
+builder.Services.AddSingleton<ManifestRepository>();
 
 builder.Services.AddSingleton<StixIngestionService>();
+builder.Services.AddSingleton<StixReconciliationService>();
+builder.Services.AddHostedService<ReconciliationHostedService>();
 
 builder.Services
     .AddControllers(options => { options.ReturnHttpNotAcceptable = true; })
@@ -78,7 +82,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    // app.UseDeveloperExceptionPage();
+    app.UseDeveloperExceptionPage();
 }
 
 app.UseAuthorization();

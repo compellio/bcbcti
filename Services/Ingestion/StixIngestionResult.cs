@@ -10,6 +10,7 @@ public enum IngestionResultResolution
     Abort // pending registration
 }
 
+// todo refactor into "union" like StixReconciliationResult
 public class StixIngestionResult
 {
     public required IngestionResultResolution Resolution { get; set; } // TODO FIXME don't like it: conditional props based on Resolution
@@ -18,8 +19,4 @@ public class StixIngestionResult
     public RegistrationReceipt? RegistrationReceipt { get; set; }
     
     public string? ResolutionFailureMessage { get; set; }
-    
-    // public string? ObjectKey { get; set; }
-    // public Guid? ReceiptId { get; set; }
-    // public RegistrationPayload? Payload { get; set; }
 }

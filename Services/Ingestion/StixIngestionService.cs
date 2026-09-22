@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using Amazon.S3.Transfer;
 using Compellio.Bcbcti.Models.Documents;
 using Compellio.Bcbcti.Models.Stix;
 using Compellio.Bcbcti.Options;
@@ -11,20 +10,28 @@ namespace Compellio.Bcbcti.Services.Ingestion;
 
 public class StixIngestionService
 {
+    private readonly ILogger<StixIngestionService> _logger;
+
     private readonly StixObjectRepository _stixRepository;
     private readonly RegistrationReceiptsRepository _receiptsRepository;
     private readonly ObjectRegistrationRepository _objectRegistrationRepository;
+    private readonly RegistryOperationRepository _registryOperationRepository;
 
     private readonly IRegistryApiClient _registryClient;
 
     private readonly RegistrationPayloadFactory _registrationPayloadFactory;
 
     public StixIngestionService(StixObjectRepository stixRepository, RegistrationReceiptsRepository receiptsRepository,
-        ObjectRegistrationRepository objectRegistrationRepository, IRegistryApiClient registryClient)
+        ObjectRegistrationRepository objectRegistrationRepository,
+        RegistryOperationRepository registryOperationRepository, IRegistryApiClient registryClient,
+        ILogger<StixIngestionService> logger)
     {
+        _logger = logger;
+
         _stixRepository = stixRepository;
         _receiptsRepository = receiptsRepository;
         _objectRegistrationRepository = objectRegistrationRepository;
+        _registryOperationRepository = registryOperationRepository;
 
         _registryClient = registryClient;
 
@@ -43,13 +50,20 @@ public class StixIngestionService
                 {
                     results[i] = await ProcessStixObject(collection, journalId, submittedAt, objects[i], ctoken);
                 }
+                catch (PutConditionException)
+                {
+                    results[i] = _registrationPayloadFactory.BuildAbortedIngestionResult(objects[i]);
+                }
                 catch (ProviderOperationException)
                 {
-                    results[i] = BuildFailedIngestionResult(objects[i], "Error during read/write operations");
+                    results[i] =
+                        _registrationPayloadFactory.BuildFailedIngestionResult(objects[i],
+                            "Error during read/write operations");
                 }
                 catch (InvalidDataException) // TODO FIXME imprecise exception (used in JsonObjectStore)
                 {
-                    results[i] = BuildFailedIngestionResult(objects[i], "Error processing object");
+                    results[i] =
+                        _registrationPayloadFactory.BuildFailedIngestionResult(objects[i], "Error processing object");
                 }
             });
 
@@ -62,52 +76,49 @@ public class StixIngestionService
         // 1. Determine create/update/abort
         var decision = await ResolveDecision(stixObject, ct);
 
+        _logger.LogDebug("Ingesting object {ObjectId} ({DecisionString})", stixObject.Id, decision switch
+        {
+            StixIngestionDecision.AbortDecision => "will abort",
+            StixIngestionDecision.CreateDecision => "will create",
+            StixIngestionDecision.UpdateDecision d => $"will update {d.TarId}",
+            _ => "unknown"
+        });
+
         if (decision is StixIngestionDecision.AbortDecision)
         {
-            return new StixIngestionResult { Resolution = IngestionResultResolution.Abort, StixObject = stixObject };
+            return _registrationPayloadFactory.BuildAbortedIngestionResult(stixObject);
         }
 
-        // 2. Store submitted STIX (canonicalisation handled)
+        // 2. Store submitted STIX (canonicalization handled)
         var storedObject = await _stixRepository.StoreStixObject(stixObject, ct);
 
-        // 3. Build registration payload
+        // 3. Prepare registry payload and operation
         var registrationPayload = _registrationPayloadFactory.BuildRegistrationPayload(storedObject.Metadata);
 
-        // 4. Call the Registry API to register payload
-        var registryReceipt = decision switch
+        // 4. Register operation
+        var operation =
+            await StoreRegistrationOperation(collection.Id, journalId, submittedAt, decision, stixObject, ct);
+        var operationMetadata = await _registryOperationRepository.CreateRegistryOperation(operation, ct);
+
+        // 5. Call the Registry API to register payload
+        var registryResponse = decision switch
         {
             StixIngestionDecision.CreateDecision => await _registryClient.RegisterTarPayload(
-                registrationPayload.Payload),
+                registrationPayload.Payload, ct),
             StixIngestionDecision.UpdateDecision d => await _registryClient.UpdateTarPayload(d.TarId,
-                registrationPayload.Payload),
+                registrationPayload.Payload, ct),
             _ => throw new UnreachableException()
         };
 
-        // TODO DANGER RACE CONDITION: what if registry calls back the webhook before we have time to write the receipt?
-        //     Future solution: custom user-defined identification key sent to Registry that Registry includes in webhooks, etc. => allows for caller to setup webhook handling before calling registry API  
-
-        var operation = decision switch
-        {
-            StixIngestionDecision.CreateDecision => RegistryOperation.Create,
-            StixIngestionDecision.UpdateDecision => RegistryOperation.Update,
-            _ => throw new UnreachableException()
-        };
-
-        var registrationReceipt = _registrationPayloadFactory.BuildRegistrationReceipt(operation, registryReceipt,
-            collection, storedObject.Metadata, journalId, submittedAt, stixObject);
-
-        // 5. Store receipt metadata
+        // 6. Store receipt metadata
+        var registrationReceipt =
+            _registrationPayloadFactory.BuildRegistrationReceipt(operation, registryResponse, storedObject.Metadata,
+                stixObject);
         var registrationReceiptMetadata = await _receiptsRepository.StoreReceipt(registrationReceipt, ct);
 
-        // 6. Create or update object registration metadata
-        var objectRegistrationMetadata = decision switch
-        {
-            StixIngestionDecision.CreateDecision => await _objectRegistrationRepository.StoreObjectRegistration(
-                ObjectRegistration.Create(stixObject, collection.Id), ct),
-            StixIngestionDecision.UpdateDecision d => await _objectRegistrationRepository.PutObjectRegistration(d.ETag,
-                d.ObjectRegistration.AsUpdating(), ct),
-            _ => throw new UnreachableException()
-        };
+        // 7. Update operation
+        await _registryOperationRepository.UpdateRegistryOperation(operationMetadata.Metadata.ETag,
+            operation.WithReceipt(registrationReceipt.ReceiptId), ct);
 
         return new StixIngestionResult
         {
@@ -115,16 +126,6 @@ public class StixIngestionService
             RegistrationReceipt = registrationReceipt,
             StixObject = stixObject
         };
-    }
-
-    // TODO webhook callback
-    public async Task ReconcileRegistryApiCallback()
-    {
-        throw new NotImplementedException();
-        //    -. read receipt metadata (with lock)
-        //    e. update receipt metadata (with read lock)
-        //    f. store manifest (lock)
-        //    g. store registration pointer (stores state, current version + registry version, latest receipt)
     }
 
     private async Task<StixIngestionDecision> ResolveDecision(StixObject stixObject, CancellationToken ct = default)
@@ -139,26 +140,43 @@ public class StixIngestionService
 
         if (objectRegistration.Body.IsRegistered)
         {
-            return StixIngestionDecision.Update(objectRegistration.Metadata.ETag,
-                objectRegistration.Body,
+            return StixIngestionDecision.Update(objectRegistration.Metadata.ETag, objectRegistration.Body,
                 objectRegistration.Body.TarId);
         }
 
-        if (objectRegistration.Body.IsMutating)
+        if (objectRegistration.Body.IsPending)
         {
             return StixIngestionDecision.Abort;
         }
-        
+
         throw new UnreachableException();
     }
 
-    private StixIngestionResult BuildFailedIngestionResult(StixObject stixObject, string? message)
+    /// <summary>
+    /// Stores the intent to of a new registration operation (creates a pending operation)
+    /// TODO FIXME StoreRegistrationOperation has partial side effect: _registryOperationRepository.CreateRegistryOperation called from outside
+    /// </summary>
+    private async Task<RegistryOperation> StoreRegistrationOperation(Guid collectionId, Guid journalId,
+        DateTime submittedAt, StixIngestionDecision decision, StixObject stixObject, CancellationToken ct = default)
     {
-        return new StixIngestionResult
+        switch (decision)
         {
-            StixObject = stixObject,
-            Resolution = IngestionResultResolution.Failure,
-            ResolutionFailureMessage = message
-        };
+            case StixIngestionDecision.CreateDecision:
+                var createOperation = _registrationPayloadFactory.BuildRegistryOperation(collectionId, journalId,
+                    submittedAt, stixObject, RegistryOperationType.Create);
+                await _objectRegistrationRepository.CreateObjectRegistration(
+                    ObjectRegistration.Create(stixObject, collectionId), ct);
+                return createOperation;
+
+            case StixIngestionDecision.UpdateDecision d:
+                var updateOperation = _registrationPayloadFactory.BuildRegistryOperation(collectionId, journalId,
+                    submittedAt, stixObject, RegistryOperationType.Update);
+                await _objectRegistrationRepository.UpdateObjectRegistration(d.ETag, d.ObjectRegistration.AsUpdating(),
+                    ct);
+                return updateOperation;
+
+            default:
+                throw new UnreachableException();
+        }
     }
 }

@@ -9,7 +9,7 @@ public enum RegistrationState
     Unregistered, // Creating failed - TODO REVIEW if ingestion fails this document won't get created => no document = unregistered
     Creating, // awaiting callback for 1st registration
     Updating, // awaiting callback for update registration
-    Registered, // ok
+    Registered, // ok - idle
     Deleting,
     Deleted
 
@@ -26,6 +26,8 @@ public class ObjectRegistration
         public required string ObjectKey { get; init; }
         public required DateTime ObjectVersion { get; init; }
 
+        public required string ManifestKey { get; init; }
+        
         public required DateTime CompletedAt { get; init; } // = to calculate TAXII DateAdded
     }
 
@@ -34,18 +36,19 @@ public class ObjectRegistration
 
     public string? TarId { get; init; }
     public required IReadOnlyList<Version> History { get; init; }
-    
+
     public required RegistrationState State { get; init; }
-    
-    [JsonIgnore] 
+
+    [JsonIgnore]
     public Version? CurrentVersion => History.LastOrDefault(defaultValue: null);
-    
-    [JsonIgnore] 
+
+    [JsonIgnore]
     [MemberNotNullWhen(true, nameof(TarId), nameof(CurrentVersion))]
     public bool IsRegistered => State is RegistrationState.Registered;
 
-    [JsonIgnore] 
-    public bool IsMutating => State is RegistrationState.Creating or RegistrationState.Updating or RegistrationState.Deleting;
+    [JsonIgnore]
+    public bool IsPending =>
+        State is RegistrationState.Creating or RegistrationState.Updating or RegistrationState.Deleting;
 
     public static ObjectRegistration Create(StixObject stixObject, Guid collectionId)
     {
@@ -55,7 +58,7 @@ public class ObjectRegistration
         };
     }
 
-    public ObjectRegistration AsRegistered(string tarId, Version version)
+    public ObjectRegistration AsCreated(string tarId, Version version)
     {
         return new ObjectRegistration()
         {
@@ -63,7 +66,7 @@ public class ObjectRegistration
             CollectionId = CollectionId,
             State = RegistrationState.Registered,
             TarId = tarId,
-            History = [.. History, version]
+            History = [version]
         };
     }
 

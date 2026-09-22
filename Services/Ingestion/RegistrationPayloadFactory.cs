@@ -1,10 +1,10 @@
 using Compellio.Bcbcti.Models.Documents;
 using Compellio.Bcbcti.Models.Stix;
-using Compellio.Bcbcti.Options;
 using Compellio.Bcbcti.Services.Ingestion.Registry;
 using Compellio.Bcbcti.Services.RegistryApi.Models;
 using Compellio.Bcbcti.Services.RegistryApi.Profiles;
 using Compellio.Bcbcti.Services.Storage.Models;
+using UUIDNext;
 
 namespace Compellio.Bcbcti.Services.Ingestion;
 
@@ -16,6 +16,7 @@ public class RegistrationPayloadFactory
         {
             JsonLdContext = StixBundleProfileV1.ProfileId,
             JsonLdType = StixBundleProfileV1.Type,
+            Version = "2.1",
             Bundle = bundle
         };
     }
@@ -29,10 +30,9 @@ public class RegistrationPayloadFactory
 
     public StixArtifact BuildStixArtifact(ObjectMetadata metadata)
     {
-        // TODO uuidv5 based on result.Metadata.PublicObjectUrl
-        // TODO FIXME Stix objects should have factories -> the UUID calculation is something that could/should be encapsulated
-
-        var artifactGuid = Guid.NewGuid();
+        // TODO UUID calculation is something that could/should be encapsulated -> StixUrlArtifact leaks logic BUT UUIDv5 is optional => constructor id should be optional as well
+        var artifactGuid =
+            Uuid.NewNameBased(StixConstants.ScoIdentifierUuid5Namespace, metadata.PublicObjectUrl.ToString());
 
         return new StixUrlArtifact(artifactGuid)
         {
@@ -51,39 +51,60 @@ public class RegistrationPayloadFactory
         var stixBundle = BuildStixBundle([stixArtifact]);
         var tarPayload = BuildTarPayload(stixBundle);
 
-        return new RegistrationPayload
+        return new RegistrationPayload { Artifact = stixArtifact, Bundle = stixBundle, Payload = tarPayload };
+    }
+
+    public RegistryOperation BuildRegistryOperation(Guid collectionId, Guid journalId, DateTime submittedAt,
+        StixObject stixObject, RegistryOperationType operationType)
+    {
+        return new RegistryOperation
         {
-            Artifact = stixArtifact,
-            Bundle = stixBundle,
-            Payload = tarPayload
+            CollectionId = collectionId,
+            ObjectId = stixObject.Id,
+            JournalId = journalId,
+            SubmittedAt = submittedAt,
+            OperationType = operationType
         };
     }
 
-    public RegistrationReceipt BuildRegistrationReceipt(RegistryOperation operation, TarReceipt receipt, CollectionOptions collection, ObjectMetadata objectMetadata,
-        Guid journalId, DateTime submittedAt, StixObject stixObject)
+    public RegistrationReceipt BuildRegistrationReceipt(RegistryOperation operation, RegistryResponse registryResponse,
+        ObjectMetadata objectMetadata, StixObject stixObject)
     {
         return new RegistrationReceipt
         {
-            JournalId = journalId,
-            CollectionId = collection.Id,
-            
-            Operation = operation,
-            
+            JournalId = operation.JournalId,
+            CollectionId = operation.CollectionId,
+            OperationType = operation.OperationType,
             State = RegistrationReceiptState.Sent,
-            ReceiptId = receipt.ReceiptId,
-            
+            ReceiptId = registryResponse.Receipt.ReceiptId,
             ObjectKey = objectMetadata.ObjectKey,
             ObjectId = stixObject.Id,
-            ObjectVersion = stixObject.Version(submittedAt), // TODO FIXME DANGER duplicate
+            ObjectVersion = stixObject.Version(operation.SubmittedAt), // TODO FIXME DANGER duplicate
 
-            SubmittedAt = submittedAt,
-            SentAt = receipt.SentAt,
-
-            Metadata = new RegistrationMetadata
+            SubmittedAt = operation.SubmittedAt,
+            SentAt = registryResponse.SentAt,
+            Metadata = new VersionMetadata
             {
-                Version = receipt.Version,
-                RegistryChecksum = receipt.Checksum,
+                Version = registryResponse.Receipt.Version, RegistryChecksum = registryResponse.Receipt.Checksum,
             }
+        };
+    }
+
+    public StixIngestionResult BuildFailedIngestionResult(StixObject stixObject, string? message)
+    {
+        return new StixIngestionResult
+        {
+            StixObject = stixObject,
+            Resolution = IngestionResultResolution.Failure,
+            ResolutionFailureMessage = message
+        };
+    }
+    public StixIngestionResult BuildAbortedIngestionResult(StixObject stixObject)
+    {
+        return new StixIngestionResult
+        {
+            StixObject = stixObject,
+            Resolution = IngestionResultResolution.Abort,
         };
     }
 }

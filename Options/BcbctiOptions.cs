@@ -7,6 +7,7 @@ public class BcbctiOptions
     [Required]
     [MinLength(1)]
     public required CollectionOptions[] Collections { get; set; }
-    
-    
+
+    public string ReconciliationFrequency { get; set; }
+
 }

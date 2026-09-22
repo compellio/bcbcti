@@ -10,8 +10,6 @@ public class TarReceipt
     public required int Version { get; set; }
     public required JsonDocument Data { get; set; }
     
-    public required DateTime SentAt { get; set; } // set by the IRegistryApiClient = the time it made the request to the Registry API
-    
     // dummy response
     // {"id":"","receipt":"f4804edf-6bbb-41aa-a853-1eb0d55e6c99","data":{"foo":"bar"},"checksum":"0x7A38BF81F383F69433AD6E900D35B3E2385593F76A7B7AB5D4355B8BA41EE24B","version":1,"_sdHashes":[]}
 }
