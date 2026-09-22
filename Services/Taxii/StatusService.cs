@@ -1,3 +1,4 @@
+using Compellio.Bcbcti.Extensions;
 using Compellio.Bcbcti.Models.Taxii;
 using Compellio.Bcbcti.Repositories;
 using Compellio.Bcbcti.Services.Taxii.Mappers;

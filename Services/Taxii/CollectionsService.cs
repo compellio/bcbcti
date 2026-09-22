@@ -1,3 +1,4 @@
+using Compellio.Bcbcti.Extensions;
 using Compellio.Bcbcti.Models.Documents;
 using Compellio.Bcbcti.Models.Stix;
 using Compellio.Bcbcti.Models.Taxii;
