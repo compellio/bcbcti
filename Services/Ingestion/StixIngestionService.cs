@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Compellio.Bcbcti.Extensions;
 using Compellio.Bcbcti.Models.Documents;
 using Compellio.Bcbcti.Models.Stix;
 using Compellio.Bcbcti.Options;
@@ -38,36 +39,34 @@ public class StixIngestionService
         _registrationPayloadFactory = new RegistrationPayloadFactory();
     }
 
-    public async Task<StixIngestionResult[]> ProcessStixObjects(CollectionOptions collection, Guid journalId,
+    public async Task<IReadOnlyList<StixIngestionResult>> ProcessStixObjects(CollectionOptions collection,
+        Guid journalId,
         DateTime submittedAt, StixObject[] objects, CancellationToken ct = default)
     {
-        var results = new StixIngestionResult[objects.Length];
-
-        await Parallel.ForEachAsync(Enumerable.Range(0, objects.Length), new ParallelOptions { CancellationToken = ct },
-            async (i, ctoken) =>
+        // TODO set ParallelOptions.MaxDegreeOfParallelism based on project restrictions
+        //   (e.g. AmazonS3Config.MaxConnectionsPerServer w/ default = 50, Registry API rate limits)
+        return await objects.ParallelSelectAsync(async (stixObject, ctoken) =>
+        {
+            try
             {
-                try
-                {
-                    results[i] = await ProcessStixObject(collection, journalId, submittedAt, objects[i], ctoken);
-                }
-                catch (PutConditionException)
-                {
-                    results[i] = _registrationPayloadFactory.BuildFailedIngestionResult(objects[i], "duplicate object");
-                }
-                catch (ProviderOperationException)
-                {
-                    results[i] =
-                        _registrationPayloadFactory.BuildFailedIngestionResult(objects[i],
-                            "Error during read/write operations");
-                }
-                catch (InvalidDataException) // TODO FIXME imprecise exception (used in JsonObjectStore)
-                {
-                    results[i] =
-                        _registrationPayloadFactory.BuildFailedIngestionResult(objects[i], "Error processing object");
-                }
-            });
-
-        return results;
+                return await ProcessStixObject(collection, journalId, submittedAt, stixObject, ctoken);
+            }
+            catch (PutConditionException)
+            {
+                return _registrationPayloadFactory.BuildFailedIngestionResult(stixObject, "duplicate object");
+            }
+            catch (ProviderOperationException)
+            {
+                return
+                    _registrationPayloadFactory.BuildFailedIngestionResult(stixObject,
+                        "Error during read/write operations");
+            }
+            catch (InvalidDataException) // TODO FIXME imprecise exception (used in JsonObjectStore)
+            {
+                return
+                    _registrationPayloadFactory.BuildFailedIngestionResult(stixObject, "Error processing object");
+            }
+        }, ct);
     }
 
     public async Task<StixIngestionResult> ProcessStixObject(CollectionOptions collection, Guid journalId,
