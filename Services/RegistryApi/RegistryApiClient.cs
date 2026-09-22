@@ -1,8 +1,10 @@
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Compellio.Bcbcti.Options;
 using Compellio.Bcbcti.Services.Ingestion.Registry;
 using Compellio.Bcbcti.Services.RegistryApi.Models;
+using Microsoft.Extensions.Options;
 
 namespace Compellio.Bcbcti.Services.RegistryApi;
 
@@ -12,7 +14,7 @@ public class RegistryApiClient : IRegistryApiClient
 
     private JsonSerializerOptions _serializerOptions;
 
-    public RegistryApiClient(JsonSerializerOptions serializerOptions/* + http client */)
+    public RegistryApiClient(IOptions<RegistryApiOptions> options, JsonSerializerOptions serializerOptions/* + http client */)
     {
         _serializerOptions = serializerOptions;
     }
