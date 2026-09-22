@@ -123,5 +123,17 @@ Content-Type: application/taxii+json;version=2.1
 
 ###
 
+GET {{BCBCTI_HostAddress}}/api/status/18b09b0e-4b61-4901-b54f-1dcbf584426d
+Accept: application/json
+
+### 
+
 GET {{BCBCTI_HostAddress}}/api/status/c3e56ad2-698e-4d6f-8b66-ff727793467b
 Accept: application/json
+
+###
+
+
+GET {{BCBCTI_HostAddress}}/api/status/f7427f69-f0f7-4a82-9bc9-9465c52ec5b8
+Accept: application/json
+

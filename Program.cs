@@ -10,6 +10,7 @@ using Compellio.Bcbcti.Services.RegistryApi;
 using Compellio.Bcbcti.Services.Storage;
 using Compellio.Bcbcti.Services.Storage.Json;
 using Compellio.Bcbcti.Services.Storage.Json.Canonical;
+using Compellio.Bcbcti.Services.Taxii;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,6 +56,8 @@ builder.Services.AddSingleton<ManifestRepository>();
 builder.Services.AddSingleton<StixIngestionService>();
 builder.Services.AddSingleton<StixReconciliationService>();
 builder.Services.AddHostedService<ReconciliationHostedService>();
+
+builder.Services.AddTaxiiServices();
 
 builder.Services
     .AddControllers(options => { options.ReturnHttpNotAcceptable = true; })

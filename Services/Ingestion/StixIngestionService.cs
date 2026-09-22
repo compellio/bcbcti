@@ -52,7 +52,7 @@ public class StixIngestionService
                 }
                 catch (PutConditionException)
                 {
-                    results[i] = _registrationPayloadFactory.BuildAbortedIngestionResult(objects[i]);
+                    results[i] = _registrationPayloadFactory.BuildFailedIngestionResult(objects[i], "duplicate object");
                 }
                 catch (ProviderOperationException)
                 {
