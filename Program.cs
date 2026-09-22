@@ -74,6 +74,8 @@ builder.Services.ConfigureOptions<ConfigureTaxiiMediaTypes>();
 
 builder.Services.AddExceptionHandler<TaxiiExceptionHandler>();
 
+builder.WebHost.ConfigureKestrel(options => { options.AddServerHeader = false; });
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
