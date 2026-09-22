@@ -1,3 +1,6 @@
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
+
 namespace Compellio.Bcbcti.Models.Documents;
 
 public class JournalEntry
@@ -6,13 +9,19 @@ public class JournalEntry
     {
         public required string ObjectId { get; set; } // STIX object id
         public required DateTime ObjectVersion { get; set; } // STIX object version per TAXII's specification
-    
+
         public Guid? ReceiptId { get; set; }
         public string? ObjectKey { get; set; }
-    
-        public string? SubmitFailureReason { get; set; } // if submission failed (before a receipt could be created - set <=> ReceiptId and ObjectKey null)
+
+        // if submission failed (before a receipt could be created - set <=> ReceiptId and ObjectKey null)
+        public string? SubmitFailureReason { get; set; }
+
+        [JsonIgnore]
+        [MemberNotNullWhen(true, nameof(SubmitFailureReason))] 
+        [MemberNotNullWhen(false, nameof(ReceiptId), nameof(ObjectId))]
+        public bool HasFailedEarly => SubmitFailureReason is not null;
     }
-    
+
     public required Guid Id { get; set; }
     public required Guid CollectionId { get; set; }
     public required DateTime RequestTimestamp { get; set; }

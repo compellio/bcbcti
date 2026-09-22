@@ -119,3 +119,9 @@ Content-Type: application/taxii+json;version=2.1
 		}
 	]
 }
+
+
+###
+
+GET {{BCBCTI_HostAddress}}/api/status/c3e56ad2-698e-4d6f-8b66-ff727793467b
+Accept: application/json
