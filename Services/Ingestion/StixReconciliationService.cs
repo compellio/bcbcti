@@ -50,6 +50,7 @@ public class StixReconciliationService
             CompletedAt = update.CompletedAt,
             ObjectId = receipt.ObjectId,
             ObjectKey = receipt.ObjectKey,
+            ObjectVersion = receipt.ObjectVersion,
             ReceiptId = receipt.ReceiptId,
             RegistrationMetadata = new RegistrationMetadata()
             {

@@ -1,8 +1,6 @@
-using System.Runtime.CompilerServices;
 using Compellio.Bcbcti.Services.Serialization.Json;
 using Compellio.Bcbcti.Services.Storage.Exceptions;
 using Compellio.Bcbcti.Services.Storage.Models;
-using Microsoft.Extensions.Options;
 
 namespace Compellio.Bcbcti.Services.Storage.Json;
 
@@ -108,7 +106,7 @@ public class JsonObjectStore : IJsonObjectStore
         {
             ObjectKey = objectKey
         };
-        
+
         return _store.DeleteObjectAsync(request, ct);
     }
 }

@@ -6,27 +6,38 @@ namespace Compellio.Bcbcti.Repositories;
 
 public class ManifestRepository(IJsonObjectStore store) : Repository(store)
 {
-    private string BuildOperationKey(DateTime completedAt, Guid receiptId)
+    private const string Prefix = "manifest/";
+
+    private string BuildManifestEntryPartition(DateTime completedAt)
     {
-        return $"manifest/{completedAt:yyyy}/{completedAt:MM}/{completedAt:dd}/{completedAt:s}--{receiptId}.json";
+        var utcDate = completedAt.ToUniversalTime();
+        return $"{utcDate:yyyy}/{utcDate:MM}/{utcDate:dd}/{utcDate:O}";
     }
 
-    public Task<GetObjectResponse<RegistryOperation>> GetManifestEntry(DateTime completedAt, Guid receiptId,
-        CancellationToken ct = default) =>
-        GetManifestEntry(BuildOperationKey(completedAt, receiptId), ct);
-
-    public Task<GetObjectResponse<RegistryOperation>> GetManifestEntry(string key, CancellationToken ct = default)
+    private string BuildManifestEntryKey(DateTime completedAt, Guid receiptId)
     {
-        return Store.GetObjectAsync<RegistryOperation>(key, ct);
+        var partition = BuildManifestEntryPartition(completedAt);
+        return $"{Prefix}{partition}--{receiptId}.json";
+    }
+
+    public Task<GetObjectResponse<ManifestEntry>> GetManifestEntry(DateTime completedAt, Guid receiptId,
+        CancellationToken ct = default) =>
+        GetManifestEntry(BuildManifestEntryKey(completedAt, receiptId), ct);
+
+    public Task<GetObjectResponse<ManifestEntry>> GetManifestEntry(string key, CancellationToken ct = default)
+    {
+        return Store.GetObjectAsync<ManifestEntry>(key, ct);
     }
 
     public async Task<PutObjectResponse> PutManifestEntry(ManifestEntry entry, CancellationToken ct = default)
     {
-        return await Store.PutObjectAsync(BuildOperationKey(entry.CompletedAt, entry.ReceiptId), entry, ct);
+        return await Store.PutObjectAsync(BuildManifestEntryKey(entry.CompletedAt, entry.ReceiptId), entry, ct);
     }
 
-    public ListObjectsResponse ListManifestEntries(DateTime? startAfter = null)
+    public ListObjectsResponse ListManifestEntries(DateTime? addedAfter = null)
     {
-        throw new NotImplementedException();
+        var startAfter = addedAfter.HasValue ? Prefix + BuildManifestEntryPartition(addedAfter.Value) : null;
+
+        return Store.ListObjectsAsync(Prefix, startAfter);
     }
 }
