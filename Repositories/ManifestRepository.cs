@@ -40,4 +40,30 @@ public class ManifestRepository(IJsonObjectStore store) : Repository(store)
 
         return Store.ListObjectsAsync(Prefix, startAfter);
     }
+
+    public async Task<Page<ObjectSummary>> GetManifestPage(int limit, DateTime? addedAfter = null,
+        CancellationToken ct = default)
+    {
+        var manifest = ListManifestEntries(addedAfter);
+
+        var items = new List<ObjectSummary>(limit);
+        var more = false;
+
+        await foreach (var manifestObject in manifest.Objects.WithCancellation(ct))
+        {
+            if (items.Count == limit)
+            {
+                more = true;
+                break;
+            }
+
+            items.Add(manifestObject);
+        }
+
+        return new Page<ObjectSummary>
+        {
+            Items = items,
+            HasMore = more,
+        };
+    }
 }
