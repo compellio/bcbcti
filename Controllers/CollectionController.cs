@@ -40,9 +40,10 @@ public class CollectionController(CollectionsManager collections) : ControllerBa
     {
         var collection = collections.Find(collectionId);
         CollectionNotFoundException.ThrowIfNull(collection, collectionId);
-
-        // TODO return submitted objects + apply filtering
-        throw new NotImplementedException();
+        
+        // TODO throw unsupported if match in filters
+        
+        return await service.GetObjectsEnvelope(filters.AddedAfter, filters.Limit, ct);
     }
 
     /// <summary>

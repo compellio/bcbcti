@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace Compellio.Bcbcti.Services.Taxii;
+namespace Compellio.Bcbcti.Models.Taxii.Requests;
 
 public class FilteringParameters
 {
