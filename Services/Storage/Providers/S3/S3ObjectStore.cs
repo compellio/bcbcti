@@ -249,7 +249,7 @@ public class S3ObjectStore : IStreamObjectStore
         }
         catch (Exception e)
         {
-            // TODO FIXME lazy IAsyncEnumeration => won't throw here
+            // TODO FIXME DANGER lazy IAsyncEnumeration => won't throw here
             Console.WriteLine(e);
             throw;
         }

@@ -25,13 +25,15 @@ public class CollectionController(CollectionsManager collections) : ControllerBa
 
     [HttpGet(Name = "ListManifests")]
     [Route("manifest")]
-    public ManifestResource ListManifests(string collectionId)
+    public async Task<ManifestResource> ListManifests(string collectionId, [FromQuery] FilteringParameters filters,
+        ManifestService service, CancellationToken ct)
     {
         var collection = collections.Find(collectionId);
         CollectionNotFoundException.ThrowIfNull(collection, collectionId);
-
-        // TODO return registry-API status/data for submitted objects + apply filtering
-        throw new NotImplementedException();
+        
+        // TODO throw unsupported if match in filters
+        
+        return await service.GetManifest(filters.AddedAfter, filters.Limit, ct);
     }
 
     [HttpGet(Name = "ListObjects")]

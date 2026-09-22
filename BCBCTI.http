@@ -13,6 +13,16 @@ Accept: application/taxii+json;version=2.1
 GET {{BCBCTI_HostAddress}}/api/collections/
 Accept: application/taxii+json;version=2.1
 
+###
+
+GET {{BCBCTI_HostAddress}}/api/collections/default/manifest
+Accept: application/taxii+json;version=2.1
+
+###
+
+GET {{BCBCTI_HostAddress}}/api/collections/default/manifest?added_after=2026-09-22T14:31:00Z
+Accept: application/taxii+json;version=2.1
+
 
 ###
 
