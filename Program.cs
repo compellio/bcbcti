@@ -11,6 +11,7 @@ using Compellio.Bcbcti.Services.Storage;
 using Compellio.Bcbcti.Services.Storage.Json;
 using Compellio.Bcbcti.Services.Storage.Json.Canonical;
 using Compellio.Bcbcti.Services.Taxii;
+using Compellio.Bcbcti.Services.Taxii.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,7 +61,11 @@ builder.Services.AddHostedService<ReconciliationHostedService>();
 builder.Services.AddTaxiiServices();
 
 builder.Services
-    .AddControllers(options => { options.ReturnHttpNotAcceptable = true; })
+    .AddControllers(options =>
+    {
+        options.ReturnHttpNotAcceptable = true;
+        options.Filters.Add<TaxiiCustomHeadersFilter>(); // TODO review placement in .AddTaxiiServices()?
+    })
     .AddJsonOptions(options =>
     {
         // TODO add TAXII-specific DateTime converter (5-point ms precision)
