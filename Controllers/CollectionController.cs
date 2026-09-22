@@ -23,8 +23,7 @@ public class CollectionController(CollectionsManager collections) : ControllerBa
         return CollectionMapper.ToResource(collection, true, true);
     }
 
-    [HttpGet(Name = "ListManifests")]
-    [Route("manifest")]
+    [HttpGet("manifest", Name = "ListManifests")]
     public async Task<ManifestResource> ListManifests(string collectionId, [FromQuery] FilteringParameters filters,
         ManifestService service, CancellationToken ct)
     {
@@ -36,9 +35,8 @@ public class CollectionController(CollectionsManager collections) : ControllerBa
         return await service.GetManifest(filters.AddedAfter, filters.Limit, ct);
     }
 
-    [HttpGet(Name = "ListObjects")]
-    [Route("objects")]
-    public EnvelopeResource ListObjects(string collectionId)
+    [HttpGet("objects", Name = "ListObjects")]
+    public async Task<EnvelopeResource> ListObjects(string collectionId,  [FromQuery] FilteringParameters filters, CollectionsService service, CancellationToken ct)
     {
         var collection = collections.Find(collectionId);
         CollectionNotFoundException.ThrowIfNull(collection, collectionId);
@@ -51,8 +49,7 @@ public class CollectionController(CollectionsManager collections) : ControllerBa
     /// TAXII 5.5 Add Objects endpoint
     /// </summary>
     /// <see href="https://docs.oasis-open.org/cti/taxii/v2.1/os/taxii-v2.1-os.html#_Toc26285815"/>
-    [HttpPost(Name = "CreateObjects")]
-    [Route("objects")]
+    [HttpPost("objects", Name = "CreateObjects")]
     public async Task<ActionResult<StatusResource>> CreateObjects(string collectionId,
         [FromBody] AddObjectsRequest envelope, CollectionsService service, CancellationToken ct)
     {

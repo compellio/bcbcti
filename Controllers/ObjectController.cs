@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Compellio.Bcbcti.Controllers;
 
 [ApiController]
-[Route("/api/collections/{collectionId}/objects/{objectId}")]
+[Route("api/collections/{collectionId}/objects/{objectId}")]
 [Consumes("application/taxii+json", "application/taxii+json;version=2.1")]
 [Produces("application/taxii+json;version=2.1")]
 public class ObjectController(CollectionsManager collections) : ControllerBase
@@ -28,8 +28,7 @@ public class ObjectController(CollectionsManager collections) : ControllerBase
         throw new UnsupportedFeatureException("Registered object deletion is not supported");
     }
 
-    [HttpGet(Name = "ListObjectVersions")]
-    [Route("/versions")]
+    [HttpGet("versions", Name = "ListObjectVersions")]
     public StixObject ListVersions(string collectionId, string objectId)
     {
         var collection = collections.Find(collectionId);

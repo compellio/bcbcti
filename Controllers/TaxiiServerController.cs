@@ -12,22 +12,19 @@ namespace Compellio.Bcbcti.Controllers;
 [Produces("application/taxii+json;version=2.1")]
 public class TaxiiServerController(IOptions<TaxiiOptions> options) : ControllerBase
 {
-    [HttpGet(Name = "TaxiiServerDiscovery")]
-    [Route("/taxii2")]
+    [HttpGet("taxii2", Name = "TaxiiServerDiscovery")]
     public DiscoveryResource Discovery(TaxiiServerService service)
     {
         return service.BuildDiscoveryResource();
     }
 
-    [HttpGet(Name = "TaxiiApiRootInformation")]
-    [Route("/api")]
+    [HttpGet("api", Name = "TaxiiApiRootInformation")]
     public ApiRootResource RootInformation(TaxiiServerService service)
     {
         return service.BuildApiRootResource();
     }
 
-    [HttpGet(Name = "TaxiiApiRootStatus")]
-    [Route("/api/status/{id:guid}")]
+    [HttpGet("api/status/{id:guid}", Name = "TaxiiApiRootStatus")]
     public async Task<StatusResource> StatusInformation(Guid id, StatusService service, CancellationToken ct)
     {
         // TODO FIXME catch ObjectNotFoundException -> turn into TAXII 404
