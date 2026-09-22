@@ -1,6 +1,6 @@
-using Compellio.Bcbcti.Exceptions.Taxii;
 using Compellio.Bcbcti.Models.Stix;
 using Compellio.Bcbcti.Services;
+using Compellio.Bcbcti.Services.Taxii.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Compellio.Bcbcti.Controllers;
@@ -25,13 +25,9 @@ public class ObjectController(CollectionsManager collections) : ControllerBase
     [HttpDelete(Name = "DeleteObject")]
     public StixObject Delete(string collectionId, string objectId)
     {
-        var collection = collections.Find(collectionId);
-        CollectionNotFoundException.ThrowIfNull(collection, collectionId);
-        
-        // TODO delete object id
-        throw new NotImplementedException();
+        throw new UnsupportedFeatureException("Registered object deletion is not supported");
     }
-    
+
     [HttpGet(Name = "ListObjectVersions")]
     [Route("/versions")]
     public StixObject ListVersions(string collectionId, string objectId)

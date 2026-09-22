@@ -1,10 +1,10 @@
-using Compellio.Bcbcti.Exceptions.Taxii;
 using Compellio.Bcbcti.Models.Documents;
 using Compellio.Bcbcti.Models.Stix;
 using Compellio.Bcbcti.Models.Taxii;
 using Compellio.Bcbcti.Options;
 using Compellio.Bcbcti.Repositories;
 using Compellio.Bcbcti.Services.Ingestion;
+using Compellio.Bcbcti.Services.Taxii.Exceptions;
 using Compellio.Bcbcti.Services.Taxii.Mappers;
 
 namespace Compellio.Bcbcti.Services.Taxii;

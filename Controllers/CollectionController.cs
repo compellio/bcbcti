@@ -1,8 +1,8 @@
-using Compellio.Bcbcti.Exceptions.Taxii;
 using Compellio.Bcbcti.Models.Taxii;
 using Compellio.Bcbcti.Models.Taxii.Requests;
 using Compellio.Bcbcti.Services;
 using Compellio.Bcbcti.Services.Taxii;
+using Compellio.Bcbcti.Services.Taxii.Exceptions;
 using Compellio.Bcbcti.Services.Taxii.Mappers;
 using Microsoft.AspNetCore.Mvc;
 
