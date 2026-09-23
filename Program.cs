@@ -78,7 +78,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.UseDeveloperExceptionPage();
+    app.UseDeveloperExceptionPage(); // TODO ignore custom taxii exceptions in dev
 }
 
 app.UseAuthorization();

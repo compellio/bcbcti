@@ -30,7 +30,7 @@ public class CollectionController(CollectionsManager collections) : ControllerBa
         var collection = collections.Find(collectionId);
         CollectionNotFoundException.ThrowIfNull(collection, collectionId);
         
-        // TODO throw unsupported if match in filters
+        UnsupportedFilteringException.ThrowIfMatchPresent(filters);
         
         return await service.GetManifest(filters.AddedAfter, filters.Limit, ct);
     }
@@ -41,7 +41,7 @@ public class CollectionController(CollectionsManager collections) : ControllerBa
         var collection = collections.Find(collectionId);
         CollectionNotFoundException.ThrowIfNull(collection, collectionId);
         
-        // TODO throw unsupported if match in filters
+        UnsupportedFilteringException.ThrowIfMatchPresent(filters);
         
         return await service.GetObjectsEnvelope(filters.AddedAfter, filters.Limit, ct);
     }

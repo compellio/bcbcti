@@ -12,6 +12,6 @@ public class FilteringParameters
     public string? Next { get; set; }
     
     // TODO how to type mapping? { match[id]= -> string but match[version]= -> date }
-    // [FromQuery(Name = "match")]
-    // public IDictionary<string, string>? Match { get; set; }
+    [FromQuery(Name = "match")]
+    public IDictionary<string, string>? Match { get; set; }
 }
