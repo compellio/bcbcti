@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
+using Compellio.Bcbcti.Services.Serialization.Primitives;
 
 namespace Compellio.Bcbcti.Models.Documents;
 
@@ -8,7 +9,7 @@ public class JournalEntry
     public class Object
     {
         public required string ObjectId { get; set; } // STIX object id
-        public required DateTime ObjectVersion { get; set; } // STIX object version per TAXII's specification
+        public required StixTimestamp ObjectVersion { get; set; } // STIX object version per TAXII's specification
 
         public Guid? ReceiptId { get; set; }
         public string? ObjectKey { get; set; }

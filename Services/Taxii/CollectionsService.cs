@@ -81,7 +81,7 @@ public class CollectionsService
             Objects = results.Select(result => new JournalEntry.Object
                 {
                     ObjectId = result.StixObject.Id,
-                    ObjectVersion = result.StixObject.Version(submittedAt), // TODO FIXME duplication read from result
+                    ObjectVersion = result.StixObject.TaxiiVersion(submittedAt), // TODO FIXME duplication read from result
                     ObjectKey = result.RegistrationReceipt?.ObjectKey,
                     ReceiptId = result.RegistrationReceipt?.ReceiptId,
                     SubmitFailureReason = result.Resolution switch

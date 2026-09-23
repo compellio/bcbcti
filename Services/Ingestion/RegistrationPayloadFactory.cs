@@ -79,7 +79,7 @@ public class RegistrationPayloadFactory
             ReceiptId = registryResponse.Receipt.ReceiptId,
             ObjectKey = objectMetadata.ObjectKey,
             ObjectId = stixObject.Id,
-            ObjectVersion = stixObject.Version(operation.SubmittedAt), // TODO FIXME DANGER duplicate
+            ObjectVersion = stixObject.TaxiiVersion(operation.SubmittedAt), // TODO FIXME DANGER duplicate
 
             SubmittedAt = operation.SubmittedAt,
             SentAt = registryResponse.SentAt,

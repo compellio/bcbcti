@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Compellio.Bcbcti.Models.Taxii;
+using Compellio.Bcbcti.Services.Serialization.Primitives;
 
 namespace Compellio.Bcbcti.Models.Stix;
 
@@ -17,10 +18,10 @@ public abstract class StixObject
     public string Id { get; }
     
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public DateTime? Modified { get; set; }
+    public StixTimestamp? Modified { get; set; }
     
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public DateTime? Created { get; set; }
+    public StixTimestamp? Created { get; set; }
     
     [JsonExtensionData]
     public Dictionary<string, JsonElement>? Payload { get; set; }
@@ -31,8 +32,8 @@ public abstract class StixObject
     /// <param name="fallback">Vendor fallback version (e.g. submissionDate)</param>
     /// <returns></returns>
     /// TODO review location (TAXII-specific)
-    public DateTime Version(DateTime fallback)
+    public StixTimestamp TaxiiVersion(DateTime fallback)
     {
-        return Modified ?? Created ?? fallback;
+        return Modified ?? Created ?? StixTimestamp.FromDateTime(fallback);
     }
 }
