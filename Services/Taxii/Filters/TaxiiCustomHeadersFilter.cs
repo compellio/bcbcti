@@ -1,4 +1,4 @@
-using Compellio.Bcbcti.Services.Serialization.Formats;
+using Compellio.Bcbcti.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
