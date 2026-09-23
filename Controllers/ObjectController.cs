@@ -33,7 +33,7 @@ public class ObjectController(CollectionsManager collections) : ControllerBase
     [HttpDelete(Name = "DeleteObject")]
     public StixObject Delete(string collectionId, string objectId)
     {
-        throw new UnsupportedFeatureException("Registered object deletion is not supported");
+        throw new NotSupportedException("Registered object deletion is not supported");
     }
 
     [HttpGet("versions", Name = "ListObjectVersions")]
