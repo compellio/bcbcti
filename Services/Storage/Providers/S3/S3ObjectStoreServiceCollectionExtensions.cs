@@ -16,7 +16,6 @@ public static class S3ObjectStoreServiceCollectionExtensions
             var client = serviceProvider.GetRequiredService<IAmazonS3>();
             var options = serviceProvider.GetRequiredService<IOptions<S3ObjectStoreOptions>>().Value;
 
-            // TODO FIXME dirty: casting to read variable
             var forcePathStyle = client.Config is AmazonS3Config { ForcePathStyle: true };
 
             return new S3ObjectStore(client, options, forcePathStyle);

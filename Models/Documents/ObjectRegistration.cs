@@ -7,14 +7,11 @@ namespace Compellio.Bcbcti.Models.Documents;
 
 public enum RegistrationState
 {
-    Unregistered, // Creating failed - TODO REVIEW if ingestion fails this document won't get created => no document = unregistered
     Creating, // awaiting callback for 1st registration
     Updating, // awaiting callback for update registration
     Registered, // ok - idle
     Deleting,
     Deleted
-
-    // TODO case where update/delete attempted but failed? -> returns to Registered (or stays Updating/Deleting indefinetly)
 }
 
 public class ObjectRegistration

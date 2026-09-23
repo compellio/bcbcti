@@ -19,7 +19,7 @@ public interface IJsonObjectStore
 
     /// <summary>
     /// Similar to PutObjectAsync but for storing objects keys containing the stored content hash.
-    /// TODO REVIEW (interface segregration) method should be moved to a separate/sibling IJsonObjectStore-ish class
+    /// TODO-REVIEW (interface segregration) method should be moved to a separate/sibling IJsonObjectStore-ish class
     /// </summary>
     public Task<PutObjectResponse> PutContentAddressedObjectAsync<TPayload>(Func<byte[], string> keyFactory,
         TPayload input, CancellationToken ct = default);

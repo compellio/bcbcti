@@ -23,15 +23,7 @@ public class ObjectController(CollectionsManager collections) : ControllerBase
 
         UnsupportedFilteringException.ThrowIfMatchPresent(filters);
 
-        // TODO X-TAXII-Date-Added-First
-        //      The X-TAXII-Date-Added-First header is an extension header. It indicates the date_added `timestamp` of the first object of the response.
-        //      The value of this header MUST be a `timestamp`.
-
-        // TODO X-TAXII-Date-Added-Last
-        //      The X-TAXII-Date-Added-Last header is an extension header. It indicates the date_added `timestamp` of the last object of the response.
-        //      The value of this header MUST be a `timestamp`.
-
-        // TODO return STIX object resource + append extra registration metadata?
+        // TODO return STIX object resource + append extra registration metadata + X-TAXII headers
         throw new NotImplementedException();
     }
 
@@ -48,17 +40,9 @@ public class ObjectController(CollectionsManager collections) : ControllerBase
         var collection = collections.Find(collectionId);
         CollectionNotFoundException.ThrowIfNull(collection, collectionId);
         
-        // TODO X-TAXII-Date-Added-First
-        //      The X-TAXII-Date-Added-First header is an extension header. It indicates the date_added `timestamp` of the first object of the response.
-        //      The value of this header MUST be a `timestamp`.
-        
-        // TODO X-TAXII-Date-Added-Last
-        //      The X-TAXII-Date-Added-Last header is an extension header. It indicates the date_added `timestamp` of the last object of the response.
-        //      The value of this header MUST be a `timestamp`.
-
         UnsupportedFilteringException.ThrowIfMatchPresent(filters);
         
-        // TODO return list of object versions + extra registration metadata?
+        // TODO return list of object versions + extra registration metadata + X-TAXII headers
         throw new NotImplementedException();
     }
 }

@@ -1,10 +1,9 @@
 using System.Collections;
-using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 
 namespace Compellio.Bcbcti.Services.Serialization.Json.Modifiers;
 
-// TODO REVIEW
+// TODO-REVIEW
 // based on
 //   https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/custom-contracts#example-ignore-properties-with-a-specific-type
 //   https://stackoverflow.com/questions/18471864/how-to-make-json-net-skip-serialization-of-empty-collections

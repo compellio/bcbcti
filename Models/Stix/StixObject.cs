@@ -6,10 +6,9 @@ using Compellio.Bcbcti.Services.Serialization.Primitives;
 namespace Compellio.Bcbcti.Models.Stix;
 
 // TODO FIXME Json derived classes - https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/polymorphism#serialize-properties-of-derived-classes
-// TODO DANGER this affects STIX object serialization and hashing => public object URLs and checksums
 [JsonDerivedType(typeof(StixBundle))]
 [JsonDerivedType(typeof(StixUrlArtifact))]
-[JsonDerivedType(typeof(StixObjectResource))] // TODO fixme bleeds from TAXII namespace
+[JsonDerivedType(typeof(StixObjectResource))] // TODO-REVIEW placement & scope (TAXII-specific)
 public abstract class StixObject
 {
     protected StixObject(string id) => Id = id;
@@ -31,7 +30,7 @@ public abstract class StixObject
     /// </summary>
     /// <param name="fallback">Vendor fallback version (e.g. submissionDate)</param>
     /// <returns></returns>
-    /// TODO review location (TAXII-specific)
+    /// TODO-REVIEW placement & scope (TAXII-specific)
     public StixTimestamp TaxiiVersion(DateTime fallback)
     {
         return Modified ?? Created ?? StixTimestamp.FromDateTime(fallback);

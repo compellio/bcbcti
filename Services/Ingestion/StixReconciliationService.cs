@@ -68,7 +68,7 @@ public class StixReconciliationService
         catch (PutConditionException)
         {
             // Race condition conflict
-            // Review design (using exceptions for control)
+            // TODO-REVIEW design (using exceptions for control)
             return StixReconciliationResult.Abort;
         }
 

@@ -6,12 +6,10 @@ using Compellio.Bcbcti.Services.Storage.Models;
 
 namespace Compellio.Bcbcti.Services.Storage.Providers.S3;
 
+// TODO debug logging
 // references - based on
 // https://github.com/dotnet/orleans/blob/76394f182bec081ba3fd1b0d4a912f1ea29746e3/src/AWS/Orleans.Journaling.S3/S3JournalStorage.cs
 // https://github.com/awsdocs/aws-doc-sdk-examples/blob/main/dotnetv3/S3/scenarios/S3ConditionalRequestsScenario/S3ConditionalRequests/S3ActionsWrapper.cs
-
-// TODO debug logging?
-
 public class S3ObjectStore : IStreamObjectStore
 {
     private readonly IAmazonS3 _s3Client;
@@ -109,9 +107,7 @@ public class S3ObjectStore : IStreamObjectStore
         try
         {
             var request = new Amazon.S3.Model.GetObjectRequest { BucketName = _options.BucketName, Key = objectKey };
-
-            // TODO etag headers
-
+            
             using var response = await _s3Client.GetObjectAsync(request, ct);
 
             var payload = new MemoryStream();

@@ -6,7 +6,7 @@ public class TarReceipt
 {
     public string? Id { get; set; }
     public required Guid ReceiptId { get; set; }
-    public required string Checksum { get; set; } // TODO fixme hex checksum => byte[] better type
+    public required string Checksum { get; set; }
     public required int Version { get; set; }
     public required JsonDocument Data { get; set; }
     

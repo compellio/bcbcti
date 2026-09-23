@@ -57,7 +57,7 @@ builder.Services
     .AddControllers(options =>
     {
         options.ReturnHttpNotAcceptable = true;
-        options.Filters.Add<TaxiiCustomHeadersFilter>(); // TODO review placement in .AddTaxiiServices()?
+        options.Filters.Add<TaxiiCustomHeadersFilter>(); // TODO-REVIEW review placement in .AddTaxiiServices()?
     })
     .AddJsonOptions(options => JsonSerializerConfigurations.Taxii(options.JsonSerializerOptions));
 

@@ -4,14 +4,13 @@ using Compellio.Bcbcti.Services.Serialization.Primitives;
 
 namespace Compellio.Bcbcti.Models.Documents;
 
+// TODO-REVIEW placement & scope
 public enum RegistrationReceiptState
 {
     Sent,
     Succeeded,
     Failed
 }
-
-// TODO review location
 
 public class RegistrationReceipt
 {
