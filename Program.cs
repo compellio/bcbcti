@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Compellio.Bcbcti.Configuration;
 using Compellio.Bcbcti.Exceptions;
 using Compellio.Bcbcti.Options;
@@ -7,9 +5,12 @@ using Compellio.Bcbcti.Repositories;
 using Compellio.Bcbcti.Services;
 using Compellio.Bcbcti.Services.Ingestion;
 using Compellio.Bcbcti.Services.RegistryApi;
+using Compellio.Bcbcti.Services.Serialization;
 using Compellio.Bcbcti.Services.Storage;
 using Compellio.Bcbcti.Services.Storage.Json;
 using Compellio.Bcbcti.Services.Storage.Json.Canonical;
+using Compellio.Bcbcti.Services.Taxii;
+using Compellio.Bcbcti.Services.Taxii.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,20 +29,14 @@ builder.Services.AddOptions<BcbctiOptions>()
     .ValidateDataAnnotations()
     .ValidateOnStart();
 
-builder.Services.AddRegistryApi(); // TODO options, etc.
-
 builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
 
 builder.Services.AddObjectStore(builder.Configuration.GetSection("Storage"));
-
 builder.Services
-    .AddJsonObjectStore(options =>
-    {
-        options.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
-        options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower));
-        options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-    })
+    .AddJsonObjectStore(JsonSerializerConfigurations.Storage)
     .AddCanonicalJsonObjectStore("canonical");
+
+builder.Services.AddRegistryApi(); // TODO options, etc.
 
 builder.Services.AddSingleton<CollectionsManager>();
 
@@ -56,20 +51,21 @@ builder.Services.AddSingleton<StixIngestionService>();
 builder.Services.AddSingleton<StixReconciliationService>();
 builder.Services.AddHostedService<ReconciliationHostedService>();
 
+builder.Services.AddTaxiiServices();
+
 builder.Services
-    .AddControllers(options => { options.ReturnHttpNotAcceptable = true; })
-    .AddJsonOptions(options =>
+    .AddControllers(options =>
     {
-        // TODO add TAXII-specific DateTime converter (5-point ms precision)
-        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower));
-        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-        options.JsonSerializerOptions.WriteIndented = true;
-    });
+        options.ReturnHttpNotAcceptable = true;
+        options.Filters.Add<TaxiiCustomHeadersFilter>(); // TODO-REVIEW review placement in .AddTaxiiServices()?
+    })
+    .AddJsonOptions(options => JsonSerializerConfigurations.Taxii(options.JsonSerializerOptions));
 
 builder.Services.ConfigureOptions<ConfigureTaxiiMediaTypes>();
 
 builder.Services.AddExceptionHandler<TaxiiExceptionHandler>();
+
+builder.WebHost.ConfigureKestrel(options => { options.AddServerHeader = false; });
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -82,7 +78,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.UseDeveloperExceptionPage();
+    app.UseDeveloperExceptionPage(); // TODO ignore custom taxii exceptions in dev
 }
 
 app.UseAuthorization();

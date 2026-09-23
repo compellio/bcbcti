@@ -1,5 +1,6 @@
 using Compellio.Bcbcti.Models.Taxii;
 using Compellio.Bcbcti.Options;
+using Compellio.Bcbcti.Services.Taxii;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -11,28 +12,22 @@ namespace Compellio.Bcbcti.Controllers;
 [Produces("application/taxii+json;version=2.1")]
 public class TaxiiServerController(IOptions<TaxiiOptions> options) : ControllerBase
 {
-    [HttpGet(Name = "TaxiiServerDiscovery")]
-    [Route("/taxii2")]
-    public DiscoveryResource Discovery()
+    [HttpGet("taxii2", Name = "TaxiiServerDiscovery")]
+    public DiscoveryResource Discovery(TaxiiServerService service)
     {
-        return new DiscoveryResource
-        {
-            Title = options.Value.ServerTitle, Default = "/api/", ApiRoots = ["/api/"]
-        };
+        return service.BuildDiscoveryResource();
     }
 
-    [HttpGet(Name = "TaxiiApiRootInformation")]
-    [Route("/api")]
-    public ApiRootResource RootInformation()
+    [HttpGet("api", Name = "TaxiiApiRootInformation")]
+    public ApiRootResource RootInformation(TaxiiServerService service)
     {
-        return new ApiRootResource
-        {
-            Title = options.Value.Title,
-            Description = options.Value.Description,
-            Versions = ["application/taxii+json;version=2.1"],
-            MaxContentLength = (int)options.Value.MaxUploadBytes,
-        };
+        return service.BuildApiRootResource();
     }
-    
-    // TODO /{api-root}/status/{status-id}
+
+    [HttpGet("api/status/{id:guid}", Name = "TaxiiApiRootStatus")]
+    public async Task<StatusResource> StatusInformation(Guid id, StatusService service, CancellationToken ct)
+    {
+        // TODO FIXME catch ObjectNotFoundException -> turn into TAXII 404
+        return await service.BuildStatusResource(id, ct);
+    }
 }

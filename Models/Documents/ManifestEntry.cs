@@ -1,12 +1,15 @@
+using Compellio.Bcbcti.Services.Serialization.Primitives;
+
 namespace Compellio.Bcbcti.Models.Documents;
 
 public class ManifestEntry
 {
     public required string ObjectId { get; set; }
     public required string ObjectKey { get; set; }
+    public required StixTimestamp ObjectVersion { get; set; }
     
     public required Guid ReceiptId { get; set; }
-    public required DateTime CompletedAt { get; set; } // = TAXII DateAdded
+    public required DateTime CompletedAt { get; set; }
     
-    public required RegistrationMetadata RegistrationMetadata { get; set; } // TODO FIXME issue: TarId required in this case
+    public required RegistrationMetadata RegistrationMetadata { get; set; }
 }

@@ -6,7 +6,8 @@ public class S3ObjectStoreOptions
 {
     [Required]
     [MinLength(3)]
-    // todo alphanumeric-dash validation
+    // TODO name validation with System.ComponentModel.DataAnnotations.RegularExpression
+    //      see https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html#general-purpose-bucket-names
     public required string BucketName { get; set; }
     
     [Url]

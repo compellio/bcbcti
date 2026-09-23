@@ -22,4 +22,6 @@ public class TaxiiOptions
     /// <remarks>Adjust based on available rate limits for the Registry API and selected storage provider.</remarks>
     public int MaxUploadCount { get; set; } = 100;
     
+    public TaxiiPaginationOptions Pagination { get; set; } = new TaxiiPaginationOptions();
+    
 }

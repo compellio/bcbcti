@@ -1,5 +1,3 @@
-using Compellio.Bcbcti.Options;
-
 namespace Compellio.Bcbcti.Models.Taxii;
 
 /// <summary>
@@ -44,16 +42,4 @@ public class CollectionResource
     /// </summary>
     public string[]? MediaTypes { get; set; }
 
-    // TODO review location -> new options->resource mapping utility class?
-    // TODO FIXME canRead/canWrite should be defined by authentication state (when/if implemented)
-    public static CollectionResource FromCollectionOptions(CollectionOptions options, bool canRead, bool canWrite) =>
-        new()
-        {
-            Id = options.Id,
-            Title = options.Title,
-            Alias = options.Alias,
-            CanRead = canRead,
-            CanWrite = canWrite,
-            MediaTypes = ["application/stix+json;version=2.1"]
-        };
 }

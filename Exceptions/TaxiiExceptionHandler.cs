@@ -1,5 +1,5 @@
-using Compellio.Bcbcti.Exceptions.Taxii;
 using Compellio.Bcbcti.Models.Taxii;
+using Compellio.Bcbcti.Services.Taxii.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 
 namespace Compellio.Bcbcti.Exceptions;

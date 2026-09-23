@@ -1,17 +1,15 @@
-using Compellio.Bcbcti.Exceptions.Taxii;
-using Compellio.Bcbcti.Models.Documents;
-using Compellio.Bcbcti.Models.Stix;
 using Compellio.Bcbcti.Models.Taxii;
 using Compellio.Bcbcti.Models.Taxii.Requests;
-using Compellio.Bcbcti.Repositories;
 using Compellio.Bcbcti.Services;
-using Compellio.Bcbcti.Services.Ingestion;
+using Compellio.Bcbcti.Services.Taxii;
+using Compellio.Bcbcti.Services.Taxii.Exceptions;
+using Compellio.Bcbcti.Services.Taxii.Mappers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Compellio.Bcbcti.Controllers;
 
 [ApiController]
-[Route("/api/collections/{collectionId}")]
+[Route("api/collections/{collectionId}")]
 [Consumes("application/taxii+json", "application/taxii+json;version=2.1")]
 [Produces("application/taxii+json;version=2.1")]
 public class CollectionController(CollectionsManager collections) : ControllerBase
@@ -21,78 +19,50 @@ public class CollectionController(CollectionsManager collections) : ControllerBa
     {
         var collection = collections.Find(collectionId);
         CollectionNotFoundException.ThrowIfNull(collection, collectionId);
-
-        return CollectionResource.FromCollectionOptions(collection, true, true);
+        
+        return CollectionMapper.ToResource(collection, true, true);
     }
 
-    [HttpGet(Name = "ListManifests")]
-    [Route("/manifest")]
-    public ManifestResource ListManifests(string collectionId)
+    [HttpGet("manifest", Name = "ListManifests")]
+    public async Task<ManifestResource> ListManifests(string collectionId, [FromQuery] FilteringParameters filters,
+        ManifestService service, CancellationToken ct)
     {
         var collection = collections.Find(collectionId);
         CollectionNotFoundException.ThrowIfNull(collection, collectionId);
-
-        // TODO return registry-API status/data for submitted objects + apply filtering
-        throw new NotImplementedException();
+        
+        UnsupportedFilteringException.ThrowIfMatchPresent(filters);
+        
+        return await service.GetManifest(filters.AddedAfter, filters.Limit, ct);
     }
 
-    [HttpGet(Name = "ListObjects")]
-    [Route("/objects")]
-    public EnvelopeResource ListObjects(string collectionId)
+    [HttpGet("objects", Name = "ListObjects")]
+    public async Task<EnvelopeResource> ListObjects(string collectionId,  [FromQuery] FilteringParameters filters, CollectionsService service, CancellationToken ct)
     {
         var collection = collections.Find(collectionId);
         CollectionNotFoundException.ThrowIfNull(collection, collectionId);
-
-        // TODO return submitted objects + apply filtering
-        throw new NotImplementedException();
+        
+        UnsupportedFilteringException.ThrowIfMatchPresent(filters);
+        
+        return await service.GetObjectsEnvelope(filters.AddedAfter, filters.Limit, ct);
     }
 
     /// <summary>
     /// TAXII 5.5 Add Objects endpoint
     /// </summary>
     /// <see href="https://docs.oasis-open.org/cti/taxii/v2.1/os/taxii-v2.1-os.html#_Toc26285815"/>
-    [HttpPost(Name = "CreateObjects")]
-    [Route("/objects")]
-    public async Task<StixObject> CreateObjects(string collectionId, [FromBody] AddObjectsRequest envelope,
-        [FromServices] JournalRepository journalRepository, [FromServices] StixIngestionService stixIngestionService,
-        CancellationToken ct)
+    [HttpPost("objects", Name = "CreateObjects")]
+    public async Task<ActionResult<StatusResource>> CreateObjects(string collectionId,
+        [FromBody] AddObjectsRequest envelope, CollectionsService service, CancellationToken ct)
     {
         var collection = collections.Find(collectionId);
         CollectionNotFoundException.ThrowIfNull(collection, collectionId);
-        
+
         // TODO TAXXI spec: throw validation error if invalid STIX objects contained in envelope (normally handled by AddObjectsRequest?)
+        // TODO check for duplicates in envelope? (duplicate = same id AND version)
 
-        var journalId = Guid.NewGuid();
         var submittedAt = DateTime.UtcNow;
+        var status = await service.SubmitObjects(collection, submittedAt, envelope.Objects, ct);
 
-        var results = await stixIngestionService.ProcessStixObjects(collection, journalId, submittedAt, envelope.Objects, ct);
-        
-        // 3. create journal entry with receipt ids
-        await journalRepository.PutJournalEntry(new JournalEntry
-        {
-            Id = journalId,
-            CollectionId = collection.Id,
-            RequestTimestamp = submittedAt,
-            Objects = results.Select(result => new JournalEntry.Object
-                {
-                    ObjectId = result.StixObject.Id,
-                    ObjectVersion = result.StixObject.Version(submittedAt), // TODO FIXME duplication read from result
-                    ObjectKey = result.RegistrationReceipt?.ObjectKey,
-                    ReceiptId = result.RegistrationReceipt?.ReceiptId,
-                    SubmitFailureReason = result.Resolution switch
-                    {
-                        IngestionResultResolution.Abort => "pending-registration", // TODO FIXME hardcoded error -> new enum/static consts for user error codes?
-                        IngestionResultResolution.Failure => result.ResolutionFailureMessage,
-                        _ => null
-                    }
-                })
-                .ToArray()
-        }, ct);
-
-        // 4. generate status and return
-
-        // TODO return same response as /status/{status-id} => constructor/factory?
-
-        throw new NotImplementedException();
+        return Accepted(status);
     }
 }

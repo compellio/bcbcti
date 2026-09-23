@@ -50,6 +50,7 @@ public class StixReconciliationService
             CompletedAt = update.CompletedAt,
             ObjectId = receipt.ObjectId,
             ObjectKey = receipt.ObjectKey,
+            ObjectVersion = receipt.ObjectVersion,
             ReceiptId = receipt.ReceiptId,
             RegistrationMetadata = new RegistrationMetadata()
             {
@@ -67,7 +68,7 @@ public class StixReconciliationService
         catch (PutConditionException)
         {
             // Race condition conflict
-            // Review design (using exceptions for control)
+            // TODO-REVIEW design (using exceptions for control)
             return StixReconciliationResult.Abort;
         }
 

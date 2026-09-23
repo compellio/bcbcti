@@ -4,13 +4,8 @@ using Microsoft.Extensions.Options;
 
 namespace Compellio.Bcbcti.Models.Taxii.Requests;
 
-// TODO REVIEW This should perhaps be a EnvelopeResource but things get complicated with EnvelopeResource because it defines objects
-//    as abstract StixObject instead of StixObjectResource => JSON deserialization complexity 
-public class AddObjectsRequest : IValidatableObject
+public class AddObjectsRequest : Envelope<StixObjectResource>, IValidatableObject
 {
-    // TODO need custom JsonConverter to properly cast objects into the right Models.Stix resources
-    public required StixObjectResource[] Objects { get; set; }
-
     public IEnumerable<ValidationResult> Validate(ValidationContext context)
     {
         var max = context.GetRequiredService<IOptions<TaxiiOptions>>().Value.MaxUploadCount;

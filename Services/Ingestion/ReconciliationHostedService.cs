@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 
 namespace Compellio.Bcbcti.Services.Ingestion;
 
-// TODO review placement & scope
+// TODO-REVIEW placement & scope
 public class ReconciliationHostedService : BackgroundService
 {
     private readonly ILogger<ReconciliationHostedService> _logger;
@@ -24,7 +24,7 @@ public class ReconciliationHostedService : BackgroundService
     {
         _logger = logger;
 
-        // TODO FIXME validation before parsing?
+        // TODO-FIXME validation before parsing?
         _refreshFrequency = TimeSpan.ParseExact(options.Value.ReconciliationFrequency, "c", null);
 
         _registryOperationRepository = registryOperationRepository;
@@ -40,11 +40,11 @@ public class ReconciliationHostedService : BackgroundService
 
         try
         {
-            await ReconcilePendingOperations(ct); // TODO FIXME pass ExecuteAsync ct?
+            await ReconcilePendingOperations(ct);
 
             while (await timer.WaitForNextTickAsync(ct))
             {
-                await ReconcilePendingOperations(ct); // TODO FIXME pass ExecuteAsync ct?
+                await ReconcilePendingOperations(ct);
             }
         }
         catch (OperationCanceledException)
@@ -70,8 +70,6 @@ public class ReconciliationHostedService : BackgroundService
             catch (Exception e)
             {
                 _logger.LogError(e, "Error reconciling pending operation {Key}; will retry", operation.ObjectKey);
-                // TODO FIXME only for debug
-                Console.WriteLine(e);
             }
         }
     }
@@ -82,10 +80,11 @@ public class ReconciliationHostedService : BackgroundService
 
         if (!operation.Body.WasSent)
         {
-            // Operation was not sent, either
-            //   - error: receiptId was not written in the RegistryOperation => used RegistryOperation data to investigate
-            //   - stale (if operation.SubmittedAt < now + staleTimeSpan): act accordingly (mark failed, etc.)
-            // Move this in to StixIngestionService.ReconcileOperation?
+            // TODO-REVIEW
+            //   Operation was not sent, either
+            //     - error: receiptId was not written in the RegistryOperation => used RegistryOperation data to investigate
+            //     - stale (if operation.SubmittedAt < now + staleTimeSpan): act accordingly (mark failed, etc.)
+            //   Move this in to StixIngestionService.ReconcileOperation?
             return;
         }
 

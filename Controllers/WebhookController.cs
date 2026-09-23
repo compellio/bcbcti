@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Compellio.Bcbcti.Controllers;
 
 [ApiController]
-[Route("/api/hooks")]
+[Route("api/hooks")]
 [Consumes("application/json")]
 [Produces("application/json")]
 public class WebhookController(
@@ -14,8 +14,7 @@ public class WebhookController(
     StixReconciliationService reconciliationService,
     RegistryOperationRepository operationRepository) : ControllerBase
 {
-    [HttpPost(Name = "RegistryApiCallback")]
-    [Route("/registry-api/callback")]
+    [HttpPost("registry-api/callback", Name = "RegistryApiCallback")]
     public async Task Get( /* http context */ CancellationToken ct)
     {
         var tarReceipt = await registryApiClient.ValidateCallback( /* http context */);

@@ -1,5 +1,6 @@
 using System.Buffers.Text;
 using Compellio.Bcbcti.Models.Stix;
+using Compellio.Bcbcti.Models.Taxii;
 using Compellio.Bcbcti.Services.Storage.Json;
 using Compellio.Bcbcti.Services.Storage.Models;
 
@@ -15,12 +16,12 @@ public class StixObjectRepository([FromKeyedServices("canonical")] IJsonObjectSt
         return $"objects/{hash}.json";
     }
 
-    public async Task<GetObjectResponse<StixObject>> GetStixObject(string objectKey, CancellationToken ct = default)
+    public async Task<GetObjectResponse<StixObjectResource>> GetStixObject(string objectKey, CancellationToken ct = default)
     {
-        return await Store.GetObjectAsync<StixObject>(objectKey, ct);
+        return await Store.GetObjectAsync<StixObjectResource>(objectKey, ct);
     }
 
-    public Task<GetObjectResponse<StixObject>> GetStixObject(ReadOnlySpan<byte> hashBuffer,
+    public Task<GetObjectResponse<StixObjectResource>> GetStixObject(ReadOnlySpan<byte> hashBuffer,
         CancellationToken ct = default) =>
         GetStixObject(BuildStixObjectKey(hashBuffer), ct);
 

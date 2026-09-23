@@ -10,10 +10,10 @@ public enum IngestionResultResolution
     Abort // pending registration
 }
 
-// todo refactor into "union" like StixReconciliationResult
+// TODO refactor into "union" like StixReconciliationResult
 public class StixIngestionResult
 {
-    public required IngestionResultResolution Resolution { get; set; } // TODO FIXME don't like it: conditional props based on Resolution
+    public required IngestionResultResolution Resolution { get; set; }
     public required StixObject StixObject { get; set; }
 
     public RegistrationReceipt? RegistrationReceipt { get; set; }

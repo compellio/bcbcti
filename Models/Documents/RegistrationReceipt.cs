@@ -1,16 +1,16 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
+using Compellio.Bcbcti.Services.Serialization.Primitives;
 
 namespace Compellio.Bcbcti.Models.Documents;
 
+// TODO-REVIEW placement & scope
 public enum RegistrationReceiptState
 {
     Sent,
     Succeeded,
     Failed
 }
-
-// TODO review location
 
 public class RegistrationReceipt
 {
@@ -35,7 +35,7 @@ public class RegistrationReceipt
     /// The STIX Object version per TAXII's specification.
     /// </summary>
     /// <remarks>For STIX objects the version MUST be the STIX modified timestamp Property. If a STIX object is not versioned (and therefore does not have a modified timestamp), the server MUST use the created timestamp. If the STIX object does not have a created or modified timestamp then the server SHOULD use a value for the version that is consistent to the server.</remarks>
-    public required DateTime ObjectVersion { get; set; }
+    public required StixTimestamp ObjectVersion { get; set; }
 
     // History props
     public required DateTime SubmittedAt { get; set; } // when BCBCTI server received the object
