@@ -1,10 +1,12 @@
 using Compellio.Bcbcti.Services.Storage.Providers.S3;
+using Compellio.Bcbcti.Services.Storage.Providers.Files;
 
 namespace Compellio.Bcbcti.Services.Storage;
 
 enum ObjectStoreProviders
 {
     S3,
+    File,
     // AzureBlob
 }
 
@@ -21,6 +23,10 @@ public static class ObjectStoreServiceCollectionExtensions
             case ObjectStoreProviders.S3:
                 services.AddS3ObjectStore(options.Bind);
                 services.AddSingleton<IStreamObjectStore>(sp => sp.GetRequiredService<S3ObjectStore>());
+                break;
+            case ObjectStoreProviders.File:
+                services.AddFileObjectStore(options.Bind);
+                services.AddSingleton<IStreamObjectStore>(sp => sp.GetRequiredService<FileObjectStore>());
                 break;
 
             default:
