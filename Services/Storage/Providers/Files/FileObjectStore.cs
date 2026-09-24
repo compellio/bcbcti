@@ -22,7 +22,7 @@ public class FileObjectStore : IStreamObjectStore
         var builder = new UriBuilder(_publicBaseUri);
 
         var basePath = builder.Path.TrimEnd('/');
-        var keyPath = objectKey.TrimStart('/').Concat(".json");
+        var keyPath = objectKey.TrimStart('/');
 
         builder.Path = $"{basePath}/{keyPath}";
 
@@ -40,7 +40,7 @@ public class FileObjectStore : IStreamObjectStore
     {
         try
         {
-            var fullObjectPath = Path.Combine(_options.BaseFolder, objectKey, ".json");
+            var fullObjectPath = Path.Combine(_options.BaseFolder, objectKey);
             if (File.Exists(fullObjectPath) == false)
             {
                 throw new ObjectNotFoundException(fullObjectPath, null);
@@ -92,7 +92,7 @@ public class FileObjectStore : IStreamObjectStore
     {
         try
         {
-            var fullObjectPath = Path.Combine(_options.BaseFolder, request.ObjectKey, ".json");
+            var fullObjectPath = Path.Combine(_options.BaseFolder, request.ObjectKey);
             using FileStream response = new FileStream(fullObjectPath, FileMode.Create, FileAccess.ReadWrite);
 
             await request.InputStream.CopyToAsync(response, ct);
@@ -125,7 +125,7 @@ public class FileObjectStore : IStreamObjectStore
     {
         try
         {
-            var jsonFiles = Directory.GetFiles(_options.BaseFolder, "*.json");
+            var jsonFiles = Directory.GetFiles(_options.BaseFolder);
 
             return new ListObjectsResponse
             {
@@ -151,7 +151,7 @@ public class FileObjectStore : IStreamObjectStore
     {
         try
         {
-            var fullObjectPath = Path.Combine(_options.BaseFolder, request.ObjectKey, ".json");
+            var fullObjectPath = Path.Combine(_options.BaseFolder, request.ObjectKey);
             if (File.Exists(fullObjectPath) == false)
             {
                 throw new ObjectNotFoundException(fullObjectPath, null);
