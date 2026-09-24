@@ -1,6 +1,7 @@
 using Compellio.Bcbcti.Services.Storage.Exceptions;
 using Compellio.Bcbcti.Services.Storage.Models;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace Compellio.Bcbcti.Services.Storage.Providers.Files;
 
@@ -15,6 +16,18 @@ public class FileObjectStore : IStreamObjectStore
     {
         _options = options;
         _publicBaseUri = _options.BaseUri;
+    }
+
+    private static string GetFileETag(string filePath)
+    {
+        var fileInfo = new FileInfo(filePath);
+        string input = $"{fileInfo.LastWriteTimeUtc.Ticks}:{fileInfo.Length}";
+        using var md5 = MD5.Create();
+
+        byte[] inputBytes = Encoding.UTF8.GetBytes(input);
+        byte[] hashBytes = md5.ComputeHash(inputBytes);
+
+        return Convert.ToHexString(hashBytes).ToLowerInvariant();
     }
 
     public Uri GetObjectUri(string objectKey)
@@ -61,7 +74,7 @@ public class FileObjectStore : IStreamObjectStore
                     ObjectKey = objectKey,
                     PublicObjectUrl = GetObjectUri(objectKey),
                     ChecksumSha256 = null,
-                    ETag = null,
+                    ETag = GetFileETag(fullObjectPath),
                     LastModified = lastModified
                 }
             };
@@ -107,7 +120,7 @@ public class FileObjectStore : IStreamObjectStore
                     ObjectKey = request.ObjectKey,
                     PublicObjectUrl = GetObjectUri(request.ObjectKey),
                     ChecksumSha256 = BitConverter.ToString(hashBuffer),
-                    ETag = null,
+                    ETag = GetFileETag(fullObjectPath),
                 }
             };
         }
@@ -131,7 +144,7 @@ public class FileObjectStore : IStreamObjectStore
             {
                 Objects = jsonFiles.Select(x => new ObjectSummary
                 {
-                    ETag = null,
+                    ETag = GetFileETag(x),
                     ObjectKey = Path.GetFileNameWithoutExtension(x),
                     LastModified = File.GetLastWriteTime(x),
                 })
