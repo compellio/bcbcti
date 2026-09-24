@@ -14,7 +14,7 @@ public static class ObjectStoreServiceCollectionExtensions
         IConfigurationSection configuration)
     {
         var provider = configuration.GetValue<ObjectStoreProviders>("Provider");
-        var options = configuration.GetSection("ProviderOptions");
+        var options = configuration.GetSection("Options");
 
         switch (provider)
         {

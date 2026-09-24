@@ -13,14 +13,22 @@ public class RegistryOperationRepository(IJsonObjectStore store) : Repository(st
         return $"{Prefix}{objectId}.json";
     }
 
-    public Task<GetObjectResponse<RegistryOperation>> GetRegistryOperation(Guid journalId, string objectId,
-        CancellationToken ct = default) =>
-        GetRegistryOperation(BuildOperationKey(objectId), ct);
-
-    public async Task<GetObjectResponse<RegistryOperation>> GetRegistryOperation(string key,
+    public async Task<GetObjectResponse<RegistryOperation>> GetRegistryOperationByKey(string key,
         CancellationToken ct = default)
     {
         return await Store.GetObjectAsync<RegistryOperation>(key, ct);
+    }
+
+    // TODO differentiate between GetRegistryOperationByKey-ByKey vs -ByObjectId, c# convention (same string signature - no overload)?
+    public async Task<GetObjectResponse<RegistryOperation>> GetRegistryOperation(string objectId, CancellationToken ct = default)
+    {
+        return await Store.GetObjectAsync<RegistryOperation>(BuildOperationKey(objectId), ct);
+    }
+
+    public async Task<GetObjectResponse<RegistryOperation>?> FindRegistryOperation(string objectId,
+        CancellationToken ct = default)
+    {
+        return await Store.FindObjectAsync<RegistryOperation>(BuildOperationKey(objectId), ct);
     }
 
     public async Task<PutObjectResponse> CreateRegistryOperation(RegistryOperation entry,
@@ -47,7 +55,8 @@ public class RegistryOperationRepository(IJsonObjectStore store) : Repository(st
         return await Store.DeleteObjectAsync(BuildOperationKey(objectId), ct);
     }
 
-    public async Task<DeleteObjectResponse> DeleteRegistryOperationByKey(string objectKey, CancellationToken ct = default)
+    public async Task<DeleteObjectResponse> DeleteRegistryOperationByKey(string objectKey,
+        CancellationToken ct = default)
     {
         return await Store.DeleteObjectAsync(objectKey, ct);
     }

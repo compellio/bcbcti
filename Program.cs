@@ -14,31 +14,14 @@ using Compellio.Bcbcti.Services.Taxii.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// TODO add middleware that rejects sorting queries (see section 3.3): return "not implemented" response)
 // TODO implement TAXII error handling (see section 3.6): error format very specific -> global server config?)
 
-// Load TAXII server configuration
-builder.Services.AddOptions<TaxiiOptions>()
-    .Bind(builder.Configuration.GetSection("TAXII"))
-    .ValidateDataAnnotations()
-    .ValidateOnStart();
-
 // Load BCBCTI configuration
-builder.Services.AddOptions<BcbctiOptions>()
+builder.Services.AddSingleton<CollectionsManager>();
+builder.Services.AddOptions<CollectionsOptions>()
     .Bind(builder.Configuration.GetSection("BCBCTI"))
     .ValidateDataAnnotations()
     .ValidateOnStart();
-
-builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
-
-builder.Services.AddObjectStore(builder.Configuration.GetSection("Storage"));
-builder.Services
-    .AddJsonObjectStore(JsonSerializerConfigurations.Storage)
-    .AddCanonicalJsonObjectStore("canonical");
-
-builder.Services.AddRegistryApi(); // TODO options, etc.
-
-builder.Services.AddSingleton<CollectionsManager>();
 
 builder.Services.AddSingleton<JournalRepository>();
 builder.Services.AddSingleton<StixObjectRepository>();
@@ -47,11 +30,19 @@ builder.Services.AddSingleton<RegistryOperationRepository>();
 builder.Services.AddSingleton<ObjectRegistrationRepository>();
 builder.Services.AddSingleton<ManifestRepository>();
 
-builder.Services.AddSingleton<StixIngestionService>();
-builder.Services.AddSingleton<StixReconciliationService>();
-builder.Services.AddHostedService<ReconciliationHostedService>();
+builder.Services.AddRegistryApi(builder.Configuration.GetSection("RegistryApi")); // TODO options, etc.
 
-builder.Services.AddTaxiiServices();
+builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
+// TODO merge and move to new AddStorage in Services.Storage
+builder.Services.AddObjectStore(builder.Configuration.GetSection("BCBCTI:Storage"));
+builder.Services
+    .AddJsonObjectStore(JsonSerializerConfigurations.Storage)
+    .AddCanonicalJsonObjectStore("canonical");
+
+builder.Services.AddIngestion(builder.Configuration.GetSection("BCBCTI:Ingestion"));
+
+builder.Services.AddTaxiiServices(builder.Configuration.GetSection("BCBCTI:TAXII"));
+builder.Services.AddExceptionHandler<TaxiiExceptionHandler>(); // TODO-REVIEW move to Services.Taxii
 
 builder.Services
     .AddControllers(options =>
@@ -62,8 +53,6 @@ builder.Services
     .AddJsonOptions(options => JsonSerializerConfigurations.Taxii(options.JsonSerializerOptions));
 
 builder.Services.ConfigureOptions<ConfigureTaxiiMediaTypes>();
-
-builder.Services.AddExceptionHandler<TaxiiExceptionHandler>();
 
 builder.WebHost.ConfigureKestrel(options => { options.AddServerHeader = false; });
 

@@ -13,16 +13,20 @@ public abstract record StixReconciliationResult
 
     public sealed record AbortResolution : StixReconciliationResult;
 
-    public sealed record FailureResolution : StixReconciliationResult;
+    public sealed record FailureResolution : StixReconciliationResult
+    {
+        public string? Message { get; init; }
+    };
 
     public sealed record SkipResolution : StixReconciliationResult;
 
-    public static StixReconciliationResult Success(string objectId) => new SuccessResolution
-    {
-        ObjectId = objectId
-    };
+    public sealed record TimedOutResolution : StixReconciliationResult;
+
+    public static StixReconciliationResult Success(string objectId) => new SuccessResolution { ObjectId = objectId };
+
+    public static StixReconciliationResult Failure(string? message = null) => new FailureResolution { Message = message };
 
     public static readonly StixReconciliationResult Abort = new AbortResolution();
-    public static readonly StixReconciliationResult Failure = new FailureResolution();
     public static readonly StixReconciliationResult Skip = new SkipResolution();
+    public static readonly StixReconciliationResult TimedOut = new TimedOutResolution();
 }

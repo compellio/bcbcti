@@ -29,4 +29,10 @@ public class StixObjectRepository([FromKeyedServices("canonical")] IJsonObjectSt
     {
         return await Store.PutContentAddressedObjectAsync(hb => BuildStixObjectKey(hb), entry, Condition.IfNoneExists, ct);
     }
+
+    public async Task<DeleteObjectResponse> DeleteStixObject(string objectKey,
+        CancellationToken ct = default)
+    {
+        return await Store.DeleteObjectAsync(objectKey, ct);
+    }
 }

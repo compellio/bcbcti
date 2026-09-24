@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 
 namespace Compellio.Bcbcti.Services;
 
-public class CollectionsManager(IOptions<BcbctiOptions> options)
+public class CollectionsManager(IOptions<CollectionsOptions> options)
 {
     public IReadOnlyList<CollectionOptions> All { get; } = options.Value.Collections;
     

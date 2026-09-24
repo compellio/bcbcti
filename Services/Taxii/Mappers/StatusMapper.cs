@@ -37,7 +37,7 @@ public static class StatusMapper
                         break;
 
                     case RegistrationReceiptState.Failed:
-                        details.Message = journalObject.SubmitFailureReason;
+                        details.Message = receipt.FailureReason;
                         failures.Add(details);
                         break;
 
