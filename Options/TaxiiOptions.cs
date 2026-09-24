@@ -15,13 +15,12 @@ public class TaxiiOptions
     /// <see href="https://docs.oasis-open.org/cti/taxii/v2.1/os/taxii-v2.1-os.html#_Toc26285804"/>
     /// TODO the server must be configured to reject larger requests (limit request size)
     public long MaxUploadBytes { get; set; } = 10 * 1024 * 1024;
-    
+
     /// <summary>
     /// Maximum STIX objects that can be submitted at once 
     /// </summary>
     /// <remarks>Adjust based on available rate limits for the Registry API and selected storage provider.</remarks>
-    public int MaxUploadCount { get; set; } = 100;
-    
+    public int MaxUploadCount { get; set; } = 50;
+
     public TaxiiPaginationOptions Pagination { get; set; } = new TaxiiPaginationOptions();
-    
 }
