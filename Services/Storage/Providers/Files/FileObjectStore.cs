@@ -14,7 +14,7 @@ public class FileObjectStore : IStreamObjectStore
     public FileObjectStore(FileObjectStoreOptions options)
     {
         _options = options;
-        _publicBaseUri = "file://localhost/";
+        _publicBaseUri = _options.BaseUri;
     }
 
     public Uri GetObjectUri(string objectKey)
