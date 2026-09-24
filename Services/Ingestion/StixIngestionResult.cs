@@ -7,7 +7,7 @@ public enum IngestionResultResolution
 {
     Success,
     Failure,
-    Abort // pending registration
+    Abort
 }
 
 // TODO refactor into "union" like StixReconciliationResult

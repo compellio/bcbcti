@@ -13,6 +13,8 @@ public static class IngestionServiceCollectionExtensions
         
         services.AddSingleton<StixIngestionService>();
         services.AddSingleton<StixReconciliationService>();
+        services.AddSingleton<RegistryOperationsManager>();
+        
         services.AddHostedService<ReconciliationHostedService>();
 
         return services;
