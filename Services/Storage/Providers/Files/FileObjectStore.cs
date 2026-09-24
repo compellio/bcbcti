@@ -1,10 +1,6 @@
-using Amazon.S3;
 using Compellio.Bcbcti.Services.Storage.Exceptions;
 using Compellio.Bcbcti.Services.Storage.Models;
-using System.Drawing;
-using System.Net;
 using System.Security.Cryptography;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Compellio.Bcbcti.Services.Storage.Providers.Files;
 
@@ -20,13 +16,6 @@ public class FileObjectStore : IStreamObjectStore
         _options = options;
         _publicBaseUri = "file://localhost/";
     }
-
-    private static bool IsObjectNotFound(AmazonS3Exception exception) =>
-        exception.StatusCode == HttpStatusCode.NotFound &&
-        !string.Equals(exception.ErrorCode, "NoSuchBucket", StringComparison.Ordinal);
-
-    private static bool IsConditionConflict(AmazonS3Exception exception) =>
-        exception.StatusCode is HttpStatusCode.PreconditionFailed or HttpStatusCode.Conflict;
 
     public Uri GetObjectUri(string objectKey)
     {
@@ -137,13 +126,6 @@ public class FileObjectStore : IStreamObjectStore
         try
         {
             var jsonFiles = Directory.GetFiles(_options.BaseFolder, "*.json");
-
-            var s3ListRequest = new Amazon.S3.Model.ListObjectsV2Request
-            {
-                BucketName = _options.BaseFolder,
-                Prefix = request.Prefix,
-                StartAfter =  request.StartAfter
-            };
 
             return new ListObjectsResponse
             {
