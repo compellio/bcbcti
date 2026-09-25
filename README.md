@@ -1,6 +1,13 @@
 # BCBCTI Server
 
-> Note: this is an experimental project
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![STIX/TAXII](https://img.shields.io/badge/STIX%2FTAXII-2.1-orange)](https://oasis-open.github.io/cti-documentation/)
+
+BCBCTI (Blockchain-Based Cyber Threat Intelligence) is a cyber threat intelligence (CTI) observability tool that integrates with [STIX/TAXII 2.1](https://oasis-open.github.io/cti-documentation/) threat sources to provide an immutable and verifiable audit trail of detected indicators.
+
+The BCBCTI server exposes a [TAXII 2.1](https://docs.oasis-open.org/cti/taxii/v2.1/os/taxii-v2.1-os.html) collection interface and collects threat intelligence indicators in [STIX 2.1](https://docs.oasis-open.org/cti/stix/v2.1/cs02/stix-v2.1-cs02.html) format. Each object it receives is registered as a Tokenized Asset Record (TAR) through [Compellio](https://compellio.com)'s Gateway Registry API and anchored on a public or private blockchain network, without publishing the indicator itself.
+
+**Status:** experimental. BCBCTI is a reference implementation of a Registry API integration, not a production-ready product.
 
 ## Decisions
 
@@ -10,8 +17,6 @@
 
 - STIX Object modifications are rejected until the previous version gets confirmed by the Registry API. Queues solve this issue but are not implemented in this version.
 
-#### Risks
+## Licence
 
-- DateTime string serialization. TAXII and STIX have different requirements. For simplicity, this project uses microsecond precision for all recorded timestamps.
-  - TAXII 2.1 requires RFC 3339-formatted timestamps, with **microsecond** precision, in UTC (with the Z designation): `YYYY-MM-DDTHH:MM:SS.ssssssZ`. See https://docs.oasis-open.org/cti/taxii/v2.1/os/taxii-v2.1-os.html#_Toc26285787
-  - STIX 2.1 requires RFC 3339-formatted timestamps, with **optional** sub-second precision, in UTC (with the Z designation). See https://docs.oasis-open.org/cti/stix/v2.1/cs02/stix-v2.1-cs02.html#_ksbm2nost85y
+Licensed under the [Apache License 2.0](LICENSE).
