@@ -1,2 +1,12 @@
 [*]
+charset = utf-8
+indent_style = space
+indent_size = 4
 max_line_length = 145
+insert_final_newline = true
+
+[*.{cs,md,sln,xml}]
+indent_size = 4
+
+[*.cs]
+file_header_template = SPDX-FileCopyrightText: Copyright (c) 2026 Compellio S.A.\nSPDX-License-Identifier: Apache-2.0
