@@ -20,4 +20,5 @@ RUN dotnet publish "./BCBCTI.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+#TODO define defaults to set disk storage as default and use /data
 ENTRYPOINT ["dotnet", "BCBCTI.dll"]
