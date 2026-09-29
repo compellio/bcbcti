@@ -1,10 +1,11 @@
-using System.Text.Encodings.Web;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Compellio.Bcbcti.Options;
 using Compellio.Bcbcti.Services.Ingestion.Registry;
 using Compellio.Bcbcti.Services.RegistryApi.Models;
 using Microsoft.Extensions.Options;
+using System.Net.Http.Headers;
+using System.Text.Encodings.Web;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Compellio.Bcbcti.Services.RegistryApi;
 
@@ -13,16 +14,36 @@ public class RegistryApiClient : IRegistryApiClient
 {
 
     private JsonSerializerOptions _serializerOptions;
+    private IOptions<RegistryApiOptions> _registryApiOptions;
+    private Uri baseUri;
 
     public RegistryApiClient(IOptions<RegistryApiOptions> options, JsonSerializerOptions serializerOptions/* + http client */)
     {
+        _registryApiOptions = options;
         _serializerOptions = serializerOptions;
+        baseUri = new Uri(_registryApiOptions.Value.IssuerDomain);
     }
     
     public async Task<RegistryResponse> RegisterTarPayload(TarPayload tarPayload, CancellationToken ct = default)
     {
-        var data = JsonSerializer.Serialize(tarPayload, _serializerOptions);
+        var uri = new Uri(baseUri, "/api/v1/TAR");
+        using HttpClient client = new();
+        var response = await client.PostAsJsonAsync<TarPayload>(uri, tarPayload, ct);
+        if (response.IsSuccessStatusCode)
+        {
+            var responseData = await response.Content.ReadAsStringAsync(ct);
+            return new RegistryResponse
+            {
+                SentAt = DateTime.UtcNow,
+                Receipt = JsonSerializer.Deserialize<TarReceipt>(responseData)
+            };
+        }
+        else
+        {
+            throw new InvalidOperationException(response.StatusCode.ToString());
+        }
 
+        var data = JsonSerializer.Serialize(tarPayload, _serializerOptions);
         Console.WriteLine($"TODO [POST /api/v1/TAR]\n{data}");
         // dummy response (!careful: checksum in hex, not base64)
 
@@ -40,11 +61,26 @@ public class RegistryApiClient : IRegistryApiClient
     }
 
     public async Task<RegistryResponse> UpdateTarPayload(string tarId, TarPayload tarPayload, CancellationToken ct = default)
-    {        
+    {
+        var uri = new Uri(baseUri, $"/api/v1/TAR/{tarId}");
+        using HttpClient client = new();
+        var response = await client.PutAsJsonAsync<TarPayload>(uri, tarPayload, ct);
+        if (response.IsSuccessStatusCode)
+        {
+            var responseData = await response.Content.ReadAsStringAsync(ct);
+            return new RegistryResponse
+            {
+                SentAt = DateTime.UtcNow,
+                Receipt = JsonSerializer.Deserialize<TarReceipt>(responseData)
+            };
+        }
+        else
+        {
+            throw new InvalidOperationException(response.StatusCode.ToString());
+        }
+
         var data = JsonSerializer.Serialize(tarPayload, _serializerOptions);
-        
         Console.WriteLine($"TODO [PUT /api/v1/TAR/{tarId}]\n{data}");
-        
         return new RegistryResponse
         {
             SentAt = DateTime.UtcNow,
@@ -60,6 +96,23 @@ public class RegistryApiClient : IRegistryApiClient
 
     public async Task<RegistryResponse> GetTar(Guid receiptId, CancellationToken ct = default)
     {
+        var uri = new Uri(baseUri, $"/api/v1/TAR/tarId/{receiptId.ToString()}");
+        using HttpClient client = new();
+        var response = await client.GetAsync(uri, ct);
+        if (response.IsSuccessStatusCode)
+        {
+            var responseData = await response.Content.ReadAsStringAsync(ct);
+            return new RegistryResponse
+            {
+                SentAt = DateTime.UtcNow,
+                Receipt = JsonSerializer.Deserialize<TarReceipt>(responseData)
+            };
+        }
+        else
+        {
+            throw new InvalidOperationException(response.StatusCode.ToString());
+        }
+
         return new RegistryResponse
         {
             SentAt = DateTime.UtcNow,
@@ -74,9 +127,24 @@ public class RegistryApiClient : IRegistryApiClient
         };
     }
 
-    public Task<RegistryResponse> GetTar(string tarId, CancellationToken ct = default)
+    public async Task<RegistryResponse> GetTar(string tarId, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        var uri = new Uri(baseUri, $"/api/v1/TAR/{tarId}");
+        using HttpClient client = new();
+        var response = await client.GetAsync(uri, ct);
+        if (response.IsSuccessStatusCode)
+        {
+            var responseData = await response.Content.ReadAsStringAsync(ct);
+            return new RegistryResponse
+            {
+                SentAt = DateTime.UtcNow,
+                Receipt = JsonSerializer.Deserialize<TarReceipt>(responseData)
+            };
+        }
+        else
+        {
+            throw new InvalidOperationException(response.StatusCode.ToString());
+        }
     }
 
     public Task<RegistryResponse> ValidateCallback(/* TODO http context */)
