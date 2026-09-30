@@ -1,5 +1,6 @@
 using Compellio.Bcbcti.Services.Storage.Exceptions;
 using Compellio.Bcbcti.Services.Storage.Models;
+using Microsoft.AspNetCore.Hosting.Server;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -53,7 +54,8 @@ public class FileObjectStore : IStreamObjectStore
     {
         try
         {
-            var fullObjectPath = Path.Combine(_options.BaseFolder, objectKey);
+            var filePathOfObjectKey = objectKey.Replace('/', Path.DirectorySeparatorChar);
+            var fullObjectPath = Path.Combine(_options.BaseFolder, filePathOfObjectKey);
             if (File.Exists(fullObjectPath) == false)
             {
                 throw new ObjectNotFoundException(fullObjectPath, null);
@@ -105,7 +107,14 @@ public class FileObjectStore : IStreamObjectStore
     {
         try
         {
-            var fullObjectPath = Path.Combine(_options.BaseFolder, request.ObjectKey);
+            var filePathOfObjectKey = request.ObjectKey.Replace('/', Path.DirectorySeparatorChar);
+            var fullObjectPath = Path.Combine(_options.BaseFolder, filePathOfObjectKey);
+            var filePath = Path.GetDirectoryName(fullObjectPath);
+            if (Directory.Exists(filePath) == false)
+            {
+                Directory.CreateDirectory(filePath);
+            }
+
             using FileStream response = new FileStream(fullObjectPath, FileMode.Create, FileAccess.ReadWrite);
 
             await request.InputStream.CopyToAsync(response, ct);
@@ -138,7 +147,7 @@ public class FileObjectStore : IStreamObjectStore
     {
         try
         {
-            var jsonFiles = Directory.GetFiles(_options.BaseFolder);
+            var jsonFiles = Directory.GetFiles(_options.BaseFolder, "*.json", SearchOption.AllDirectories);
 
             return new ListObjectsResponse
             {
@@ -164,7 +173,8 @@ public class FileObjectStore : IStreamObjectStore
     {
         try
         {
-            var fullObjectPath = Path.Combine(_options.BaseFolder, request.ObjectKey);
+            var filePathOfObjectKey = request.ObjectKey.Replace('/', Path.DirectorySeparatorChar);
+            var fullObjectPath = Path.Combine(_options.BaseFolder, filePathOfObjectKey);
             if (File.Exists(fullObjectPath) == false)
             {
                 throw new ObjectNotFoundException(fullObjectPath, null);
