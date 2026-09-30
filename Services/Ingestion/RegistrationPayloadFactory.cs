@@ -107,4 +107,38 @@ public class RegistrationPayloadFactory
             Resolution = IngestionResultResolution.Abort,
         };
     }
+
+    public ManifestEntry BuildManifestEntry(string tarId, DateTime completedAt, RegistrationReceipt receipt, TarReceipt tarReceipt)
+    {
+        return new ManifestEntry
+        {
+            CompletedAt = completedAt,
+            ObjectId = receipt.ObjectId,
+            ObjectKey = receipt.ObjectKey,
+            ObjectVersion = receipt.ObjectVersion,
+            ReceiptId = receipt.ReceiptId,
+            RegistrationMetadata = new RegistrationMetadata()
+            {
+                RegistryChecksum = tarReceipt.Checksum,
+                TarId = tarId,
+                Version = tarReceipt.Version,
+            }
+        };
+    }
+
+    public ObjectRegistration.Version BuildVersion(int version, DateTime completedAt, string manifestObjectKey, RegistrationReceipt receipt)
+    {
+        return new ObjectRegistration.Version
+        {
+            ReceiptId = receipt.ReceiptId,
+            ManifestKey = manifestObjectKey,
+            ObjectKey = receipt.ObjectKey,
+
+            TarVersion = version,
+            ObjectVersion = receipt.ObjectVersion,
+
+            CompletedAt = completedAt,
+        };
+    }
+    
 }

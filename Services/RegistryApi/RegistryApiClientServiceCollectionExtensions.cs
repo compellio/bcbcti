@@ -10,7 +10,7 @@ public static class RegistryApiClientServiceCollectionExtensions
 {
     // TODO config options, HttpClient, JSON serialisation config, etc.
 
-    public static IServiceCollection AddRegistryApi(this IServiceCollection services)
+    public static IServiceCollection AddRegistryApi(this IServiceCollection services, IConfiguration configuration)
     {
         // TODO Question: configurable by AddRegistryApi() caller?
         // see BCBCTI.Services.Serialization.Converters.StixJsonConverter

@@ -4,13 +4,11 @@ namespace Compellio.Bcbcti.Options;
 
 public class CollectionOptions
 {
-    [Required]
+    [Required] 
     public required Guid Id { get; set; }
-    
-    [Required]
+
+    [Required] 
     public required string Title { get; set; }
-    
+
     public required string? Alias { get; set; }
-    
-    // public required CollectionStorageOptions Storage { get; set; }
 }

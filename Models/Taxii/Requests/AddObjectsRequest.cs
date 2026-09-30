@@ -8,6 +8,7 @@ public class AddObjectsRequest : Envelope<StixObjectResource>, IValidatableObjec
 {
     public IEnumerable<ValidationResult> Validate(ValidationContext context)
     {
+        // TODO-FIXME using services outside Services.Taxii scope which defines TaxiiOptions
         var max = context.GetRequiredService<IOptions<TaxiiOptions>>().Value.MaxUploadCount;
         
         if (Objects.Length < 1)
