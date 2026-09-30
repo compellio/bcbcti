@@ -1,16 +1,16 @@
-using Compellio.Bcbcti.Services.Storage.Exceptions;
-using Compellio.Bcbcti.Services.Storage.Models;
 using System.Security.Cryptography;
 using System.Text;
+using Compellio.Bcbcti.Services.Storage.Exceptions;
+using Compellio.Bcbcti.Services.Storage.Models;
 
-namespace Compellio.Bcbcti.Services.Storage.Providers.Files;
+namespace Compellio.Bcbcti.Services.Storage.Providers.FileSystem;
 
 // TODO debug logging
-public class FileObjectStore : IStreamObjectStore
+public class FileSystemObjectStore : IStreamObjectStore
 {
-    private readonly FileObjectStoreOptions _options;
+    private readonly FileSystemObjectStoreOptions _options;
 
-    public FileObjectStore(FileObjectStoreOptions options)
+    public FileSystemObjectStore(FileSystemObjectStoreOptions options)
     {
         _options = options;
     }
@@ -30,16 +30,16 @@ public class FileObjectStore : IStreamObjectStore
     private string ToFilePath(string objectKey)
     {
         var filePathOfObjectKey = objectKey.Replace('/', Path.DirectorySeparatorChar);
-        var fullObjectPath = Path.Combine(_options.BaseFolder, filePathOfObjectKey);
+        var fullObjectPath = Path.Combine(_options.BasePath, filePathOfObjectKey);
 
-        // TODO prevent path traversal (objectKey = ../../some-dir -> {_options.BaseFolder}/../../some-dir, leak)
+        // TODO prevent path traversal (objectKey = ../../some-dir -> {_options.BasePath}/../../some-dir, leak)
 
         return fullObjectPath;
     }
 
     private string ToObjectKey(string filePath)
     {
-        return Path.GetRelativePath(_options.BaseFolder, filePath).Replace(Path.DirectorySeparatorChar, '/');
+        return Path.GetRelativePath(_options.BasePath, filePath).Replace(Path.DirectorySeparatorChar, '/');
     }
 
     public async Task<byte[]> ComputeSha256Hash(Stream input, CancellationToken ct = default)
@@ -179,7 +179,7 @@ public class FileObjectStore : IStreamObjectStore
     {
         try
         {
-            var jsonFiles = Directory.GetFiles(_options.BaseFolder, "*", SearchOption.AllDirectories);
+            var jsonFiles = Directory.GetFiles(_options.BasePath, "*", SearchOption.AllDirectories);
 
             return new ListObjectsResponse
             {
