@@ -212,6 +212,12 @@ public class FileObjectStore : IStreamObjectStore
                 throw new ObjectNotFoundException(fullObjectPath);
             }
 
+            if (request.Condition.Type == Condition.Kind.IfMatch &&
+                request.Condition.ETag != GetFileETag(fullObjectPath))
+            {
+                throw new PutConditionException("ETag mismatch");
+            }
+
             File.Delete(fullObjectPath);
 
             return new DeleteObjectResponse
