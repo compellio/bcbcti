@@ -88,6 +88,10 @@ public class FileObjectStore : IStreamObjectStore
                 }
             };
         }
+        catch (ObjectNotFoundException)
+        {
+            throw;
+        }
         catch (OperationCanceledException)
         {
             throw;
@@ -151,6 +155,10 @@ public class FileObjectStore : IStreamObjectStore
                 }
             };
         }
+        catch (PutConditionException)
+        {
+            throw;
+        }
         catch (OperationCanceledException)
         {
             throw;
@@ -204,6 +212,10 @@ public class FileObjectStore : IStreamObjectStore
             {
                 ObjectKey = request.ObjectKey,
             };
+        }
+        catch (ObjectNotFoundException)
+        {
+            throw;
         }
         catch (OperationCanceledException)
         {
