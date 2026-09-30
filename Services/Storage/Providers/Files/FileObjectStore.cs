@@ -27,7 +27,7 @@ public class FileObjectStore : IStreamObjectStore
         return Convert.ToHexString(hashBytes).ToLowerInvariant();
     }
 
-    private string GetObjectFilePath(string objectKey)
+    private string ToFilePath(string objectKey)
     {
         var filePathOfObjectKey = objectKey.Replace('/', Path.DirectorySeparatorChar);
         var fullObjectPath = Path.Combine(_options.BaseFolder, filePathOfObjectKey);
@@ -35,6 +35,11 @@ public class FileObjectStore : IStreamObjectStore
         // TODO prevent path traversal (objectKey = ../../some-dir -> {_options.BaseFolder}/../../some-dir, leak)
 
         return fullObjectPath;
+    }
+
+    private string ToObjectKey(string filePath)
+    {
+        return Path.GetRelativePath(_options.BaseFolder, filePath).Replace(Path.DirectorySeparatorChar, '/');
     }
 
     public async Task<byte[]> ComputeSha256Hash(Stream input, CancellationToken ct = default)
@@ -60,13 +65,13 @@ public class FileObjectStore : IStreamObjectStore
     {
         try
         {
-            var fullObjectPath = GetObjectFilePath(objectKey);
-            if (File.Exists(fullObjectPath) == false)
+            var objectPath = ToFilePath(objectKey);
+            if (File.Exists(objectPath) == false)
             {
-                throw new ObjectNotFoundException(fullObjectPath);
+                throw new ObjectNotFoundException(objectPath);
             }
 
-            using FileStream response = new FileStream(fullObjectPath, FileMode.Open, FileAccess.Read);
+            using FileStream response = new FileStream(objectPath, FileMode.Open, FileAccess.Read);
 
             var payload = new MemoryStream();
             await response.CopyToAsync(payload, ct);
@@ -82,9 +87,9 @@ public class FileObjectStore : IStreamObjectStore
                     PublicObjectUrl = GetObjectUri(objectKey),
                     ChecksumSha256 = Convert.ToBase64String(sha256HashBuffer),
 
-                    ETag = GetFileETag(fullObjectPath),
+                    ETag = GetFileETag(objectPath),
                     ObjectKey = objectKey,
-                    LastModified = File.GetLastWriteTime(fullObjectPath).ToUniversalTime(),
+                    LastModified = File.GetLastWriteTime(objectPath).ToUniversalTime(),
                 }
             };
         }
@@ -118,24 +123,25 @@ public class FileObjectStore : IStreamObjectStore
     {
         try
         {
-            var fullObjectPath = GetObjectFilePath(request.ObjectKey);
-            var filePath = Path.GetDirectoryName(fullObjectPath);
+            var objectPath = ToFilePath(request.ObjectKey);
 
             switch (request.Condition.Type)
             {
-                case Condition.Kind.IfNotExists when File.Exists(fullObjectPath):
+                case Condition.Kind.IfNotExists when File.Exists(objectPath):
                     throw new PutConditionException("File already exists");
 
-                case Condition.Kind.IfMatch when request.Condition.ETag != GetFileETag(fullObjectPath):
+                case Condition.Kind.IfMatch when File.Exists(objectPath) 
+                                                 && request.Condition.ETag != GetFileETag(objectPath):
                     throw new PutConditionException("ETag mismatch");
             }
 
-            if (Directory.Exists(filePath) == false)
+            var directoryPath = Path.GetDirectoryName(objectPath);
+            if (directoryPath is not null)
             {
-                Directory.CreateDirectory(filePath);
+                Directory.CreateDirectory(directoryPath);
             }
 
-            using FileStream response = new FileStream(fullObjectPath, FileMode.Create, FileAccess.ReadWrite);
+            using FileStream response = new FileStream(objectPath, FileMode.Create, FileAccess.ReadWrite);
 
             await request.InputStream.CopyToAsync(response, ct);
             response.Position = 0;
@@ -149,9 +155,9 @@ public class FileObjectStore : IStreamObjectStore
                     PublicObjectUrl = GetObjectUri(request.ObjectKey),
                     ChecksumSha256 = Convert.ToBase64String(hashBuffer),
 
-                    ETag = GetFileETag(fullObjectPath),
+                    ETag = GetFileETag(objectPath),
                     ObjectKey = request.ObjectKey,
-                    LastModified = File.GetLastWriteTime(fullObjectPath).ToUniversalTime(),
+                    LastModified = File.GetLastWriteTime(objectPath).ToUniversalTime(),
                 }
             };
         }
@@ -173,14 +179,14 @@ public class FileObjectStore : IStreamObjectStore
     {
         try
         {
-            var jsonFiles = Directory.GetFiles(_options.BaseFolder, "*.json", SearchOption.AllDirectories);
+            var jsonFiles = Directory.GetFiles(_options.BaseFolder, "*", SearchOption.AllDirectories);
 
             return new ListObjectsResponse
             {
                 Objects = jsonFiles.Select(x => new ObjectSummary
                 {
                     ETag = GetFileETag(x),
-                    ObjectKey = Path.GetFileNameWithoutExtension(x),
+                    ObjectKey = ToObjectKey(x),
                     LastModified = File.GetLastWriteTime(x).ToUniversalTime(),
                 })
                 .Where(x => x.ObjectKey != null && (request.StartAfter != null ? string.Compare(x.ObjectKey, request.StartAfter) > 0 : true) && (string.IsNullOrEmpty(request.Prefix) ? true : x.ObjectKey.StartsWith(request.Prefix)))
@@ -194,13 +200,13 @@ public class FileObjectStore : IStreamObjectStore
             throw;
         }
     }
-    
+
     public async Task<DeleteObjectResponse> DeleteObjectAsync(DeleteObjectRequest request, CancellationToken ct = default)
     {
         try
         {
-            var filePathOfObjectKey = request.ObjectKey.Replace('/', Path.DirectorySeparatorChar);
-            var fullObjectPath = Path.Combine(_options.BaseFolder, filePathOfObjectKey);
+            var fullObjectPath = ToFilePath(request.ObjectKey);
+
             if (File.Exists(fullObjectPath) == false)
             {
                 throw new ObjectNotFoundException(fullObjectPath);
