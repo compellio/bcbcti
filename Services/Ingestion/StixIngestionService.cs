@@ -141,7 +141,6 @@ public class StixIngestionService
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Failed object ingestion {ObjectId} ({DecisionString})", stixObject.Id, decision);
             await _operationsManager.Abandon(operation, DateTime.UtcNow, "failed", ct);
             throw;
         }
