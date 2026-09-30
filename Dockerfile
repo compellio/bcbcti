@@ -22,5 +22,6 @@ RUN dotnet publish "./BCBCTI.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENV Storage__FileSystem__BasePath=/data
+ENV BCBCTI__Storage__Provider=FileSystem \
+    BCBCTI__Storage__FileSystem__BasePath=/data
 ENTRYPOINT ["dotnet", "BCBCTI.dll"]
