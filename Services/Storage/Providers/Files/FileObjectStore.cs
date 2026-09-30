@@ -61,7 +61,7 @@ public class FileObjectStore : IStreamObjectStore
                 throw new ObjectNotFoundException(fullObjectPath, null);
             }
 
-            var lastModified = File.GetLastWriteTime(fullObjectPath);
+            var lastModified = File.GetLastWriteTime(fullObjectPath).ToUniversalTime();
             using FileStream response = new FileStream(fullObjectPath, FileMode.Open, FileAccess.Read);
 
             var payload = new MemoryStream();
@@ -155,7 +155,7 @@ public class FileObjectStore : IStreamObjectStore
                 {
                     ETag = GetFileETag(x),
                     ObjectKey = Path.GetFileNameWithoutExtension(x),
-                    LastModified = File.GetLastWriteTime(x),
+                    LastModified = File.GetLastWriteTime(x).ToUniversalTime(),
                 })
                 .Where(x => x.ObjectKey != null && (request.StartAfter != null ? string.Compare(x.ObjectKey, request.StartAfter) > 0 : true) && (string.IsNullOrEmpty(request.Prefix) ? true : x.ObjectKey.StartsWith(request.Prefix)))
                 .ToAsyncEnumerable()
