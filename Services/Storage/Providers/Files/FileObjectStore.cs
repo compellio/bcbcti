@@ -1,6 +1,5 @@
 using Compellio.Bcbcti.Services.Storage.Exceptions;
 using Compellio.Bcbcti.Services.Storage.Models;
-using Microsoft.AspNetCore.Hosting.Server;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -11,12 +10,9 @@ public class FileObjectStore : IStreamObjectStore
 {
     private readonly FileObjectStoreOptions _options;
 
-    private readonly string _publicBaseUri;
-
     public FileObjectStore(FileObjectStoreOptions options)
     {
         _options = options;
-        _publicBaseUri = _options.BaseUri;
     }
 
     private static string GetFileETag(string filePath)
@@ -31,16 +27,14 @@ public class FileObjectStore : IStreamObjectStore
         return Convert.ToHexString(hashBytes).ToLowerInvariant();
     }
 
-    public Uri GetObjectUri(string objectKey)
+    private string GetObjectFilePath(string objectKey)
     {
-        var builder = new UriBuilder(_publicBaseUri);
+        var filePathOfObjectKey = objectKey.Replace('/', Path.DirectorySeparatorChar);
+        var fullObjectPath = Path.Combine(_options.BaseFolder, filePathOfObjectKey);
 
-        var basePath = builder.Path.TrimEnd('/');
-        var keyPath = objectKey.TrimStart('/');
+        // TODO prevent path traversal (objectKey = ../../some-dir -> {_options.BaseFolder}/../../some-dir, leak)
 
-        builder.Path = $"{basePath}/{keyPath}";
-
-        return builder.Uri;
+        return fullObjectPath;
     }
 
     public async Task<byte[]> ComputeSha256Hash(Stream input, CancellationToken ct = default)
@@ -50,34 +44,47 @@ public class FileObjectStore : IStreamObjectStore
         return hash;
     }
 
+    public Uri GetObjectUri(string objectKey)
+    {
+        var builder = new UriBuilder(_options.BaseUri);
+
+        var basePath = builder.Path.TrimEnd('/');
+        var keyPath = objectKey.TrimStart('/');
+
+        builder.Path = $"{basePath}/{keyPath}";
+
+        return builder.Uri;
+    }
+
     public async Task<GetObjectResponse<Stream>> GetObjectAsync(string objectKey, CancellationToken ct = default)
     {
         try
         {
-            var filePathOfObjectKey = objectKey.Replace('/', Path.DirectorySeparatorChar);
-            var fullObjectPath = Path.Combine(_options.BaseFolder, filePathOfObjectKey);
+            var fullObjectPath = GetObjectFilePath(objectKey);
             if (File.Exists(fullObjectPath) == false)
             {
-                throw new ObjectNotFoundException(fullObjectPath, null);
+                throw new ObjectNotFoundException(fullObjectPath);
             }
 
-            var lastModified = File.GetLastWriteTime(fullObjectPath).ToUniversalTime();
             using FileStream response = new FileStream(fullObjectPath, FileMode.Open, FileAccess.Read);
 
             var payload = new MemoryStream();
             await response.CopyToAsync(payload, ct);
             payload.Position = 0;
 
+            var sha256HashBuffer = await ComputeSha256Hash(payload, ct);
+
             return new GetObjectResponse<Stream>
             {
                 Body = payload,
                 Metadata = new ObjectMetadata
                 {
-                    ObjectKey = objectKey,
                     PublicObjectUrl = GetObjectUri(objectKey),
-                    ChecksumSha256 = null,
+                    ChecksumSha256 = Convert.ToBase64String(sha256HashBuffer),
+
                     ETag = GetFileETag(fullObjectPath),
-                    LastModified = lastModified
+                    ObjectKey = objectKey,
+                    LastModified = File.GetLastWriteTime(fullObjectPath).ToUniversalTime(),
                 }
             };
         }
@@ -107,9 +114,18 @@ public class FileObjectStore : IStreamObjectStore
     {
         try
         {
-            var filePathOfObjectKey = request.ObjectKey.Replace('/', Path.DirectorySeparatorChar);
-            var fullObjectPath = Path.Combine(_options.BaseFolder, filePathOfObjectKey);
+            var fullObjectPath = GetObjectFilePath(request.ObjectKey);
             var filePath = Path.GetDirectoryName(fullObjectPath);
+
+            switch (request.Condition.Type)
+            {
+                case Condition.Kind.IfNotExists when File.Exists(fullObjectPath):
+                    throw new PutConditionException("File already exists");
+
+                case Condition.Kind.IfMatch when request.Condition.ETag != GetFileETag(fullObjectPath):
+                    throw new PutConditionException("ETag mismatch");
+            }
+
             if (Directory.Exists(filePath) == false)
             {
                 Directory.CreateDirectory(filePath);
@@ -126,10 +142,12 @@ public class FileObjectStore : IStreamObjectStore
             {
                 Metadata = new ObjectMetadata
                 {
-                    ObjectKey = request.ObjectKey,
                     PublicObjectUrl = GetObjectUri(request.ObjectKey),
-                    ChecksumSha256 = BitConverter.ToString(hashBuffer),
+                    ChecksumSha256 = Convert.ToBase64String(hashBuffer),
+
                     ETag = GetFileETag(fullObjectPath),
+                    ObjectKey = request.ObjectKey,
+                    LastModified = File.GetLastWriteTime(fullObjectPath).ToUniversalTime(),
                 }
             };
         }
@@ -177,11 +195,11 @@ public class FileObjectStore : IStreamObjectStore
             var fullObjectPath = Path.Combine(_options.BaseFolder, filePathOfObjectKey);
             if (File.Exists(fullObjectPath) == false)
             {
-                throw new ObjectNotFoundException(fullObjectPath, null);
+                throw new ObjectNotFoundException(fullObjectPath);
             }
 
             File.Delete(fullObjectPath);
-            
+
             return new DeleteObjectResponse
             {
                 ObjectKey = request.ObjectKey,
@@ -196,5 +214,4 @@ public class FileObjectStore : IStreamObjectStore
             throw new ProviderOperationException(e.Message, e);
         }
     }
-    
 }
