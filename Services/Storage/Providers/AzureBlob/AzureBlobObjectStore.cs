@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: Copyright (c) 2026 Compellio S.A.
+// SPDX-License-Identifier: Apache-2.0
+
 using Compellio.Bcbcti.Services.Storage.Models;
 
 namespace Compellio.Bcbcti.Services.Storage.Providers.AzureBlob;

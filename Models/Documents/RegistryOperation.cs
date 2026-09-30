@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: Copyright (c) 2026 Compellio S.A.
+// SPDX-License-Identifier: Apache-2.0
+
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 

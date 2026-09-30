@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: Copyright (c) 2026 Compellio S.A.
+// SPDX-License-Identifier: Apache-2.0
+
 using Compellio.Bcbcti.Services.Storage.Providers.FileSystem;
 using Compellio.Bcbcti.Services.Storage.Providers.S3;
 
