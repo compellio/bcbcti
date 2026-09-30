@@ -55,8 +55,9 @@ public class StixIngestionService
             {
                 return _registrationPayloadFactory.BuildFailedIngestionResult(stixObject, "duplicate object");
             }
-            catch (ProviderOperationException)
+            catch (ProviderOperationException e)
             {
+                _logger.LogError(e, "Error during read/write operations");
                 return
                     _registrationPayloadFactory.BuildFailedIngestionResult(stixObject,
                         "Error during read/write operations");
