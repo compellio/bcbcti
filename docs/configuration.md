@@ -16,6 +16,10 @@ authentication**. Anything that can reach a collection endpoint can write to it.
 
 ### Storage Providers
 
+BCBCTI must be configured with a storage provider to store the STIX payloads it receives, and manage its internal state.
+
+When registering STIX objects, BCBCTI generates a public URL pointing to the submitted STIX objects, to enable authorised users to access them, whether publicly or privately. This URL is generated based on the selected storage provider.
+
 | Environment Variable        | Type | Description                                                                            |
 |-----------------------------|------|----------------------------------------------------------------------------------------|
 | `BCBCTI__Storage__Provider` | Enum | The selected storage provider. Must be one of the values listed in the sections below. |
@@ -26,10 +30,23 @@ authentication**. Anything that can reach a collection endpoint can write to it.
 
 This is the default storage provider used in the container image.
 
-| Environment Variable                    | Type   | Description                                                                                                                          |
-|-----------------------------------------|--------|--------------------------------------------------------------------------------------------------------------------------------------|
-| `BCBCTI__Storage__FileSystem__BasePath` | String | The path to the folder to be used by BCBCTI to store STIX objects and metadata. The default container image uses `/data` by default. |
-| `BCBCTI__Storage__FileSystem__BaseUri`  | URL    | A public URL from which authorised users can access the items stored in the specified BasePath.                                      |
+The File System storage provider requires you to set up your own sharing mechanism (e.g. via an FTP server, WebDAV etc.) for the `{BCBCTI__Storage__FileSystem__BasePath}/objects` path.
+
+| Environment Variable                         | Type   | Description                                                                                                                          |
+|----------------------------------------------|--------|--------------------------------------------------------------------------------------------------------------------------------------|
+| `BCBCTI__Storage__FileSystem__BasePath`      | String | The path to the folder to be used by BCBCTI to store STIX objects and metadata. The default container image uses `/data` by default. |
+| `BCBCTI__Storage__FileSystem__PublicBaseUrl` | URL    | A public URL from which authorised users can access the items stored in the specified BasePath.                                      |
+
+<details>
+
+<summary>Example uses of BCBCTI__Storage__FileSystem__PublicBaseUrl</summary>
+
+| BCBCTI__Storage__FileSystem__PublicBaseUrl | Generated STIX Object URL                                                                    |
+|--------------------------------------------|----------------------------------------------------------------------------------------------|
+| <https://stix.example.com/>                | <https://stix.example.com:443/objects/AzPqN9Inkfq5FB4j6Z_ET4UJRUERdzGwNe_9qji9Tio.json>      |
+| <sftp://stix.example.com:22/bcbcti/>       | <sftp://stix.example.com:22/bcbcti/objects/AzPqN9Inkfq5FB4j6Z_ET4UJRUERdzGwNe_9qji9Tio.json> |
+
+</details>
 
 [//]: # (TODO IMPORTANT add note on publicly accessible/unique object key identifiers)
 
@@ -43,6 +60,8 @@ This is the default storage provider used in the container image.
 | `BCBCTI__Storage__S3__PublicBaseUrl` | URL (optional) | Overrides the default AWS S3 public object URL. Must be defined when using S3-compatible services instead of AWS. |
 
 [//]: # (TODO #### Azure Blob)
+
+### Advanced
 
 ## Webhooks
 
