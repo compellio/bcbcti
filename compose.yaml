@@ -7,7 +7,7 @@
     ports:
       - "8080:8080"
     environment:
-      BCBCTI__Storage__FileSystem__BaseUri: "https://stix.example.com/"
+      BCBCTI__Storage__FileSystem__PublicBaseUrl: "https://stix.example.com/"
       RegistryAPI__ServiceUrl: "http://registry-api:8080"
       # See docs/configuration.md for more details on environment variables
     volumes:

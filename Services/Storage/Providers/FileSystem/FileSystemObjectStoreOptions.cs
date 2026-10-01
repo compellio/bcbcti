@@ -9,7 +9,7 @@ public class FileSystemObjectStoreOptions
 {
     [Required]
     [Url]
-    public required string BaseUri { get; set; }
+    public required string PublicBaseUrl { get; set; }
 
     [Required]
     public required string BasePath { get; set; }

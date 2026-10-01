@@ -54,7 +54,7 @@ public class FileSystemObjectStore : IStreamObjectStore
 
     public Uri GetObjectUri(string objectKey)
     {
-        var builder = new UriBuilder(_options.BaseUri);
+        var builder = new UriBuilder(_options.PublicBaseUrl);
 
         var basePath = builder.Path.TrimEnd('/');
         var keyPath = objectKey.TrimStart('/');
