@@ -1,8 +1,7 @@
 # BCBCTI Server
 
-[//]: # (TODO when public, replace with https://img.shields.io/github/license/compellio/bcbcti)
-[//]: # (TODO when public, add https://img.shields.io/github/v/release/compellio/bcbcti with link to packages)
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![License](https://img.shields.io/github/license/compellio/bcbcti)](LICENSE)
+[![Releases](https://img.shields.io/github/v/release/compellio/bcbcti?include_prereleases)](https://github.com/compellio/bcbcti/releases)
 [![STIX/TAXII](https://img.shields.io/badge/STIX%2FTAXII-2.1-orange)](https://oasis-open.github.io/cti-documentation/)
 
 BCBCTI (Blockchain-Based Cyber Threat Intelligence) is a cyber threat intelligence (CTI) observability tool that integrates with [STIX/TAXII 2.1](https://oasis-open.github.io/cti-documentation/) threat sources to provide an immutable and verifiable audit trail of detected indicators.
@@ -40,6 +39,6 @@ Read the [API documentation](docs/api.md) for more details.
 
 [//]: # (TODO add contributing section?)
 
-## Licence
+## License
 
 This project is licensed under the [Apache License 2.0](LICENSE).
