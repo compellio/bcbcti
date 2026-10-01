@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: Copyright (c) 2026 Compellio S.A.
+// SPDX-License-Identifier: Apache-2.0
+
 using System.Security.Cryptography;
 using System.Text;
 using Compellio.Bcbcti.Services.Storage.Exceptions;
@@ -51,7 +54,7 @@ public class FileSystemObjectStore : IStreamObjectStore
 
     public Uri GetObjectUri(string objectKey)
     {
-        var builder = new UriBuilder(_options.BaseUri);
+        var builder = new UriBuilder(_options.PublicBaseUrl);
 
         var basePath = builder.Path.TrimEnd('/');
         var keyPath = objectKey.TrimStart('/');
