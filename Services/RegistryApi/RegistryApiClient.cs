@@ -25,7 +25,7 @@ public class RegistryApiClient : IRegistryApiClient
 
         if (tarReceipt is null)
         {
-            throw new NotImplementedException(); // TODO
+            throw new RegistryApiException("API returned invalid response");
         }
 
         return tarReceipt;
