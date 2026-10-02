@@ -1,20 +1,12 @@
 # Configuration
 
-[//]: # (TODO)
-
-> [!CAUTION]
-> BCBCTI is meant to be deployed as an internal service and **does not implement
-authentication**. Anything that can reach a collection endpoint can write to it. If you plan to deploy BCBCTI publicly, you should place it behind your own authentication layer (e.g. reverse proxy, API gateway, etc.).
-
-## Environment Variables
-
 [//]: # (TODO common env variables, essentially everything under BCBCTI:)
 
-### Registry API
+## Registry API
 
 [//]: # (TODO registry api envs)
 
-### Storage Providers
+## Storage Providers
 
 BCBCTI must be configured with a storage provider to store the STIX payloads it receives, and manage its internal state.
 
@@ -24,7 +16,7 @@ When registering STIX objects, BCBCTI generates a public URL pointing to the sub
 |-----------------------------|------|----------------------------------------------------------------------------------------|
 | `BCBCTI__Storage__Provider` | Enum | The selected storage provider. Must be one of the values listed in the sections below. |
 
-#### File System
+### File System
 
 `BCBCTI__Storage__Provider` value must be set to `FileSystem`.
 
@@ -50,7 +42,7 @@ The File System storage provider requires you to set up your own sharing mechani
 
 [//]: # (TODO IMPORTANT add note on publicly accessible/unique object key identifiers)
 
-#### AWS S3, or S3-compatible services
+### AWS S3, or S3-compatible services
 
 `BCBCTI__Storage__Provider` value must be set to `S3`.
 
@@ -59,9 +51,54 @@ The File System storage provider requires you to set up your own sharing mechani
 | `BCBCTI__Storage__S3__BucketName`    | String         | The S3 bucket name to be used by BCBCTI to store STIX objects and metadata.                                       |
 | `BCBCTI__Storage__S3__PublicBaseUrl` | URL (optional) | Overrides the default AWS S3 public object URL. Must be defined when using S3-compatible services instead of AWS. |
 
+If BCBCTI is running on AWS, we recommend to use an IAM role on the BCBCTI container to access S3.
+Otherwise, you can create an IAM user and generate an Access Key pair for BCBCTI (set the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables).
+
+In both cases, apply the following policy to the IAM entity to grant BCBCTI the necessary permissions to access the bucket:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "BcbctiBucketAccess",
+            "Effect": "Allow",
+            "Action": ["s3:PutObject", "s3:GetObject", "s3:ListBucket", "s3:DeleteObject"],
+            "Resource": [
+                "arn:aws:s3:::{bucket_name}",
+                "arn:aws:s3:::{bucket_name}/*"
+            ]
+        }
+    ]
+}
+```
+
+The server can also connect to AWS using temporary credentials (set the `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_SESSION_TOKEN` environment variables).
+
+#### S3-compatible services
+
+BCBCTI can work with S3-compatible interfaces that support the following S3 operations: GetObject, PutObject (with support for If-None-Match and If-Match conditions), ListObjectsV2, and DeleteObject.
+
+When working with an S3-compatible service, you will need to set the `AWS_ENDPOINT_URL_S3`, and potentially the `AWS_FORCE_PATH_STYLE` variables.
+
+Below is an example configuration that connects to the Hetzner Object Storage service:
+
+```shell
+AWS_ENDPOINT_URL_S3=https://nbg1.your-objectstorage.com
+
+AWS_ACCESS_KEY_ID={hetzner_credential_id}
+AWS_SECRET_ACCESS_KEY={hetzner_credential_secret}
+
+BCBCTI__Storage__S3__BucketName={bucket_name}
+```
+
+BCBCTI will attempt to derive public object URLs for the `/objects` path automatically, but you may need to use the `BCBCTI__Storage__S3__PublicBaseUrl` variable to adjust it manually if the generated URLs are invalid.
+
+### Azure Blob
+
 [//]: # (TODO #### Azure Blob)
 
-### Advanced
+## Advanced
 
 ## Webhooks
 
@@ -69,6 +106,4 @@ The File System storage provider requires you to set up your own sharing mechani
 
 [//]: # (TODO while no auth, must expose /hooks path to the registry API + secret)
 
-## Production
-
-[//]: # (TODO notes on prod environments, incl. public object URIs AND[IF SELF-HOSTING-REGISTRY] public Registry API endpoint)
+[//]: # (TODO section with notes on "stg/prod" environments, incl. public object URIs AND[IF SELF-HOSTING-REGISTRY] public Registry API endpoint)
