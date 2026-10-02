@@ -31,7 +31,7 @@ The BCBCTI server depends on an instance of the Registry API to register TARs. Y
 
 Read the [configuration documentation](docs/configuration.md) for more details.
 
-## TAXII API
+## API
 
 [//]: # (TODO quick overview of endpoints and x_ custom variables + link to docs listing API endpoint and/or openapi file)
 
