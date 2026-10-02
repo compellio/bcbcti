@@ -33,9 +33,10 @@ builder.Services.AddSingleton<RegistryOperationRepository>();
 builder.Services.AddSingleton<ObjectRegistrationRepository>();
 builder.Services.AddSingleton<ManifestRepository>();
 
-builder.Services.AddRegistryApi(builder.Configuration.GetSection("RegistryApi")); // TODO options, etc.
+builder.Services.AddRegistryApi(builder.Configuration.GetSection("RegistryApi"), JsonSerializerConfigurations.Storage);
 
 builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
+
 // TODO merge and move to new AddStorage in Services.Storage
 builder.Services.AddObjectStore(builder.Configuration.GetSection("BCBCTI:Storage"));
 builder.Services

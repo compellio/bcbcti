@@ -3,15 +3,16 @@
 
 using System.ComponentModel.DataAnnotations;
 
-namespace Compellio.Bcbcti.Options;
+namespace Compellio.Bcbcti.Services.RegistryApi;
 
 public class RegistryApiOptions
 {
+    // TODO not required for local instances
     [Required]
     public required string ApiKey { get; set; }
     
     [Required, Url]
-    public string? ServiceUrl { get; set; }
+    public required string ServiceUrl { get; set; } = "https://registry.api.gateway.compellio.com/";
     
     public string? Network { get; set; }
     public string? IssuerDomain { get; set; }
