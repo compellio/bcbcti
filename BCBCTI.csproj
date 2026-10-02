@@ -7,7 +7,8 @@
         <NoDefaultLaunchSettingsFile>True</NoDefaultLaunchSettingsFile>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <RootNamespace>Compellio.Bcbcti</RootNamespace>
-        <Company>Compellio</Company>
+        <Company>Compellio S.A.</Company>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     </PropertyGroup>
 
     <ItemGroup>

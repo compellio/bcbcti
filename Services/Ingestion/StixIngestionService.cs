@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: Copyright (c) 2026 Compellio S.A.
+// SPDX-License-Identifier: Apache-2.0
+
 using System.Diagnostics;
 using Compellio.Bcbcti.Extensions;
 using Compellio.Bcbcti.Models.Documents;
@@ -141,7 +144,6 @@ public class StixIngestionService
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Failed object ingestion {ObjectId} ({DecisionString})", stixObject.Id, decision);
             await _operationsManager.Abandon(operation, DateTime.UtcNow, "failed", ct);
             throw;
         }

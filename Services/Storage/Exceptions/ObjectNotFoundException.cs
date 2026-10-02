@@ -1,4 +1,7 @@
+// SPDX-FileCopyrightText: Copyright (c) 2026 Compellio S.A.
+// SPDX-License-Identifier: Apache-2.0
+
 namespace Compellio.Bcbcti.Services.Storage.Exceptions;
 
-public class ObjectNotFoundException(string message, Exception innerException)
+public class ObjectNotFoundException(string message, Exception? innerException = null)
     : ProviderOperationException(message, innerException);

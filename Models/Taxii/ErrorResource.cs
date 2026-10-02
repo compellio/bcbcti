@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: Copyright (c) 2026 Compellio S.A.
+// SPDX-License-Identifier: Apache-2.0
+
 namespace Compellio.Bcbcti.Models.Taxii;
 
 // TODO configure server to return TAXII error resources for TAXII routes 

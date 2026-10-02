@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Copyright (c) 2026 Compellio S.A.
+// SPDX-License-Identifier: Apache-2.0
+
+using Compellio.Bcbcti.Services.Storage.Providers.FileSystem;
 using Compellio.Bcbcti.Services.Storage.Providers.S3;
 
 namespace Compellio.Bcbcti.Services.Storage;
@@ -5,6 +9,7 @@ namespace Compellio.Bcbcti.Services.Storage;
 enum ObjectStoreProviders
 {
     S3,
+    FileSystem,
     // AzureBlob
 }
 
@@ -14,7 +19,7 @@ public static class ObjectStoreServiceCollectionExtensions
         IConfigurationSection configuration)
     {
         var provider = configuration.GetValue<ObjectStoreProviders>("Provider");
-        var options = configuration.GetSection("Options");
+        var options = configuration.GetSection(provider.ToString());
 
         switch (provider)
         {
@@ -23,8 +28,13 @@ public static class ObjectStoreServiceCollectionExtensions
                 services.AddSingleton<IStreamObjectStore>(sp => sp.GetRequiredService<S3ObjectStore>());
                 break;
 
+            case ObjectStoreProviders.FileSystem:
+                services.AddFileSystemObjectStore(options.Bind);
+                services.AddSingleton<IStreamObjectStore>(sp => sp.GetRequiredService<FileSystemObjectStore>());
+                break;
+
             default:
-                throw new InvalidOperationException($"Unsupported storage kind: {provider.ToString()}");
+                throw new InvalidOperationException($"Unknown storage provider: {provider.ToString()}");
         }
 
         return services;
