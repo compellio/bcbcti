@@ -13,7 +13,13 @@ public static class RegistryApiClientServiceCollectionExtensions
     public static IServiceCollection AddRegistryApi(this IServiceCollection services, IConfiguration configuration,
         Action<JsonSerializerOptions>? configure = null)
     {
-        services.AddOptions<RegistryApiOptions>().Configure(configuration.Bind).ValidateDataAnnotations().ValidateOnStart();
+        services.AddOptions<RegistryApiOptions>().Bind(configuration).ValidateDataAnnotations().ValidateOnStart();
+        
+        if (configuration.GetValue<bool>("Mock"))
+        {
+            services.AddSingleton<IRegistryApiClient, MockRegistryApiClient>();
+            return services;
+        }
 
         var serializerOptions = new JsonSerializerOptions();
 

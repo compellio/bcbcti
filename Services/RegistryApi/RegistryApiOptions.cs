@@ -17,4 +17,6 @@ public class RegistryApiOptions
     public string? Network { get; set; }
     public string? IssuerDomain { get; set; }
     public string? WebhookSecret { get; set; }
+
+    public bool? Mock { get; set; } = false;
 }
