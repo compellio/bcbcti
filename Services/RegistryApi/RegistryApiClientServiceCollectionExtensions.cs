@@ -30,7 +30,11 @@ public static class RegistryApiClientServiceCollectionExtensions
             var options = sp.GetRequiredService<IOptions<RegistryApiOptions>>().Value;
 
             client.BaseAddress = new Uri(options.ServiceUrl);
-            client.DefaultRequestHeaders.Add("X-Session-Key", options.ApiKey);
+
+            if (options.ApiKey is not null)
+            {
+                client.DefaultRequestHeaders.Add("X-Session-Key", options.ApiKey);
+            }
 
             if (options.Network is not null)
             {
