@@ -8,9 +8,6 @@ BCBCTI (Blockchain-Based Cyber Threat Intelligence) is a cyber threat intelligen
 
 The BCBCTI server exposes a [TAXII 2.1](https://docs.oasis-open.org/cti/taxii/v2.1/os/taxii-v2.1-os.html) collection interface and collects threat intelligence indicators in [STIX 2.1](https://docs.oasis-open.org/cti/stix/v2.1/cs02/stix-v2.1-cs02.html) format. Each object it receives is registered as a Tokenized Asset Record (TAR) through the [Compellio](https://compellio.com) Registry API and anchored on a public or private blockchain network, without publishing the indicator itself.
 
-> [!IMPORTANT]
-> This is a pre-release version of the BCBCTI server which does not make calls the Registry API by default. It can be used to test the behaviour of the available TAXII endpoints.
-
 ## Architecture
 
 [//]: # (TODO high level overview)
