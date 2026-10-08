@@ -72,7 +72,7 @@ public class StixReconciliationService
         return await Finalize(operation.Body, await ReconcileRegistration(registryResponse.Receipt, completedAt, ct), ct);
     }
 
-    public async Task<StixReconciliationResult> ReconcileRegistryResponse(RegistryResponse registryResponse, DateTime completedAt,
+    public async Task<StixReconciliationResult> ReconcileRegistryResponse(RegistryResponse registryResponse,
         CancellationToken ct = default)
     {
         if (registryResponse.Receipt.Id is null)
@@ -91,6 +91,8 @@ public class StixReconciliationService
             return StixReconciliationResult.Skip;
         }
 
+        var completedAt = registryResponse.CompletedAt ?? DateTime.UtcNow;
+        
         return await Finalize(operation.Body, await ReconcileRegistration(registryResponse.Receipt, completedAt, ct), ct);
     }
 
