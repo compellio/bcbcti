@@ -63,7 +63,12 @@ In both cases, apply the following policy to the IAM entity to grant BCBCTI the 
         {
             "Sid": "BcbctiBucketAccess",
             "Effect": "Allow",
-            "Action": ["s3:PutObject", "s3:GetObject", "s3:ListBucket", "s3:DeleteObject"],
+            "Action": [
+                "s3:PutObject",
+                "s3:GetObject",
+                "s3:ListBucket",
+                "s3:DeleteObject"
+            ],
             "Resource": [
                 "arn:aws:s3:::{bucket_name}",
                 "arn:aws:s3:::{bucket_name}/*"
@@ -94,16 +99,37 @@ BCBCTI__Storage__S3__BucketName={bucket_name}
 
 BCBCTI will attempt to derive public object URLs for the `/objects` path automatically, but you may need to use the `BCBCTI__Storage__S3__PublicBaseUrl` variable to adjust it manually if the generated URLs are invalid.
 
-### Azure Blob
-
-[//]: # (TODO #### Azure Blob)
-
 ## Advanced
+
+The following variables offer finer control over the BCBCTI server's behaviour.
+Most deployments can leave them at their defaults.
+
+| Environment Variable                         | Type            | Description                                                                                        |
+|----------------------------------------------|-----------------|----------------------------------------------------------------------------------------------------|
+| `BCBCTI__Ingestion__ReconciliationFrequency` | Time span [^1]  | The frequency at which the BCBCTI server checks whether pending registrations have been completed. |
+| `BCBCTI__Ingestion__PendingOperationTimeout` | Time span [^1]  | The amount of time after which the BCBCTI server considers a pending registration to have failed.  |
+| `BCBCTI__TAXII__ServerTitle`                 | String          | The TAXII server's title.                                                                          |
+| `BCBCTI__TAXII__Title`                       | String          | The TAXII server's API Root title.[^2]                                                             |
+| `BCBCTI__TAXII__Description`                 | String          | The TAXII server's API Root description.[^2]                                                       |
+| `BCBCTI__TAXII__MaxUploadBytes`              | Integer         | The maximum request size the server must accept.                                                   |
+| `BCBCTI__TAXII__MaxUploadCount`              | Integer         | The maximum allowed number of objects that can be submitted at once.                               |
+| `BCBCTI__TAXII__Pagination__MaxLimit`        | Integer         | The maximum allowed number of object per page.                                                     |
+| `BCBCTI__TAXII__Pagination__DefaultLimit`    | Integer         | The default number of object returned per page, when no limit is requrested.                       |
+| `BCBCTI__Collections__0__Id`                 | UUID (unique)   | The default collection's UUID.                                                                     |
+| `BCBCTI__Collections__0__Title`              | String          | The default collection's title.                                                                    |
+| `BCBCTI__Collections__0__Alias`              | String (unique) | The default collection's alias.                                                                    |
+
+You may use `BCBCTI__Collections__{n}__Id` to define multiple collections; however, there is currently no logical separation between them: all collections are treated as one.
+
+[^1]: Time spans must be expressed in the following format: <https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-timespan-format-strings#the-constant-c-format-specifier>. Examples: `00:15:00` for 15 minutes, `06:00:00` for 6 hours.
+
+[^2]: BCBCTI only exposes a single API Root. See [docs/api.md](./api.md) for more details.
 
 ## Webhooks
 
-### Registry API (optional)
+### Registry API
+
+BCBCTI does not currently support incoming webhook calls from the Registry API.
 
 [//]: # (TODO while no auth, must expose /hooks path to the registry API + secret)
-
 [//]: # (TODO section with notes on "stg/prod" environments, incl. public object URIs AND[IF SELF-HOSTING-REGISTRY] public Registry API endpoint)
