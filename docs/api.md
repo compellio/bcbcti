@@ -2,10 +2,6 @@
 
 The BCBCTI server implements a subset of the [TAXII 2.1](https://docs.oasis-open.org/cti/taxii/v2.1/os/taxii-v2.1-os.html) API specification.
 
-> [!CAUTION]
-> BCBCTI is meant to be deployed as an internal service and **does not implement
-authentication**. Anything that can reach a collection endpoint can write to it. If you plan to deploy BCBCTI publicly, you should place it behind your own authentication layer (e.g. reverse proxy, API gateway, etc.).
-
 It serves a single API root at `/api` and a single `default` collection. The following endpoints are implemented:
 
 - [x] `GET /taxii2`: server discovery
@@ -31,10 +27,19 @@ BCBCTI also returns custom properties linking TAXII resources with their associa
 | `x_bcbcti_registry_tar_id`     | Manifest         | The TAR Id issued by the Registry API.                         |
 | `x_bcbcti_registry_version_id` | Manifest         | The TAR version corresponding to the entry.                    |
 
-You may also use those values to call the Registry API directly. Read the [Registry API documentation](https://docs.compellio.com/registry/) for more details.
+Those values can be used to call the Registry API directly. Read the [Registry API documentation](https://docs.compellio.com/registry/) for more details.
 
 > [!TIP]
 > You can find a set of example requests in [BCBCTI.http](./../BCBCTI.http)
+
+## Authentication
+
+The BCCBTI server does not implement any kind of authentication.
+
+> [!CAUTION]
+> BCBCTI is meant to be deployed as an internal service and **does not implement authentication**. 
+> Anything that can reach a collection endpoint can write to it.
+> If you plan to deploy BCBCTI publicly, you should place it behind your own authentication layer (e.g. reverse proxy, API gateway, etc.).
 
 ## Limitations
 
