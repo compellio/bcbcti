@@ -11,6 +11,11 @@ public class RegistryResponse
     /// </summary>
     public required DateTime SentAt { get; set; }
     
+    /// <summary>
+    /// Time the response was received
+    /// </summary>
+    public DateTime? CompletedAt { get; set; }
+    
     public required TarReceipt Receipt { get; set; }
     
 }

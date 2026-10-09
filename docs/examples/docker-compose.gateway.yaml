@@ -1,0 +1,19 @@
+name: bcbcti-gateway-example
+services:
+  bcbcti:
+    image: ghcr.io/compellio/bcbcti:latest
+    build:
+      context: ./../..
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      BCBCTI__Storage__FileSystem__PublicBaseUrl: https://stix.example.com/
+      RegistryAPI__ApiKey: whe1PVDd1MeM5bQJoVHx_pnhdlXvEYlQJ6uMP40ZEqA=
+      RegistryAPI__IssuerDomain: registry.acme.com
+      # See docs/configuration.md for more details on environment variables
+    volumes:
+      - bcbcti-data:/data
+  
+volumes:
+  bcbcti-data:

@@ -9,12 +9,15 @@ using Compellio.Bcbcti.Options;
 using Compellio.Bcbcti.Repositories;
 using Compellio.Bcbcti.Services.RegistryApi;
 using Compellio.Bcbcti.Services.Storage.Exceptions;
+using Microsoft.Extensions.Options;
 
 namespace Compellio.Bcbcti.Services.Ingestion;
 
 public class StixIngestionService
 {
     private readonly ILogger<StixIngestionService> _logger;
+
+    private readonly IOptions<IngestionOptions> _options;
 
     private readonly StixObjectRepository _stixRepository;
     private readonly RegistrationReceiptsRepository _receiptsRepository;
@@ -26,13 +29,14 @@ public class StixIngestionService
     private readonly RegistryOperationsManager _operationsManager;
     private readonly RegistrationPayloadFactory _registrationPayloadFactory;
 
-    public StixIngestionService(ILogger<StixIngestionService> logger, StixObjectRepository stixRepository,
+    public StixIngestionService(ILogger<StixIngestionService> logger, IOptions<IngestionOptions> options, StixObjectRepository stixRepository,
         RegistrationReceiptsRepository receiptsRepository,
         ObjectRegistrationRepository objectRegistrationRepository,
         RegistryOperationRepository registryOperationRepository, RegistryOperationsManager operationsManager, IRegistryApiClient registryClient
     )
     {
         _logger = logger;
+        _options = options;
 
         _stixRepository = stixRepository;
         _receiptsRepository = receiptsRepository;
@@ -48,9 +52,20 @@ public class StixIngestionService
     public async Task<IReadOnlyList<StixIngestionResult>> ProcessStixObjects(CollectionOptions collection,
         Guid journalId, DateTime submittedAt, StixObject[] objects, CancellationToken ct = default)
     {
-        // TODO set ParallelOptions.MaxDegreeOfParallelism based on project restrictions
-        //   (e.g. AmazonS3Config.MaxConnectionsPerServer w/ default = 50, Registry API rate limits)
-        return await objects.ParallelSelectAsync(async (stixObject, ctoken) =>
+        var parallelOptions = new ParallelOptions
+        {
+            CancellationToken = ct
+        };
+
+        if (_options.Value.MaxConcurrentIngestions.HasValue)
+        {
+            // TODO set ParallelOptions.MaxDegreeOfParallelism based on project restrictions
+            //   (e.g. AmazonS3Config.MaxConnectionsPerServer w/ default = 50, Registry API rate limits)
+            //   (a.g. Single wallet Registry API, like DCAP.Web -> can't handle concurrency)
+            parallelOptions.MaxDegreeOfParallelism = _options.Value.MaxConcurrentIngestions.Value;
+        }
+        
+        return await objects.ParallelSelectAsync(parallelOptions, async (stixObject, ctoken) =>
         {
             try
             {
@@ -70,7 +85,7 @@ public class StixIngestionService
             {
                 return _registrationPayloadFactory.BuildFailedIngestionResult(stixObject, "Error processing object");
             }
-        }, ct);
+        });
     }
 
     public async Task<StixIngestionResult> ProcessStixObject(CollectionOptions collection, Guid journalId,
