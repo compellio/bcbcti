@@ -131,20 +131,21 @@ BCBCTI will attempt to derive public object URLs for the `/objects` path automat
 The following variables offer finer control over the BCBCTI server's behaviour.
 Most deployments can leave them at their defaults.
 
-| Environment Variable                         | Type            | Description                                                                                        |
-|----------------------------------------------|-----------------|----------------------------------------------------------------------------------------------------|
-| `BCBCTI__Ingestion__ReconciliationFrequency` | Time span [^1]  | The frequency at which the BCBCTI server checks whether pending registrations have been completed. |
-| `BCBCTI__Ingestion__PendingOperationTimeout` | Time span [^1]  | The amount of time after which the BCBCTI server considers a pending registration to have failed.  |
-| `BCBCTI__TAXII__ServerTitle`                 | String          | The TAXII server's title.                                                                          |
-| `BCBCTI__TAXII__Title`                       | String          | The TAXII server's API Root title.[^2]                                                             |
-| `BCBCTI__TAXII__Description`                 | String          | The TAXII server's API Root description.[^2]                                                       |
-| `BCBCTI__TAXII__MaxUploadBytes`              | Integer         | The maximum request size the server must accept.                                                   |
-| `BCBCTI__TAXII__MaxUploadCount`              | Integer         | The maximum allowed number of objects that can be submitted at once.                               |
-| `BCBCTI__TAXII__Pagination__MaxLimit`        | Integer         | The maximum allowed number of object per page.                                                     |
-| `BCBCTI__TAXII__Pagination__DefaultLimit`    | Integer         | The default number of object returned per page, when no limit is requrested.                       |
-| `BCBCTI__Collections__0__Id`                 | UUID (unique)   | The default collection's UUID.                                                                     |
-| `BCBCTI__Collections__0__Title`              | String          | The default collection's title.                                                                    |
-| `BCBCTI__Collections__0__Alias`              | String (unique) | The default collection's alias.                                                                    |
+| Environment Variable                         | Type            | Description                                                                                           |
+|----------------------------------------------|-----------------|-------------------------------------------------------------------------------------------------------|
+| `BCBCTI__Ingestion__ReconciliationFrequency` | Time span [^1]  | The frequency at which the BCBCTI server checks whether pending registrations have been completed.    |
+| `BCBCTI__Ingestion__PendingOperationTimeout` | Time span [^1]  | The amount of time after which the BCBCTI server considers a pending registration to have failed.     |
+| `BCBCTI__Ingestion__MaxConcurrentIngestions` | Integer         | The number of objects that can be registered in parallel when multiple objects are submitted at once. |
+| `BCBCTI__TAXII__ServerTitle`                 | String          | The TAXII server's title.                                                                             |
+| `BCBCTI__TAXII__Title`                       | String          | The TAXII server's API Root title.[^2]                                                                |
+| `BCBCTI__TAXII__Description`                 | String          | The TAXII server's API Root description.[^2]                                                          |
+| `BCBCTI__TAXII__MaxUploadBytes`              | Integer         | The maximum request size the server must accept.                                                      |
+| `BCBCTI__TAXII__MaxUploadCount`              | Integer         | The maximum allowed number of objects that can be submitted at once.                                  |
+| `BCBCTI__TAXII__Pagination__MaxLimit`        | Integer         | The maximum allowed number of object per page.                                                        |
+| `BCBCTI__TAXII__Pagination__DefaultLimit`    | Integer         | The default number of object returned per page, when no limit is requrested.                          |
+| `BCBCTI__Collections__0__Id`                 | UUID (unique)   | The default collection's UUID.                                                                        |
+| `BCBCTI__Collections__0__Title`              | String          | The default collection's title.                                                                       |
+| `BCBCTI__Collections__0__Alias`              | String (unique) | The default collection's alias.                                                                       |
 
 You may use `BCBCTI__Collections__{n}__Id` to define multiple collections; however, there is currently no logical separation between them: all collections are treated as one.
 
