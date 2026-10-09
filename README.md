@@ -1,6 +1,6 @@
 # BCBCTI Server
 
-[![License](https://img.shields.io/github/license/compellio/bcbcti)](LICENSE)
+[![License](https://img.shields.io/github/license/compellio/bcbcti)](LICENSE.txt)
 [![Releases](https://img.shields.io/github/v/release/compellio/bcbcti?include_prereleases)](https://github.com/compellio/bcbcti/releases)
 [![STIX/TAXII](https://img.shields.io/badge/STIX%2FTAXII-2.1-orange)](https://oasis-open.github.io/cti-documentation/)
 
@@ -41,4 +41,4 @@ Read the [API documentation](docs/api.md) for more details.
 
 ## License
 
-This project is licensed under the [Apache License 2.0](LICENSE).
+This project is licensed under the [Apache License 2.0](LICENSE.txt).
