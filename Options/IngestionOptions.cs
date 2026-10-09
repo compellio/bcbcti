@@ -7,4 +7,5 @@ public class IngestionOptions
 {
     public TimeSpan ReconciliationFrequency { get; set; } = TimeSpan.FromMinutes(30);
     public TimeSpan PendingOperationTimeout { get; set; } = TimeSpan.FromHours(4);
+    public int? MaxConcurrentIngestions { get; set; } = null;
 }

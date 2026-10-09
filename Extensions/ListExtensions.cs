@@ -19,7 +19,7 @@ internal static class ListExtensions
                     MaxDegreeOfParallelism = Math.Max(1, maxDegreeOfParallelism), CancellationToken = ct
                 }, selector);
 
-        private async Task<IReadOnlyList<TDest>> ParallelSelectAsync<TDest>(ParallelOptions options,
+        public async Task<IReadOnlyList<TDest>> ParallelSelectAsync<TDest>(ParallelOptions options,
             Func<TSource, CancellationToken, Task<TDest>> selector)
         {
             var results = new TDest[items.Count];

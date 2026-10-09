@@ -1,10 +1,37 @@
 # Configuration
 
-[//]: # (TODO common env variables, essentially everything under BCBCTI:)
+> [!CAUTION]
+> BCBCTI is meant to be deployed as an internal service and **does not implement
+authentication**. Anything that can reach a collection endpoint can write to it. If you plan to deploy BCBCTI publicly, you should place it behind your own authentication layer (e.g. reverse proxy, API gateway, etc.).
 
 ## Registry API
 
-[//]: # (TODO registry api envs)
+The BCBCTI server can work with either the open source [DCAP.Web](https://github.com/compellio/DCAP.Web/pkgs/container/dcap-web) server and the [Compellio Gateway](https://console.gateway.compellio.com/) Registry API service.
+
+You can find more instructions on running the DCAP.Web service at <https://github.com/compellio/DCAP.Web>. In the context of the BCBCTI, you may skip the "Data initialization" section.
+
+You can configure BCBCTI according to the option you choose using the following variables:
+
+| Environment Variable         | Type              | Description                                                                                                             |
+|------------------------------|-------------------|-------------------------------------------------------------------------------------------------------------------------|
+| `RegistryAPI__ServiceUrl`    | URL               | The Registry API endpoint BCBCTI will connect to.                                                                       |
+| `RegistryAPI__ApiKey`        | String            | The API key to authenticate with the Registry API. Required when using the Gateway Registry API endpoint.               |
+| `RegistryAPI__Network`       | String (optional) | The blockchain network identifier used by the Registry API.                                                             |
+| `RegistryAPI__IssuerDomain`  | String (optional) | The issuer domain used by the Registry API.                                                                             |
+| `RegistryAPI__WebhookSecret` | String (optional) | A secret value to verify incoming webhooks. See [Webhooks](#webhooks) section below.                                    |
+| `RegistryAPI__Mock`          | Boolean           | Makes BCBCTI mock Registry API calls when set to true. Can be used to test the BCBCTI server without consuming credits. |
+
+Example Docker Compose configurations can be found in [examples/](./examples).
+
+> [!IMPORTANT]
+> If you use the [DCAP.Web](https://github.com/compellio/DCAP.Web/pkgs/container/dcap-web) as your Registry API instance, you must also set `BCBCTI__Ingestion__MaxConcurrentIngestions=1` in your environment variables, as DCAP.Web does not support concurrent registrations.
+
+### Webhooks
+
+BCBCTI does not currently support incoming webhook calls from Registry API instances.
+
+[//]: # (TODO while no auth, must expose /hooks path to the registry API + secret)
+[//]: # (TODO section with notes on "stg/prod" environments, incl. public object URIs AND[IF SELF-HOSTING-REGISTRY] public Registry API endpoint)
 
 ## Storage Providers
 
@@ -124,12 +151,3 @@ You may use `BCBCTI__Collections__{n}__Id` to define multiple collections; howev
 [^1]: Time spans must be expressed in the following format: <https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-timespan-format-strings#the-constant-c-format-specifier>. Examples: `00:15:00` for 15 minutes, `06:00:00` for 6 hours.
 
 [^2]: BCBCTI only exposes a single API Root. See [docs/api.md](./api.md) for more details.
-
-## Webhooks
-
-### Registry API
-
-BCBCTI does not currently support incoming webhook calls from the Registry API.
-
-[//]: # (TODO while no auth, must expose /hooks path to the registry API + secret)
-[//]: # (TODO section with notes on "stg/prod" environments, incl. public object URIs AND[IF SELF-HOSTING-REGISTRY] public Registry API endpoint)

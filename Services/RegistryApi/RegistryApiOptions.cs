@@ -3,17 +3,18 @@
 
 using System.ComponentModel.DataAnnotations;
 
-namespace Compellio.Bcbcti.Options;
+namespace Compellio.Bcbcti.Services.RegistryApi;
 
 public class RegistryApiOptions
 {
-    [Required]
-    public required string ApiKey { get; set; }
     
-    [Required, Url]
-    public string? ServiceUrl { get; set; }
+    [Url]
+    public string ServiceUrl { get; set; } = "https://registry.api.gateway.compellio.com/";
     
+    public string? ApiKey { get; set; }
     public string? Network { get; set; }
     public string? IssuerDomain { get; set; }
     public string? WebhookSecret { get; set; }
+
+    public bool? Mock { get; set; } = false;
 }

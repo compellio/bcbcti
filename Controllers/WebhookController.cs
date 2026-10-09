@@ -19,8 +19,6 @@ public class WebhookController(
     public async Task Get( /* http context */ CancellationToken ct)
     {
         var tarReceipt = await registryApiClient.ValidateCallback( /* http context */);
-        var completedAt = DateTime.UtcNow; // TODO FIXME move to IRegistryApiClient
-
-        await reconciliationService.ReconcileRegistryResponse(tarReceipt, completedAt, ct);
+        await reconciliationService.ReconcileRegistryResponse(tarReceipt, ct);
     }
 }
