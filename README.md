@@ -1,6 +1,6 @@
 # BCBCTI Server
 
-[![License](https://img.shields.io/github/license/compellio/bcbcti)](LICENSE)
+[![License](https://img.shields.io/github/license/compellio/bcbcti)](LICENSE.txt)
 [![Releases](https://img.shields.io/github/v/release/compellio/bcbcti?include_prereleases)](https://github.com/compellio/bcbcti/releases)
 [![STIX/TAXII](https://img.shields.io/badge/STIX%2FTAXII-2.1-orange)](https://oasis-open.github.io/cti-documentation/)
 
@@ -22,13 +22,13 @@ Your can pull the BCBCTI server's container image from the GitHub Container regi
 docker pull ghcr.io/compellio/bcbcti:latest
 ```
 
-We recommend using the Docker Compose example in [compose.yaml](compose.yaml) and edit it as required for your deployments.
+We recommend using the [docker-compose.dcap.yaml](docs/examples/docker-compose.dcap.yaml) Docker Compose example and edit it as required for your deployments.
 
 The BCBCTI server depends on an instance of the Registry API to register TARs. You can either host an instance yourself, or use the Compellio Gateway closed alpha Registry API endpoint.
 
 Read the [configuration documentation](docs/configuration.md) for more details.
 
-## TAXII API
+## API
 
 [//]: # (TODO quick overview of endpoints and x_ custom variables + link to docs listing API endpoint and/or openapi file)
 
@@ -38,4 +38,4 @@ Read the [API documentation](docs/api.md) for more details.
 
 ## License
 
-This project is licensed under the [Apache License 2.0](LICENSE).
+This project is licensed under the [Apache License 2.0](LICENSE.txt).

@@ -1,16 +1,6 @@
 # Configuration
 
-[//]: # (TODO)
-
-> [!CAUTION]
-> BCBCTI is meant to be deployed as an internal service and **does not implement
-authentication**. Anything that can reach a collection endpoint can write to it. If you plan to deploy BCBCTI publicly, you should place it behind your own authentication layer (e.g. reverse proxy, API gateway, etc.).
-
-## Environment Variables
-
-[//]: # (TODO common env variables, essentially everything under BCBCTI)
-
-### Registry API
+## Registry API
 
 The BCBCTI server can work with either the open source [DCAP.Web](https://github.com/compellio/DCAP.Web/pkgs/container/dcap-web) server and the [Compellio Gateway](https://console.gateway.compellio.com/) Registry API service.
 
@@ -32,7 +22,14 @@ Example Docker Compose configurations can be found in [examples/](./examples).
 > [!IMPORTANT]
 > If you use the [DCAP.Web](https://github.com/compellio/DCAP.Web/pkgs/container/dcap-web) as your Registry API instance, you must also set `BCBCTI__Ingestion__MaxConcurrentIngestions=1` in your environment variables, as DCAP.Web does not support concurrent registrations.
 
-### Storage Providers
+### Webhooks
+
+BCBCTI does not currently support incoming webhook calls from Registry API instances.
+
+[//]: # (TODO while no auth, must expose /hooks path to the registry API + secret)
+[//]: # (TODO section with notes on "stg/prod" environments, incl. public object URIs AND[IF SELF-HOSTING-REGISTRY] public Registry API endpoint)
+
+## Storage Providers
 
 BCBCTI must be configured with a storage provider to store the STIX payloads it receives, and manage its internal state.
 
@@ -42,7 +39,7 @@ When registering STIX objects, BCBCTI generates a public URL pointing to the sub
 |-----------------------------|------|----------------------------------------------------------------------------------------|
 | `BCBCTI__Storage__Provider` | Enum | The selected storage provider. Must be one of the values listed in the sections below. |
 
-#### File System
+### File System
 
 `BCBCTI__Storage__Provider` value must be set to `FileSystem`.
 
@@ -68,7 +65,7 @@ The File System storage provider requires you to set up your own sharing mechani
 
 [//]: # (TODO IMPORTANT add note on publicly accessible/unique object key identifiers)
 
-#### AWS S3, or S3-compatible services
+### AWS S3, or S3-compatible services
 
 `BCBCTI__Storage__Provider` value must be set to `S3`.
 
@@ -77,18 +74,77 @@ The File System storage provider requires you to set up your own sharing mechani
 | `BCBCTI__Storage__S3__BucketName`    | String         | The S3 bucket name to be used by BCBCTI to store STIX objects and metadata.                                       |
 | `BCBCTI__Storage__S3__PublicBaseUrl` | URL (optional) | Overrides the default AWS S3 public object URL. Must be defined when using S3-compatible services instead of AWS. |
 
-[//]: # (TODO #### Azure Blob)
+If BCBCTI is running on AWS, we recommend to use an IAM role on the BCBCTI container to access S3.
+Otherwise, you can create an IAM user and generate an Access Key pair for BCBCTI (set the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables).
 
-### Advanced
+In both cases, apply the following policy to the IAM entity to grant BCBCTI the necessary permissions to access the bucket:
 
-[//]: # (TODO collections variables)
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "BcbctiBucketAccess",
+            "Effect": "Allow",
+            "Action": [
+                "s3:PutObject",
+                "s3:GetObject",
+                "s3:ListBucket",
+                "s3:DeleteObject"
+            ],
+            "Resource": [
+                "arn:aws:s3:::{bucket_name}",
+                "arn:aws:s3:::{bucket_name}/*"
+            ]
+        }
+    ]
+}
+```
 
-## Webhooks
+The server can also connect to AWS using temporary credentials (set the `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_SESSION_TOKEN` environment variables).
 
-### Registry API (optional)
+#### S3-compatible services
 
-[//]: # (TODO while no auth, must expose /hooks path to the registry API + secret)
+BCBCTI can work with S3-compatible interfaces that support the following S3 operations: GetObject, PutObject (with support for If-None-Match and If-Match conditions), ListObjectsV2, and DeleteObject.
 
-## Production
+When working with an S3-compatible service, you will need to set the `AWS_ENDPOINT_URL_S3`, and potentially the `AWS_FORCE_PATH_STYLE` variables.
 
-[//]: # (TODO notes on prod environments, incl. public object URIs AND[IF SELF-HOSTING-REGISTRY] public Registry API endpoint)
+Below is an example configuration that connects to the Hetzner Object Storage service:
+
+```shell
+AWS_ENDPOINT_URL_S3=https://nbg1.your-objectstorage.com
+
+AWS_ACCESS_KEY_ID={hetzner_credential_id}
+AWS_SECRET_ACCESS_KEY={hetzner_credential_secret}
+
+BCBCTI__Storage__S3__BucketName={bucket_name}
+```
+
+BCBCTI will attempt to derive public object URLs for the `/objects` path automatically, but you may need to use the `BCBCTI__Storage__S3__PublicBaseUrl` variable to adjust it manually if the generated URLs are invalid.
+
+## Advanced
+
+The following variables offer finer control over the BCBCTI server's behaviour.
+Most deployments can leave them at their defaults.
+
+| Environment Variable                         | Type            | Description                                                                                           |
+|----------------------------------------------|-----------------|-------------------------------------------------------------------------------------------------------|
+| `BCBCTI__Ingestion__ReconciliationFrequency` | Time span [^1]  | The frequency at which the BCBCTI server checks whether pending registrations have been completed.    |
+| `BCBCTI__Ingestion__PendingOperationTimeout` | Time span [^1]  | The amount of time after which the BCBCTI server considers a pending registration to have failed.     |
+| `BCBCTI__Ingestion__MaxConcurrentIngestions` | Integer         | The number of objects that can be registered in parallel when multiple objects are submitted at once. |
+| `BCBCTI__TAXII__ServerTitle`                 | String          | The TAXII server's title.                                                                             |
+| `BCBCTI__TAXII__Title`                       | String          | The TAXII server's API Root title.[^2]                                                                |
+| `BCBCTI__TAXII__Description`                 | String          | The TAXII server's API Root description.[^2]                                                          |
+| `BCBCTI__TAXII__MaxUploadBytes`              | Integer         | The maximum request size the server must accept.                                                      |
+| `BCBCTI__TAXII__MaxUploadCount`              | Integer         | The maximum allowed number of objects that can be submitted at once.                                  |
+| `BCBCTI__TAXII__Pagination__MaxLimit`        | Integer         | The maximum allowed number of object per page.                                                        |
+| `BCBCTI__TAXII__Pagination__DefaultLimit`    | Integer         | The default number of object returned per page, when no limit is requrested.                          |
+| `BCBCTI__Collections__0__Id`                 | UUID (unique)   | The default collection's UUID.                                                                        |
+| `BCBCTI__Collections__0__Title`              | String          | The default collection's title.                                                                       |
+| `BCBCTI__Collections__0__Alias`              | String (unique) | The default collection's alias.                                                                       |
+
+You may use `BCBCTI__Collections__{n}__Id` to define multiple collections; however, there is currently no logical separation between them: all collections are treated as one.
+
+[^1]: Time spans must be expressed in the following format: <https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-timespan-format-strings#the-constant-c-format-specifier>. Examples: `00:15:00` for 15 minutes, `06:00:00` for 6 hours.
+
+[^2]: BCBCTI only exposes a single API Root. See [docs/api.md](./api.md) for more details.
