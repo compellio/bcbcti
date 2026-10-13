@@ -14,9 +14,9 @@ Below is a high-level overview of how BCBCTI can be deployed in a monitoring env
 ```mermaid
 flowchart LR
     %% BCBCTI ecosystem
-    style Environment fill: #eef, stroke: #88a
-    style RegistryHost fill: #fef, stroke: #a8a, stroke-dasharray: 5 5
-    style Chain fill: #efe, stroke: #8a8
+    style Environment fill: #eef, stroke: #88a, color:#000000
+    style RegistryHost fill: #fef, stroke: #a8a, stroke-dasharray: 5 5, color:#000000
+    style Chain fill: #efe, stroke: #8a8, color:#000000
     
     subgraph Environment["Deployment"]
         subgraph Sources["Threat sources"]
@@ -88,7 +88,6 @@ This is a high-level overview of how an object is processed:
 ```mermaid
 flowchart LR
     %% STIX Object handling flow
-
     classDef failure stroke:red
     classDef success stroke:green
 
