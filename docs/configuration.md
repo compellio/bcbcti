@@ -1,9 +1,5 @@
 # Configuration
 
-> [!CAUTION]
-> BCBCTI is meant to be deployed as an internal service and **does not implement
-authentication**. Anything that can reach a collection endpoint can write to it. If you plan to deploy BCBCTI publicly, you should place it behind your own authentication layer (e.g. reverse proxy, API gateway, etc.).
-
 ## Registry API
 
 The BCBCTI server can work with either the open source [DCAP.Web](https://github.com/compellio/DCAP.Web/pkgs/container/dcap-web) server and the [Compellio Gateway](https://console.gateway.compellio.com/) Registry API service.

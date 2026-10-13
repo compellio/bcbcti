@@ -172,3 +172,81 @@ This is an example payload sent by BCBCTI to the Registry API:
     }
 }
 ```
+
+## Verification
+
+The verification of a STIX Object starts from a TAR Id and involves verifying the pointers to the original STIX Object: 
+
+1. Resolve and verify the TAR which carries the STIX Artifact Object created by BCBCTI.
+2. Resolve and verify the STIX Artifact Object pointing to the STIX Object originally submitted to the BCBCTI server.
+
+The first verification step can be performed by anyone having access to the TAR's blockchain network.
+However, given that the submitted STIX Object gets stored in a permissioned storage (S3, file system, etc.), the second verification step depends on the verifier's access to that storage.
+
+This is a high-level overview of how a registered STIX Object may be verified (for simplicity, some failure states such as TAR resolution errors, fetch errors, etc. are omitted):
+
+```mermaid
+flowchart LR
+    %% Registered Object (TAR) verification flow
+    classDef failure stroke: red
+    classDef success stroke: green
+
+    TarId(["TAR Id"])
+    
+    subgraph TAR Verification
+        ResolveTar["Resolve TAR"]
+        FetchTarPayload["Fetch TAR <br/>Payload"]
+        TarChecksumMatch?{"TAR Checksums <br/>Match?"}
+    end
+    
+    TARVerificationFailure(["TAR Verification <br/>Failed"]):::failure
+    
+    IsStixBundleTAR?{"Is StixBundle TAR?"}
+
+    TARTypeError(["TAR Type <br/>Check Failed"]):::failure
+    
+    subgraph STIX Artifact Object Verification
+        ParseTarPayload["Extract STIX <br/>Artifact Object"]
+        ReadStixObject["Retrieve submitted <br/>STIX Object"]
+        ArtifactChecksumMatch?{"Artifact Object <br/>Checksums Match?"}
+    end
+    
+    ArtifactVerificationFailure(["Artifact Object <br/>Verification Failed"]):::failure
+    ArtifactVerificationSucceeded(["Verified STIX Object"]):::success
+
+    TarId --> ResolveTar
+
+    ResolveTar --> FetchTarPayload --> TarChecksumMatch?
+    
+    TarChecksumMatch? -->|No| TARVerificationFailure
+    TarChecksumMatch? -->|Yes| IsStixBundleTAR?
+        IsStixBundleTAR? -->|No| TARTypeError
+        IsStixBundleTAR? -->|Yes| ParseTarPayload
+            ParseTarPayload --> ReadStixObject --> ArtifactChecksumMatch?
+                ArtifactChecksumMatch? --> |No| ArtifactVerificationFailure
+                ArtifactChecksumMatch? --> |Yes| ArtifactVerificationSucceeded
+```
+
+### TAR Verification
+
+Verifying the TAR involves retrieving its off-chain payload, and comparing its SHA-256 checksum with the one registered on-chain.
+
+The blockchain (which is identified by its EIP-155 chain id) and smart contract are both contained within the TAR Id.
+See the [TAR Identification](https://docs.compellio.com/registry/on-chain/#tar-identification) docs for more details on the TAR Id format.
+
+The payload checksum needs to be calculated from the payload's canonical representation (according to the JSON Canonicalization Scheme, [RFC 8785](https://www.rfc-editor.org/info/rfc8785/)).
+
+If the TAR Id does not explicitly define a version, retrieve the latest available version stored on the contract.
+
+#### TAR Smart Contract Interface (ITAR)
+
+The following functions are relevant to the verification:
+
+- `getChecksum(uint256 versionId) bytes32`: returns the SHA256 checksum hash of the TAR payload.
+- `dataUri(uint256 versionId) string`: returns the address from which the TAR payload can be retrieved. 
+
+You can use the `totalVersions() uint256` function to determine the latest version id.
+
+### STIX Artifact Object Verification
+
+[//]: # (TODO)
