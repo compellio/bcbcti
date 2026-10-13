@@ -68,11 +68,11 @@ The way in which access rights are set up depends on the selected storage provid
 
 #### Public vs Private Blockchain Networks
 
-Blockchain Networks can either be public (e.g. Ethereum, Polygon, etc.) or private deployments (e.g. private Hyperledger Besu deployment, etc.). The choice of blockchain type depends entirely on the scope of the client's deployment (e.g. public discoverability with public networks, controlled participation with private networks, etc.) .
+Blockchain Networks can either be public (e.g. Ethereum, Polygon, etc.) or private deployments (e.g. private Hyperledger Besu deployment, etc.). The choice of blockchain type depends entirely on the scope of the client's deployment (e.g. public discoverability with public networks, controlled participation with private networks, etc.).
 
 ### Tokenised Asset Records (TARs)
 
-TARs are pairs made up of an on-chain smart contract and off-chain JSON payload.
+TARs are pairs made up of an on-chain smart contract and an off-chain JSON payload.
 The smart contract holds versioned checksums of the associated JSON payload, which makes the TAR verifiable from the on-chain data alone.
 
 A TAR Id acts as a unique identifier and a locator to the on-chain smart contract, and, by resolution, its JSON payload.
@@ -83,7 +83,7 @@ Read the [Registry API components documentation](https://docs.compellio.com/regi
 
 When new STIX Objects are submitted, the server decides whether to create a new TAR for the object, update the existing TAR associated with the object, or reject it.
 
-This is a high-level overview of how an object is processed:
+This is a high-level overview of how an Object is processed:
 
 ```mermaid
 flowchart LR
@@ -124,7 +124,7 @@ flowchart LR
     Confirmed? -->|No / Timeout|Failure
 ```
 
-Submitted objects will only appear in their collection once they have been properly registered by the Registry API.
+Submitted Objects will only appear in their collection once they have been successfully registered by the Registry API.
 
 BCBCTI uses the submitted STIX Object's Identifier to determine whether to create a new TAR, or update an existing one.
 
@@ -135,7 +135,7 @@ A rejected or failed submission can be resubmitted by the client, but BCBCTI doe
 
 ### STIX Artifact Object
 
-For every submitted STIX Object, BCBCTI creates and registers a new STIX Artifact Cyber-Observable Object (SCO) that points to the original object's location in the configured storage (e.g. S3, etc.).
+For every submitted STIX Object, BCBCTI creates and registers a new STIX Artifact Cyber-Observable Object (SCO) that points to the original Object's location in the configured storage (e.g. S3, etc.).
 It also calculates the SHA-256 checksum based on the canonical representation of the submitted STIX Object (according to the JSON Canonicalization Scheme, [RFC 8785](https://www.rfc-editor.org/info/rfc8785/)).
 
 This ensures submitted STIX Objects remain privately accessible, while allowing their authenticity to be verified. Each submitted STIX Object is mapped to a single STIX Artifact Object, which is registered individually.
@@ -229,12 +229,12 @@ flowchart LR
 
 ### TAR Verification
 
-Verifying the TAR involves retrieving its off-chain payload, and comparing its SHA-256 checksum with the one registered on-chain.
+Verification of the TAR retrieves its off-chain payload, and compares its SHA-256 checksum against the one recorded on-chain.
 
 The blockchain (which is identified by its EIP-155 chain id) and smart contract are both contained within the TAR Id.
 See the [TAR Identification](https://docs.compellio.com/registry/on-chain/#tar-identification) docs for more details on the TAR Id format.
 
-The payload checksum needs to be calculated from the payload's canonical representation (according to the JSON Canonicalization Scheme, [RFC 8785](https://www.rfc-editor.org/info/rfc8785/)).
+The verifier must apply the JSON Canonicalization Scheme ([RFC 8785](https://www.rfc-editor.org/info/rfc8785/)) to the payload to reproduce the checksum.
 
 If the TAR Id does not explicitly define a version, retrieve the latest available version stored on the contract.
 
@@ -242,11 +242,21 @@ If the TAR Id does not explicitly define a version, retrieve the latest availabl
 
 The following functions are relevant to the verification:
 
-- `getChecksum(uint256 versionId) bytes32`: returns the SHA256 checksum hash of the TAR payload.
+- `getChecksum(uint256 versionId) bytes32`: returns the SHA-256 checksum hash of the TAR payload.
 - `dataUri(uint256 versionId) string`: returns the address from which the TAR payload can be retrieved. 
 
 You can use the `totalVersions() uint256` function to determine the latest version id.
 
 ### STIX Artifact Object Verification
 
-[//]: # (TODO)
+The StixBundle type allows multiple STIX objects to be recorded in a TAR payload.
+BCBCTI only creates TARs that contain a single STIX Artifact Object, which acts as the pointer to the submitted STIX Object.
+
+The Artifact Object records the submitted STIX Object's location in the storage and an SHA-256 checksum of its canonical form.
+
+Verification retrieves the submitted STIX Object from that location (depending on the verifier's access to the permissioned storage), recomputes its checksum, and compares it against the one recorded in the Artifact Object.
+
+As described in [STIX Artifact Object](#stix-artifact-object), BCBCTI canonicalises the STIX Object with the JSON Canonicalization Scheme ([RFC 8785](https://www.rfc-editor.org/info/rfc8785/)) before hashing. 
+STIX 2.1 does not mandate a canonicalisation scheme, so a verifier must apply the same one to reproduce the checksum.
+
+This step may be incorporated in more complex processes that take into account other STIX Objects contained within the TAR bundle.
