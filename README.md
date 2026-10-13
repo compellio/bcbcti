@@ -22,7 +22,7 @@ Your can pull the BCBCTI server's container image from the GitHub Container regi
 docker pull ghcr.io/compellio/bcbcti:latest
 ```
 
-We recommend using the Docker Compose example in [compose.yaml](compose.yaml) and edit it as required for your deployments.
+We recommend using the [docker-compose.dcap.yaml](docs/examples/docker-compose.dcap.yaml) Docker Compose example and edit it as required for your deployments.
 
 The BCBCTI server depends on an instance of the Registry API to register TARs. You can either host an instance yourself, or use the Compellio Gateway closed alpha Registry API endpoint.
 
